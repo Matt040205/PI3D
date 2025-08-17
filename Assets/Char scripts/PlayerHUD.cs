@@ -4,16 +4,30 @@ using UnityEngine.UI;
 
 public class PlayerHUD : MonoBehaviour
 {
-    [Header("Referências")]
-    public Image healthBar;
-    public TMP_Text ammoText;
+    [Header("Referências de Vida")]
+    public Image healthBarFill;
+    public TMP_Text healthText;
+    public Image healthIcon;
+    public GameObject regenEffect;
 
-    [Header("Configurações")]
-    public float healthUpdateSpeed = 10f;
+    [Header("Referências de Munição")]
+    public TMP_Text ammoText;
+    public Image ammoIcon;
+    public GameObject reloadEffect;
+    public Slider reloadSlider;
+
+    [Header("Configurações Visuais")]
+    public float healthLerpSpeed = 5f;
+    public Color fullHealthColor = Color.green;
+    public Color lowHealthColor = Color.red;
+    public Color ammoNormalColor = Color.white;
+    public Color ammoLowColor = Color.yellow;
+    public Color reloadColor = new Color(1, 0.5f, 0); // Laranja
 
     private PlayerHealthSystem playerHealth;
     private PlayerShooting playerShooting;
     private float targetHealthPercent = 1f;
+    private bool isRegenerating;
 
     void Start()
     {
@@ -22,8 +36,10 @@ public class PlayerHUD : MonoBehaviour
 
     void Update()
     {
-        UpdateHealthBar();
-        UpdateAmmoText();
+        if (playerHealth == null || playerShooting == null) return;
+
+        UpdateHealthDisplay();
+        UpdateAmmoDisplay();
     }
 
     void FindPlayer()
@@ -37,51 +53,90 @@ public class PlayerHUD : MonoBehaviour
 
             if (playerHealth != null)
             {
-                // Inscreve para receber atualizações de saúde
-                playerHealth.OnHealthChanged += HandleHealthChanged;
-                HandleHealthChanged(); // Atualiza imediatamente
+                playerHealth.OnHealthChanged += OnHealthChanged;
+                OnHealthChanged(); // Atualiza imediatamente
             }
         }
         else
         {
-            Debug.LogWarning("Player não encontrado! Tentando novamente...");
-            Invoke("FindPlayer", 1f);
+            Invoke("FindPlayer", 0.5f);
         }
     }
 
-    void HandleHealthChanged()
+    void OnHealthChanged()
     {
-        if (playerHealth != null)
-        {
-            targetHealthPercent = playerHealth.currentHealth / playerHealth.characterData.maxHealth;
-        }
+        if (playerHealth == null) return;
+
+        targetHealthPercent = playerHealth.currentHealth / playerHealth.characterData.maxHealth;
+        isRegenerating = playerHealth.isRegenerating;
     }
 
-    void UpdateHealthBar()
+    void UpdateHealthDisplay()
     {
-        if (healthBar == null) return;
-
         // Atualização suave da barra de vida
-        healthBar.fillAmount = Mathf.MoveTowards(
-            healthBar.fillAmount,
+        healthBarFill.fillAmount = Mathf.Lerp(
+            healthBarFill.fillAmount,
             targetHealthPercent,
-            healthUpdateSpeed * Time.deltaTime
+            healthLerpSpeed * Time.deltaTime
         );
+
+        // Atualiza cores baseado na vida
+        float healthPercent = healthBarFill.fillAmount;
+        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthPercent);
+        healthBarFill.color = healthColor;
+
+        // Atualiza texto no formato "100/100"
+        healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{playerHealth.characterData.maxHealth}";
+        healthText.color = healthColor;
+
+        // Efeito de regeneração
+        if (regenEffect != null)
+        {
+            regenEffect.SetActive(isRegenerating);
+        }
     }
 
-    void UpdateAmmoText()
+    void UpdateAmmoDisplay()
     {
-        if (ammoText == null || playerShooting == null) return;
+        // Formato "30/40"
+        ammoText.text = $"{playerShooting.currentAmmo}/{playerShooting.characterData.magazineSize}";
 
-        ammoText.text = $"{playerShooting.currentAmmo}";
+        // Muda cor quando munição está baixa
+        bool isAmmoLow = playerShooting.currentAmmo <= playerShooting.characterData.magazineSize * 0.2f;
+        ammoText.color = isAmmoLow ? ammoLowColor : ammoNormalColor;
+
+        // Mostra efeito de recarga
+        if (reloadEffect != null)
+        {
+            reloadEffect.SetActive(playerShooting.isReloading);
+        }
+
+        // Atualiza barra de recarga
+        if (reloadSlider != null)
+        {
+            reloadSlider.gameObject.SetActive(playerShooting.isReloading);
+
+            if (playerShooting.isReloading)
+            {
+                float reloadProgress = 1f - (playerShooting.GetRemainingReloadTime() /
+                                            playerShooting.characterData.reloadSpeed);
+                reloadSlider.value = reloadProgress;
+
+                // Gradiente de cor na recarga
+                reloadSlider.fillRect.GetComponent<Image>().color = Color.Lerp(
+                    reloadColor,
+                    Color.green,
+                    reloadProgress
+                );
+            }
+        }
     }
 
     void OnDestroy()
     {
-        // Limpa a inscrição para evitar erros
         if (playerHealth != null)
         {
-            playerHealth.OnHealthChanged -= HandleHealthChanged;
+            playerHealth.OnHealthChanged -= OnHealthChanged;
         }
     }
 }

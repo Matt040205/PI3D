@@ -18,4 +18,5 @@ public class CommanderController : MonoBehaviour
         // Aplica velocidade do SO
         //GetComponent<PlayerMovement>().moveSpeed = characterData.moveSpeed;
     }
+
 }

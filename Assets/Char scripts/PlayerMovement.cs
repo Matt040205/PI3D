@@ -11,16 +11,23 @@ public class PlayerMovement : MonoBehaviour
     public float rotationSpeed = 15f;
 
     [Header("References")]
-    public Transform modelPivot; // Objeto que segura o modelo, para rotacionar
+    public Transform cameraController;
+    public Transform modelPivot;
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
     private float currentSpeed;
+    private float rotationVelocity;
 
     private void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        if (cameraController == null && Camera.main != null)
+        {
+            cameraController = Camera.main.transform;
+        }
     }
 
     private void Update()
@@ -38,19 +45,17 @@ public class PlayerMovement : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        // Determinar velocidade
         currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
         if (direction.magnitude >= 0.1f)
         {
-            // Rotação do modelo baseada na direção do movimento
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            modelPivot.rotation = Quaternion.Lerp(modelPivot.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraController.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(modelPivot.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
 
-            // Movimento
-            Vector3 moveVector = modelPivot.forward * currentSpeed * Time.deltaTime;
-            controller.Move(moveVector);
+            modelPivot.rotation = Quaternion.Euler(0f, angle, 0f);
+
+            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+            controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
         }
     }
 
@@ -71,5 +76,10 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    public Transform GetModelPivot()
+    {
+        return modelPivot;
     }
 }

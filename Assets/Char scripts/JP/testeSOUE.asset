@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d32a3d7dd21e674c9056a581734dc77, type: 3}
+  m_Name: testeSOUE
+  m_EditorClassIdentifier: 
+  effectName: New Effect
+  description: 
+  icon: {fileID: 0}
+  maxHealthModifier: 0
+  damageModifier: 0
+  moveSpeedModifier: 0
+  reloadSpeedModifier: 0
+  attackSpeedModifier: 0
+  magazineModifier: 0
+  unlockAbility: {fileID: 0}
+  effectPrefab: {fileID: 0}

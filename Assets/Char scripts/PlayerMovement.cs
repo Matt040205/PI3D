@@ -19,10 +19,12 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private float currentSpeed;
     private float rotationVelocity;
+    private CharacterStatsBridge statsBridge;
 
     private void Start()
     {
         controller = GetComponent<CharacterController>();
+        statsBridge = GetComponent<CharacterStatsBridge>();
 
         if (cameraController == null && Camera.main != null)
         {
@@ -45,7 +47,14 @@ public class PlayerMovement : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        // Usa a velocidade dos stats atualizados se disponível
+        float baseSpeed = walkSpeed;
+        if (statsBridge != null && statsBridge.currentStats != null)
+        {
+            baseSpeed = statsBridge.currentStats.moveSpeed;
+        }
+
+        currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : baseSpeed;
 
         if (direction.magnitude >= 0.1f)
         {
@@ -81,5 +90,14 @@ public class PlayerMovement : MonoBehaviour
     public Transform GetModelPivot()
     {
         return modelPivot;
+    }
+
+    // Chamado quando os stats são atualizados
+    public void OnStatsUpdated(CharacterStats stats)
+    {
+        walkSpeed = stats.moveSpeed;
+        runSpeed = stats.moveSpeed * 1.5f;
+
+        Debug.Log($"Sistema de movimento atualizado. Velocidade: {stats.moveSpeed}");
     }
 }

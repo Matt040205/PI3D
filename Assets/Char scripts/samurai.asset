@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: samurai
   m_EditorClassIdentifier: 
   maxHealth: 100
-  damage: 10
-  moveSpeed: 5
+  damage: 15
+  moveSpeed: 6
   reloadSpeed: 2
   attackSpeed: 10
   combatType: 0
@@ -23,7 +23,7 @@ MonoBehaviour:
   meleeAngle: 90
   isCommander: 1
   characterIcon: {fileID: 0}
-  magazineSize: 10
+  magazineSize: 15
   passive:
     abilityName: 
     description: 

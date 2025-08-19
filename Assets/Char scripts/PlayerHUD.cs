@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -16,30 +17,44 @@ public class PlayerHUD : MonoBehaviour
     public GameObject reloadEffect;
     public Slider reloadSlider;
 
+    [Header("Referências de Habilidades")]
+    public Image[] abilityIcons;
+    public Image[] abilityCooldownOverlays;
+    public TMP_Text[] abilityKeyTexts;
+    public GameObject abilityUnlockedEffect;
+
     [Header("Configurações Visuais")]
     public float healthLerpSpeed = 5f;
     public Color fullHealthColor = Color.green;
     public Color lowHealthColor = Color.red;
     public Color ammoNormalColor = Color.white;
     public Color ammoLowColor = Color.yellow;
-    public Color reloadColor = new Color(1, 0.5f, 0); // Laranja
+    public Color reloadColor = new Color(1, 0.5f, 0);
+    public Color abilityReadyColor = Color.white;
+    public Color abilityCooldownColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
 
     private PlayerHealthSystem playerHealth;
     private PlayerShooting playerShooting;
+    private AbilityManager abilityManager;
+    private CharacterStatsBridge statsBridge;
     private float targetHealthPercent = 1f;
     private bool isRegenerating;
+    private List<AbilitySO> lastKnownAbilities = new List<AbilitySO>();
 
     void Start()
     {
         FindPlayer();
+        SetupAbilityUI();
     }
 
     void Update()
     {
-        if (playerHealth == null || playerShooting == null) return;
+        if (playerHealth == null || playerShooting == null)
+            FindPlayer();
 
         UpdateHealthDisplay();
         UpdateAmmoDisplay();
+        UpdateAbilitiesDisplay();
     }
 
     void FindPlayer()
@@ -50,11 +65,25 @@ public class PlayerHUD : MonoBehaviour
         {
             playerHealth = player.GetComponent<PlayerHealthSystem>();
             playerShooting = player.GetComponent<PlayerShooting>();
+            abilityManager = player.GetComponent<AbilityManager>();
+            statsBridge = player.GetComponent<CharacterStatsBridge>();
 
             if (playerHealth != null)
             {
                 playerHealth.OnHealthChanged += OnHealthChanged;
-                OnHealthChanged(); // Atualiza imediatamente
+                OnHealthChanged();
+            }
+
+            if (statsBridge != null)
+            {
+                // CORREÇÃO: Usar OnStatsChanged em vez de OnStatsUpdated
+                statsBridge.OnStatsChanged += OnStatsUpdated;
+            }
+
+            if (abilityManager != null)
+            {
+                abilityManager.OnAbilityUnlocked += OnAbilityUnlocked;
+                abilityManager.OnAbilityUsed += OnAbilityUsed;
             }
         }
         else
@@ -63,33 +92,57 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
+    void SetupAbilityUI()
+    {
+        for (int i = 0; i < abilityKeyTexts.Length; i++)
+        {
+            abilityKeyTexts[i].text = (i + 1).ToString();
+        }
+    }
+
     void OnHealthChanged()
     {
         if (playerHealth == null) return;
 
-        targetHealthPercent = playerHealth.currentHealth / playerHealth.characterData.maxHealth;
+        targetHealthPercent = playerHealth.currentHealth / GetMaxHealth();
         isRegenerating = playerHealth.isRegenerating;
+    }
+
+    void OnStatsUpdated()
+    {
+        OnHealthChanged();
+    }
+
+    void OnAbilityUnlocked(AbilitySO ability)
+    {
+        if (abilityUnlockedEffect != null)
+        {
+            Instantiate(abilityUnlockedEffect, transform.position, Quaternion.identity);
+        }
+
+        Debug.Log($"Habilidade desbloqueada na UI: {ability.abilityName}");
+    }
+
+    void OnAbilityUsed(AbilitySO ability)
+    {
+        // Feedback visual quando habilidade é usada
     }
 
     void UpdateHealthDisplay()
     {
-        // Atualização suave da barra de vida
         healthBarFill.fillAmount = Mathf.Lerp(
             healthBarFill.fillAmount,
             targetHealthPercent,
             healthLerpSpeed * Time.deltaTime
         );
 
-        // Atualiza cores baseado na vida
         float healthPercent = healthBarFill.fillAmount;
         Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthPercent);
         healthBarFill.color = healthColor;
 
-        // Atualiza texto no formato "100/100"
-        healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{playerHealth.characterData.maxHealth}";
+        healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{GetMaxHealth()}";
         healthText.color = healthColor;
 
-        // Efeito de regeneração
         if (regenEffect != null)
         {
             regenEffect.SetActive(isRegenerating);
@@ -98,31 +151,25 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateAmmoDisplay()
     {
-        // Formato "30/40"
-        ammoText.text = $"{playerShooting.currentAmmo}/{playerShooting.characterData.magazineSize}";
+        ammoText.text = $"{playerShooting.currentAmmo}/{GetMagazineSize()}";
 
-        // Muda cor quando munição está baixa
-        bool isAmmoLow = playerShooting.currentAmmo <= playerShooting.characterData.magazineSize * 0.2f;
+        bool isAmmoLow = playerShooting.currentAmmo <= GetMagazineSize() * 0.2f;
         ammoText.color = isAmmoLow ? ammoLowColor : ammoNormalColor;
 
-        // Mostra efeito de recarga
         if (reloadEffect != null)
         {
             reloadEffect.SetActive(playerShooting.isReloading);
         }
 
-        // Atualiza barra de recarga
         if (reloadSlider != null)
         {
             reloadSlider.gameObject.SetActive(playerShooting.isReloading);
 
             if (playerShooting.isReloading)
             {
-                float reloadProgress = 1f - (playerShooting.GetRemainingReloadTime() /
-                                            playerShooting.characterData.reloadSpeed);
+                float reloadProgress = 1f - (playerShooting.GetRemainingReloadTime() / GetReloadSpeed());
                 reloadSlider.value = reloadProgress;
 
-                // Gradiente de cor na recarga
                 reloadSlider.fillRect.GetComponent<Image>().color = Color.Lerp(
                     reloadColor,
                     Color.green,
@@ -132,11 +179,79 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
+    void UpdateAbilitiesDisplay()
+    {
+        if (abilityManager == null) return;
+
+        for (int i = 0; i < abilityIcons.Length; i++)
+        {
+            if (i < abilityManager.unlockedAbilities.Count)
+            {
+                AbilitySO ability = abilityManager.unlockedAbilities[i];
+
+                abilityIcons[i].sprite = ability.icon;
+                abilityIcons[i].color = abilityReadyColor;
+
+                float cooldown = abilityManager.GetCooldown(ability);
+                if (cooldown > 0)
+                {
+                    abilityCooldownOverlays[i].fillAmount = cooldown / ability.cooldown;
+                    abilityCooldownOverlays[i].color = abilityCooldownColor;
+                }
+                else
+                {
+                    abilityCooldownOverlays[i].fillAmount = 0;
+                }
+
+                abilityKeyTexts[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                abilityIcons[i].color = abilityCooldownColor;
+                abilityCooldownOverlays[i].fillAmount = 1f;
+                abilityKeyTexts[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private float GetMaxHealth()
+    {
+        if (statsBridge != null && statsBridge.currentStats != null)
+            return statsBridge.currentStats.maxHealth;
+        return playerHealth.characterData.maxHealth;
+    }
+
+    private int GetMagazineSize()
+    {
+        if (statsBridge != null && statsBridge.currentStats != null)
+            return statsBridge.currentStats.magazineSize;
+        return playerShooting.characterData.magazineSize;
+    }
+
+    private float GetReloadSpeed()
+    {
+        if (statsBridge != null && statsBridge.currentStats != null)
+            return statsBridge.currentStats.reloadSpeed;
+        return playerShooting.characterData.reloadSpeed;
+    }
+
     void OnDestroy()
     {
         if (playerHealth != null)
         {
             playerHealth.OnHealthChanged -= OnHealthChanged;
+        }
+
+        if (statsBridge != null)
+        {
+            // CORREÇÃO: Usar OnStatsChanged em vez de OnStatsUpdated
+            statsBridge.OnStatsChanged -= OnStatsUpdated;
+        }
+
+        if (abilityManager != null)
+        {
+            abilityManager.OnAbilityUnlocked -= OnAbilityUnlocked;
+            abilityManager.OnAbilityUsed -= OnAbilityUsed;
         }
     }
 }

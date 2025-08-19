@@ -80,4 +80,13 @@ public class MeleeCombatSystem : MonoBehaviour
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + rightBound);
         Gizmos.DrawLine(attackPoint.position + leftBound, attackPoint.position + rightBound);
     }
+    public void OnStatsUpdated(CharacterStats stats)
+    {
+        // Atualiza as estatísticas de combate com base nos upgrades
+        characterData.damage = stats.damage;
+        characterData.attackSpeed = stats.attackSpeed;
+
+        // Opcional: você pode adicionar mais ajustes aqui se necessário
+        Debug.Log($"Sistema de combate atualizado. Dano: {stats.damage}, Velocidade: {stats.attackSpeed}");
+    }
 }

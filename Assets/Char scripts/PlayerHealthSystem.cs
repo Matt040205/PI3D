@@ -3,19 +3,34 @@ using System;
 
 public class PlayerHealthSystem : MonoBehaviour
 {
+    // Mantém referência ao CharacterBase original para icons e descrições
     public CharacterBase characterData;
-    public float currentHealth;
+
+    // Agora usa currentHealth baseado nos stats atualizados
+    [HideInInspector] public float currentHealth;
     public bool isRegenerating;
 
     private float timeSinceLastDamage;
+    private CharacterStatsBridge statsBridge;
 
     // Evento para notificar mudanças na saúde
     public event Action OnHealthChanged;
 
     void Start()
     {
-        currentHealth = characterData.maxHealth;
-        NotifyHealthChanged(); // Notifica o valor inicial
+        statsBridge = GetComponent<CharacterStatsBridge>();
+
+        if (statsBridge != null && statsBridge.currentStats != null)
+        {
+            currentHealth = statsBridge.currentStats.maxHealth;
+        }
+        else if (characterData != null)
+        {
+            // Fallback para o sistema antigo
+            currentHealth = characterData.maxHealth;
+        }
+
+        NotifyHealthChanged();
     }
 
     void Update()
@@ -25,7 +40,9 @@ public class PlayerHealthSystem : MonoBehaviour
 
     void HandleRegeneration()
     {
-        if (currentHealth >= characterData.maxHealth)
+        if (statsBridge == null || statsBridge.currentStats == null) return;
+
+        if (currentHealth >= statsBridge.currentStats.maxHealth)
         {
             isRegenerating = false;
             return;
@@ -36,10 +53,9 @@ public class PlayerHealthSystem : MonoBehaviour
         if (timeSinceLastDamage >= 3f)
         {
             isRegenerating = true;
-            currentHealth += characterData.maxHealth * 0.01f * Time.deltaTime;
-            currentHealth = Mathf.Min(currentHealth, characterData.maxHealth);
+            float regenRate = statsBridge.currentStats.maxHealth * 0.01f * Time.deltaTime;
+            currentHealth = Mathf.Min(currentHealth + regenRate, statsBridge.currentStats.maxHealth);
 
-            // Notifica a mudança durante a regeneração
             NotifyHealthChanged();
         }
     }
@@ -57,7 +73,15 @@ public class PlayerHealthSystem : MonoBehaviour
 
     public void Heal(float amount)
     {
-        currentHealth = Mathf.Min(currentHealth + amount, characterData.maxHealth);
+        if (statsBridge != null && statsBridge.currentStats != null)
+        {
+            currentHealth = Mathf.Min(currentHealth + amount, statsBridge.currentStats.maxHealth);
+        }
+        else if (characterData != null)
+        {
+            currentHealth = Mathf.Min(currentHealth + amount, characterData.maxHealth);
+        }
+
         NotifyHealthChanged();
     }
 
@@ -70,5 +94,17 @@ public class PlayerHealthSystem : MonoBehaviour
     void NotifyHealthChanged()
     {
         OnHealthChanged?.Invoke();
+    }
+
+    // Método chamado quando os stats são atualizados
+    public void OnStatsUpdated(CharacterStats stats)
+    {
+        // Mantém a porcentagem de vida ao atualizar a vida máxima
+        float healthPercent = currentHealth / (statsBridge.currentStats?.maxHealth ?? characterData.maxHealth);
+        currentHealth = stats.maxHealth * healthPercent;
+
+        NotifyHealthChanged();
+
+        Debug.Log($"Sistema de saúde atualizado. Vida: {currentHealth}/{stats.maxHealth}");
     }
 }

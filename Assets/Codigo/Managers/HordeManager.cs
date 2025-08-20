@@ -9,14 +9,12 @@ public class HordeManager : MonoBehaviour
     public int victoryHorde = 5;
 
     [Header("Dados dos Inimigos")]
-    public EnemyDataSO[] enemyTypes; // Tipos de inimigos disponíveis
+    public EnemyDataSO[] enemyTypes;
 
-    [Header("Pontos de Spawn")]
-    public List<Transform> spawnPoints;
-    private int lastSpawnPointIndex = -1;
-
-    [Header("Pontos de Patrulha")]
-    public List<Transform> patrolPoints;
+    // MODIFICADO: Substituímos as listas antigas por uma única lista de rotas.
+    [Header("Configuração das Rotas")]
+    public List<SpawnPath> spawnPaths;
+    private int lastPathIndex = -1;
 
     [Header("Status da Horda")]
     public int currentHorde = 0;
@@ -32,7 +30,6 @@ public class HordeManager : MonoBehaviour
             Debug.LogError("EnemyPoolManager não encontrado na cena!");
             return;
         }
-
         StartNextHorde();
     }
 
@@ -74,26 +71,19 @@ public class HordeManager : MonoBehaviour
     {
         currentHorde++;
         Debug.Log("Iniciando Horda " + currentHorde);
-
         enemyLevel = currentHorde;
         SpawnEnemies();
         waveIsActive = true;
     }
 
+    // MODIFICADO: A lógica de Spawn agora usa a lista de SpawnPath
     void SpawnEnemies()
     {
-        if (spawnPoints.Count == 0)
+        if (spawnPaths == null || spawnPaths.Count == 0)
         {
-            Debug.LogError("Faltam pontos de spawn!");
+            Debug.LogError("Nenhuma rota (SpawnPath) configurada!");
             return;
         }
-
-        if (patrolPoints.Count == 0)
-        {
-            Debug.LogError("Faltam pontos de patrulha!");
-            return;
-        }
-
         if (enemyTypes.Length == 0)
         {
             Debug.LogError("Faltam tipos de inimigos configurados!");
@@ -104,27 +94,35 @@ public class HordeManager : MonoBehaviour
 
         for (int i = 0; i < enemiesToSpawn; i++)
         {
-            int spawnPointIndex = GetRandomSpawnPointIndex();
-            Transform spawnPoint = spawnPoints[spawnPointIndex];
+            // 1. Seleciona uma rota aleatória (caminho A, caminho B, etc.)
+            int pathIndex = GetRandomPathIndex();
+            SpawnPath selectedPath = spawnPaths[pathIndex];
 
-            // Seleciona um tipo de inimigo aleatório
+            // Validação para garantir que a rota selecionada está bem configurada
+            if (selectedPath.spawnPoint == null || selectedPath.patrolPoints == null || selectedPath.patrolPoints.Count == 0)
+            {
+                Debug.LogWarning("A rota '" + selectedPath.pathName + "' não está configurada corretamente. Pulando este spawn.");
+                continue; // Pula para o próximo inimigo
+            }
+
+            // 2. Seleciona um tipo de inimigo aleatório
             int enemyTypeIndex = Random.Range(0, enemyTypes.Length);
             EnemyDataSO enemyData = enemyTypes[enemyTypeIndex];
 
+            // 3. Pega um inimigo do pool e o posiciona
             GameObject newEnemy = EnemyPoolManager.Instance.GetPooledEnemy();
-            newEnemy.transform.position = spawnPoint.position;
-            newEnemy.transform.rotation = spawnPoint.rotation;
+            newEnemy.transform.position = selectedPath.spawnPoint.position;
+            newEnemy.transform.rotation = selectedPath.spawnPoint.rotation;
 
-            // Configura o EnemyController
+            // 4. Configura o inimigo com os dados da ROTA SELECIONADA
             EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
             if (enemyController != null)
             {
                 enemyController.enemyData = enemyData;
-                enemyController.SetPatrolPoints(patrolPoints);
+                enemyController.SetPatrolPoints(selectedPath.patrolPoints); // <-- A MUDANÇA PRINCIPAL!
                 enemyController.nivel = enemyLevel;
             }
 
-            // Configura o EnemyHealthSystem
             EnemyHealthSystem healthSystem = newEnemy.GetComponent<EnemyHealthSystem>();
             if (healthSystem != null)
             {
@@ -136,15 +134,18 @@ public class HordeManager : MonoBehaviour
         }
     }
 
-    int GetRandomSpawnPointIndex()
+    // MODIFICADO: Renomeado para refletir que estamos escolhendo uma rota, não só um ponto.
+    int GetRandomPathIndex()
     {
+        if (spawnPaths.Count <= 1) return 0;
+
         int newIndex;
         do
         {
-            newIndex = Random.Range(0, spawnPoints.Count);
-        } while (newIndex == lastSpawnPointIndex && spawnPoints.Count > 1);
+            newIndex = Random.Range(0, spawnPaths.Count);
+        } while (newIndex == lastPathIndex);
 
-        lastSpawnPointIndex = newIndex;
+        lastPathIndex = newIndex;
         return newIndex;
     }
 }

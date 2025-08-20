@@ -119,25 +119,42 @@ public class EnemyController : MonoBehaviour
     // MODIFICADO: Lógica de Patrulha agora é o comportamento principal
     private void Patrol()
     {
-        // Se não houver pontos de patrulha ou se já chegou ao final, para.
+        // Se não houver pontos de patrulha ou se já chegou ao final...
         if (patrolPoints == null || patrolPoints.Count == 0 || currentPointIndex >= patrolPoints.Count)
         {
-            // Opcional: Adicionar lógica para quando o inimigo chega à base.
-            // Ex: causar dano à base, se autodestruir, etc.
-            return;
+            // --- MUDANÇA PRINCIPAL AQUI ---
+            // Chegou ao objetivo. Causa dano e se autodestrói.
+            AttackObjectiveAndDie();
+            return; // Para a execução do método aqui
         }
 
-        // Define o próximo ponto do caminho como destino
+        // O resto do método continua igual...
         Transform currentDestination = patrolPoints[currentPointIndex];
         MoveTowardsPosition(currentDestination.position);
 
-        // Verifica se chegou perto o suficiente do ponto de destino
         float distanceToPoint = Vector3.Distance(transform.position, currentDestination.position);
-        if (distanceToPoint < 0.5f) // Aumentei a tolerância para evitar que ele fique preso
+        if (distanceToPoint < 0.5f)
         {
-            // Avança para o próximo ponto do caminho
             currentPointIndex++;
         }
+    }
+
+    // NOVO: Adicione este método inteiro dentro da classe EnemyController.cs
+    private void AttackObjectiveAndDie()
+    {
+        // Encontra o sistema de vida do objetivo na cena
+        ObjectiveHealthSystem objective = FindFirstObjectByType<ObjectiveHealthSystem>();
+        if (objective != null)
+        {
+            // Causa dano ao objetivo. O dano pode ser um valor fixo,
+            // ou baseado na vida restante do inimigo, por exemplo.
+            // Vamos usar o dano base do inimigo.
+            float damageToObjective = enemyData.GetDamage(nivel);
+            objective.TakeDamage(damageToObjective);
+        }
+
+        // Desativa o inimigo, devolvendo-o ao pool sem dar recompensas
+        EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 
     private void ChaseTarget()

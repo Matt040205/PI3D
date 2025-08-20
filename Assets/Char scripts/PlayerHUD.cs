@@ -4,11 +4,15 @@ using UnityEngine.UI;
 
 public class PlayerHUD : MonoBehaviour
 {
-    [Header("Referências de Vida")]
+    [Header("Referências de Vida do Jogador")]
     public Image healthBarFill;
     public TMP_Text healthText;
     public Image healthIcon;
     public GameObject regenEffect;
+
+    [Header("Referências de Vida do Objetivo")]
+    public Image objectiveHealthBarFill;
+    public TMP_Text objectiveHealthText;
 
     [Header("Referências de Munição")]
     public TMP_Text ammoText;
@@ -16,7 +20,6 @@ public class PlayerHUD : MonoBehaviour
     public GameObject reloadEffect;
     public Slider reloadSlider;
 
-    // NOVO: Header e referências para a UI de Moedas
     [Header("Referências de Moeda")]
     public TMP_Text geoditesText;
     public TMP_Text darkEtherText;
@@ -27,45 +30,49 @@ public class PlayerHUD : MonoBehaviour
     public Color lowHealthColor = Color.red;
     public Color ammoNormalColor = Color.white;
     public Color ammoLowColor = Color.yellow;
-    public Color reloadColor = new Color(1, 0.5f, 0); // Laranja
+    public Color reloadColor = new Color(1, 0.5f, 0);
 
+    // Referências aos sistemas do Jogador
     private PlayerHealthSystem playerHealth;
     private PlayerShooting playerShooting;
     private float targetHealthPercent = 1f;
     private bool isRegenerating;
 
+    // Referências para o sistema do Objetivo
+    private ObjectiveHealthSystem objectiveHealth;
+    private float targetObjectiveHealthPercent = 1f;
+
+
     void Start()
     {
-        FindPlayer();
+        FindGameSystems();
     }
 
     void Update()
     {
-        // A lógica do jogador continua a mesma
-        if (playerHealth != null && playerShooting != null)
+        if (playerHealth != null)
         {
             UpdateHealthDisplay();
+        }
+        if (playerShooting != null)
+        {
             UpdateAmmoDisplay();
         }
-
-        // NOVO: Chamada para atualizar a UI de moedas a cada frame
+        if (objectiveHealth != null)
+        {
+            UpdateObjectiveHealthDisplay();
+        }
         UpdateCurrencyDisplay();
     }
 
-    // NOVO: Função inteira para atualizar a exibição das moedas
     void UpdateCurrencyDisplay()
     {
-        // Verifica se a instância do CurrencyManager existe para evitar erros
         if (CurrencyManager.Instance != null)
         {
-            // Atualiza o texto das Geoditas
             if (geoditesText != null)
             {
-                // Acessa o valor diretamente da instância singleton do CurrencyManager
                 geoditesText.text = $"{CurrencyManager.Instance.CurrentGeodites}";
             }
-
-            // Atualiza o texto do Éter Negro
             if (darkEtherText != null)
             {
                 darkEtherText.text = $"{CurrencyManager.Instance.CurrentDarkEther}";
@@ -73,10 +80,9 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
-    void FindPlayer()
+    void FindGameSystems()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-
         if (player != null)
         {
             playerHealth = player.GetComponent<PlayerHealthSystem>();
@@ -90,41 +96,67 @@ public class PlayerHUD : MonoBehaviour
         }
         else
         {
-            Invoke("FindPlayer", 0.5f);
+            Invoke("FindGameSystems", 0.5f);
+            return;
+        }
+
+        GameObject objective = GameObject.FindGameObjectWithTag("Objective");
+        if (objective != null)
+        {
+            objectiveHealth = objective.GetComponent<ObjectiveHealthSystem>();
+            if (objectiveHealth != null)
+            {
+                objectiveHealth.OnHealthChanged += OnObjectiveHealthChanged;
+                OnObjectiveHealthChanged();
+            }
         }
     }
 
     void OnHealthChanged()
     {
         if (playerHealth == null) return;
-
         targetHealthPercent = playerHealth.currentHealth / playerHealth.characterData.maxHealth;
         isRegenerating = playerHealth.isRegenerating;
     }
 
     void UpdateHealthDisplay()
     {
-        healthBarFill.fillAmount = Mathf.Lerp(
-            healthBarFill.fillAmount,
-            targetHealthPercent,
-            healthLerpSpeed * Time.deltaTime
-        );
-
-        float healthPercent = healthBarFill.fillAmount;
-        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthPercent);
+        healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, targetHealthPercent, healthLerpSpeed * Time.deltaTime);
+        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthBarFill.fillAmount);
         healthBarFill.color = healthColor;
-
         healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{playerHealth.characterData.maxHealth}";
         healthText.color = healthColor;
-
         if (regenEffect != null)
         {
             regenEffect.SetActive(isRegenerating);
         }
     }
 
+    void OnObjectiveHealthChanged()
+    {
+        if (objectiveHealth == null) return;
+        targetObjectiveHealthPercent = objectiveHealth.currentHealth / objectiveHealth.maxHealth;
+    }
+
+    void UpdateObjectiveHealthDisplay()
+    {
+        objectiveHealthBarFill.fillAmount = Mathf.Lerp(objectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
+        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, objectiveHealthBarFill.fillAmount);
+        objectiveHealthBarFill.color = healthColor;
+        if (objectiveHealthText != null)
+        {
+            objectiveHealthText.text = $"{Mathf.CeilToInt(objectiveHealth.currentHealth)}/{objectiveHealth.maxHealth}";
+            objectiveHealthText.color = healthColor;
+        }
+    }
+
+
+    // CORRIGIDO: O conteúdo original deste método foi restaurado.
     void UpdateAmmoDisplay()
     {
+        // Garante que não teremos erros se o 'playerShooting' ainda não foi encontrado.
+        if (playerShooting == null) return;
+
         ammoText.text = $"{playerShooting.currentAmmo}/{playerShooting.characterData.magazineSize}";
 
         bool isAmmoLow = playerShooting.currentAmmo <= playerShooting.characterData.magazineSize * 0.2f;
@@ -145,11 +177,16 @@ public class PlayerHUD : MonoBehaviour
                                             playerShooting.characterData.reloadSpeed);
                 reloadSlider.value = reloadProgress;
 
-                reloadSlider.fillRect.GetComponent<Image>().color = Color.Lerp(
-                    reloadColor,
-                    Color.green,
-                    reloadProgress
-                );
+                // Corrigi uma pequena inconsistência que poderia dar erro se o fillRect não tivesse uma imagem
+                Image sliderFillImage = reloadSlider.fillRect.GetComponent<Image>();
+                if (sliderFillImage != null)
+                {
+                    sliderFillImage.color = Color.Lerp(
+                        reloadColor,
+                        Color.green,
+                        reloadProgress
+                    );
+                }
             }
         }
     }
@@ -159,6 +196,10 @@ public class PlayerHUD : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.OnHealthChanged -= OnHealthChanged;
+        }
+        if (objectiveHealth != null)
+        {
+            objectiveHealth.OnHealthChanged -= OnObjectiveHealthChanged;
         }
     }
 }

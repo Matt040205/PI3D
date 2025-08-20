@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// O enum não precisa de mudanças
+public enum AITargetPriority
+{
+    Player,
+    Objective
+}
+
 public class EnemyController : MonoBehaviour
 {
     [Header("Dados do Inimigo")]
@@ -12,6 +19,10 @@ public class EnemyController : MonoBehaviour
     [Header("Pontos de Patrulha")]
     public List<Transform> patrolPoints;
 
+    [Header("Inteligência Artificial")]
+    public AITargetPriority mainPriority = AITargetPriority.Objective;
+    public float selfDefenseRadius = 5f;
+
     // Componentes
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
@@ -21,18 +32,15 @@ public class EnemyController : MonoBehaviour
     private float currentDamage;
     private float currentMoveSpeed;
 
-    // Vari�veis de comportamento
+    // Variáveis de comportamento
     private int currentPointIndex = 0;
-    private Transform target;
-    private Vector3 lastPatrolPosition;
-    private bool returningToPatrol = false;
+    private Transform target; // O alvo será quase sempre o jogador, ou null.
 
-    [Header("Configura��es")]
+    [Header("Configurações")]
     public float chaseDistance = 50f;
     public float attackDistance = 2f;
-    public float stoppingDistance = 1.5f;
 
-    // Refer�ncia para o jogador
+    // Referência para o jogador
     private Transform playerTransform;
 
     // Propriedades
@@ -46,7 +54,6 @@ public class EnemyController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // Garante que h� um Rigidbody
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody>();
@@ -60,44 +67,123 @@ public class EnemyController : MonoBehaviour
         InitializeEnemy();
     }
 
-    void FixedUpdate() // Usamos FixedUpdate para f�sica
+    void FixedUpdate()
     {
         if (IsDead) return;
 
-        // Verifica continuamente se o jogador est� dentro da dist�ncia de persegui��o
-        CheckForPlayer();
+        // 1. Decide se deve focar no jogador
+        DecideTarget();
 
+        // 2. Age com base na decisão
         if (target != null)
         {
+            // Se o alvo for o jogador, persiga-o.
             ChaseTarget();
         }
         else
         {
+            // Se não houver alvo, siga o caminho de patrulha.
             Patrol();
         }
     }
+
+    // MODIFICADO: Lógica de decisão simplificada
+    private void DecideTarget()
+    {
+        if (playerTransform == null)
+        {
+            target = null;
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
+        // Se a prioridade é o jogador, use a distância de perseguição normal
+        if (mainPriority == AITargetPriority.Player && distanceToPlayer <= chaseDistance)
+        {
+            target = playerTransform;
+            return;
+        }
+
+        // Se a prioridade é o objetivo, o inimigo só ataca o jogador por autodefesa (se ele chegar perto)
+        if (mainPriority == AITargetPriority.Objective && distanceToPlayer <= selfDefenseRadius)
+        {
+            target = playerTransform;
+            return;
+        }
+
+        // Em todos os outros casos, o inimigo não tem um alvo (foco na patrulha)
+        target = null;
+    }
+
+    // MODIFICADO: Lógica de Patrulha agora é o comportamento principal
+    private void Patrol()
+    {
+        // Se não houver pontos de patrulha ou se já chegou ao final, para.
+        if (patrolPoints == null || patrolPoints.Count == 0 || currentPointIndex >= patrolPoints.Count)
+        {
+            // Opcional: Adicionar lógica para quando o inimigo chega à base.
+            // Ex: causar dano à base, se autodestruir, etc.
+            return;
+        }
+
+        // Define o próximo ponto do caminho como destino
+        Transform currentDestination = patrolPoints[currentPointIndex];
+        MoveTowardsPosition(currentDestination.position);
+
+        // Verifica se chegou perto o suficiente do ponto de destino
+        float distanceToPoint = Vector3.Distance(transform.position, currentDestination.position);
+        if (distanceToPoint < 0.5f) // Aumentei a tolerância para evitar que ele fique preso
+        {
+            // Avança para o próximo ponto do caminho
+            currentPointIndex++;
+        }
+    }
+
+    private void ChaseTarget()
+    {
+        if (target == null) return;
+
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        // Se estiver dentro da distância de ataque, para de se mover e ataca
+        if (distanceToTarget <= attackDistance)
+        {
+            // Apenas olha para o alvo
+            Vector3 direction = (target.position - transform.position).normalized;
+            direction.y = 0;
+            if (direction != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
+            }
+
+            // Chama o sistema de combate para atacar
+            if (combatSystem != null)
+            {
+                combatSystem.TryAttack();
+            }
+        }
+        else // Se estiver fora da distância de ataque, move-se em direção ao alvo
+        {
+            MoveTowardsPosition(target.position);
+        }
+    }
+
+    // As funções abaixo não precisaram de grandes mudanças
 
     public void InitializeEnemy()
     {
         if (enemyData == null)
         {
-            Debug.LogError("EnemyData n�o atribu�do em " + gameObject.name);
+            Debug.LogError("EnemyData não atribuído em " + gameObject.name);
             return;
         }
-
-        // Calcula status baseado no n�vel
         currentDamage = enemyData.GetDamage(nivel);
         currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
-
-        // Inicializa o sistema de sa�de
         healthSystem.InitializeHealth(nivel);
-
-        // Reseta estado
-        currentPointIndex = 0;
-        returningToPatrol = false;
+        currentPointIndex = 0; // Reinicia o caminho
         target = null;
-
-        // Reseta a f�sica
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
@@ -105,17 +191,16 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damageAmount, Transform attacker = null)
+    private void MoveTowardsPosition(Vector3 targetPosition)
     {
-        healthSystem.TakeDamage(damageAmount);
-
-        // Define o atacante como alvo imediatamente ao receber dano
-        if (attacker != null)
+        if (rb == null) return;
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0;
+        rb.MovePosition(transform.position + direction * currentMoveSpeed * Time.fixedDeltaTime);
+        if (direction != Vector3.zero)
         {
-            lastPatrolPosition = transform.position;
-            target = attacker;
-            returningToPatrol = false;
-            Debug.Log("Inimigo come�ou a perseguir o jogador ap�s levar dano");
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.fixedDeltaTime));
         }
     }
 
@@ -125,156 +210,40 @@ public class EnemyController : MonoBehaviour
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 
+    public void TakeDamage(float damageAmount, Transform attacker = null)
+    {
+        healthSystem.TakeDamage(damageAmount);
+        if (attacker != null && target == null) // Inicia perseguição se for atacado
+        {
+            target = attacker;
+        }
+    }
+
     private void DropRewards()
     {
-        // L�gica para dropar geoditas
         for (int i = 0; i < enemyData.geoditasOnDeath; i++)
         {
-            // Implemente sua l�gica de drop aqui
             Debug.Log("Dropping geodita");
         }
-
-        // L�gica para dropar �ter negro
         if (Random.value <= enemyData.etherDropChance)
         {
-            // Implemente drop de �ter negro aqui
-            Debug.Log("Dropping �ter negro");
+            Debug.Log("Dropping éter negro");
         }
     }
 
-    private void CheckForPlayer()
-    {
-        if (playerTransform == null) return;
-
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-
-        // Se o jogador estiver dentro da dist�ncia de persegui��o, come�a a perseguir
-        if (distanceToPlayer <= chaseDistance && target == null)
-        {
-            lastPatrolPosition = transform.position;
-            target = playerTransform;
-            returningToPatrol = false;
-            Debug.Log("Jogador detectado, iniciando persegui��o");
-        }
-        // Se o jogador estiver muito longe, para de perseguir
-        else if (distanceToPlayer > chaseDistance && target == playerTransform)
-        {
-            ForgetTarget();
-        }
-    }
-
-    private void Patrol()
-    {
-        if (patrolPoints == null || patrolPoints.Count == 0) return;
-
-        if (returningToPatrol)
-        {
-            float distanceToLastPoint = Vector3.Distance(transform.position, lastPatrolPosition);
-            if (distanceToLastPoint > 0.1f)
-            {
-                MoveTowardsPosition(lastPatrolPosition);
-            }
-            else
-            {
-                returningToPatrol = false;
-            }
-            return;
-        }
-
-        Transform currentPoint = patrolPoints[currentPointIndex];
-        MoveTowardsPosition(currentPoint.position);
-
-        float distanceToPoint = Vector3.Distance(transform.position, currentPoint.position);
-        if (distanceToPoint < 0.1f)
-        {
-            currentPointIndex = (currentPointIndex + 1) % patrolPoints.Count;
-        }
-    }
-
-    private void MoveTowardsPosition(Vector3 targetPosition)
-    {
-        if (rb == null) return;
-
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        direction.y = 0; // Ignora o eixo Y para movimento no plano horizontal
-
-        // Aplica movimento usando f�sica
-        rb.MovePosition(transform.position + direction * currentMoveSpeed * Time.fixedDeltaTime);
-
-        // Rotaciona para olhar na dire��o do movimento
-        if (direction != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.fixedDeltaTime));
-        }
-    }
-
-    private void ChaseTarget()
-    {
-        if (target == null)
-        {
-            ForgetTarget();
-            return;
-        }
-
-        float distanceToTarget = Vector3.Distance(transform.position, target.position);
-
-        // Se o alvo estiver muito longe, para de perseguir
-        if (distanceToTarget > chaseDistance)
-        {
-            ForgetTarget();
-            return;
-        }
-
-        // Se estiver dentro da dist�ncia de ataque, para de se mover e ataca
-        if (distanceToTarget <= attackDistance)
-        {
-            // Apenas olha para o alvo, o sistema de combate cuidar� do ataque
-            Vector3 direction = (target.position - transform.position).normalized;
-            direction.y = 0;
-            if (direction != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.fixedDeltaTime));
-            }
-
-            // Chama o sistema de combate para atacar
-            if (combatSystem != null)
-            {
-                combatSystem.TryAttack();
-            }
-            return;
-        }
-
-        // Move-se em dire��o ao alvo
-        MoveTowardsPosition(target.position);
-    }
-
-    private void ForgetTarget()
-    {
-        target = null;
-        returningToPatrol = true;
-        Debug.Log("Alvo perdido, retornando � patrulha");
-    }
-
-    // Para ser chamado pelo HordeManager
     public void SetPatrolPoints(List<Transform> points)
     {
         patrolPoints = points;
     }
 
-    // Visualiza��o no editor para debug
     void OnDrawGizmosSelected()
     {
-        // Desenha a esfera de detec��o
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
-
-        // Desenha a esfera de ataque
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, selfDefenseRadius);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
-
-        // Desenha a dire��o do movimento se estiver perseguindo
         if (target != null)
         {
             Gizmos.color = Color.red;

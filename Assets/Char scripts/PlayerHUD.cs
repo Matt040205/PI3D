@@ -16,6 +16,11 @@ public class PlayerHUD : MonoBehaviour
     public GameObject reloadEffect;
     public Slider reloadSlider;
 
+    // NOVO: Header e referências para a UI de Moedas
+    [Header("Referências de Moeda")]
+    public TMP_Text geoditesText;
+    public TMP_Text darkEtherText;
+
     [Header("Configurações Visuais")]
     public float healthLerpSpeed = 5f;
     public Color fullHealthColor = Color.green;
@@ -36,10 +41,36 @@ public class PlayerHUD : MonoBehaviour
 
     void Update()
     {
-        if (playerHealth == null || playerShooting == null) return;
+        // A lógica do jogador continua a mesma
+        if (playerHealth != null && playerShooting != null)
+        {
+            UpdateHealthDisplay();
+            UpdateAmmoDisplay();
+        }
 
-        UpdateHealthDisplay();
-        UpdateAmmoDisplay();
+        // NOVO: Chamada para atualizar a UI de moedas a cada frame
+        UpdateCurrencyDisplay();
+    }
+
+    // NOVO: Função inteira para atualizar a exibição das moedas
+    void UpdateCurrencyDisplay()
+    {
+        // Verifica se a instância do CurrencyManager existe para evitar erros
+        if (CurrencyManager.Instance != null)
+        {
+            // Atualiza o texto das Geoditas
+            if (geoditesText != null)
+            {
+                // Acessa o valor diretamente da instância singleton do CurrencyManager
+                geoditesText.text = $"{CurrencyManager.Instance.CurrentGeodites}";
+            }
+
+            // Atualiza o texto do Éter Negro
+            if (darkEtherText != null)
+            {
+                darkEtherText.text = $"{CurrencyManager.Instance.CurrentDarkEther}";
+            }
+        }
     }
 
     void FindPlayer()
@@ -54,7 +85,7 @@ public class PlayerHUD : MonoBehaviour
             if (playerHealth != null)
             {
                 playerHealth.OnHealthChanged += OnHealthChanged;
-                OnHealthChanged(); // Atualiza imediatamente
+                OnHealthChanged();
             }
         }
         else
@@ -73,23 +104,19 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateHealthDisplay()
     {
-        // Atualização suave da barra de vida
         healthBarFill.fillAmount = Mathf.Lerp(
             healthBarFill.fillAmount,
             targetHealthPercent,
             healthLerpSpeed * Time.deltaTime
         );
 
-        // Atualiza cores baseado na vida
         float healthPercent = healthBarFill.fillAmount;
         Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthPercent);
         healthBarFill.color = healthColor;
 
-        // Atualiza texto no formato "100/100"
         healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{playerHealth.characterData.maxHealth}";
         healthText.color = healthColor;
 
-        // Efeito de regeneração
         if (regenEffect != null)
         {
             regenEffect.SetActive(isRegenerating);
@@ -98,20 +125,16 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateAmmoDisplay()
     {
-        // Formato "30/40"
         ammoText.text = $"{playerShooting.currentAmmo}/{playerShooting.characterData.magazineSize}";
 
-        // Muda cor quando munição está baixa
         bool isAmmoLow = playerShooting.currentAmmo <= playerShooting.characterData.magazineSize * 0.2f;
         ammoText.color = isAmmoLow ? ammoLowColor : ammoNormalColor;
 
-        // Mostra efeito de recarga
         if (reloadEffect != null)
         {
             reloadEffect.SetActive(playerShooting.isReloading);
         }
 
-        // Atualiza barra de recarga
         if (reloadSlider != null)
         {
             reloadSlider.gameObject.SetActive(playerShooting.isReloading);
@@ -122,7 +145,6 @@ public class PlayerHUD : MonoBehaviour
                                             playerShooting.characterData.reloadSpeed);
                 reloadSlider.value = reloadProgress;
 
-                // Gradiente de cor na recarga
                 reloadSlider.fillRect.GetComponent<Image>().color = Color.Lerp(
                     reloadColor,
                     Color.green,

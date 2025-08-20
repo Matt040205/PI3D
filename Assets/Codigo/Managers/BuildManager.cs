@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
 public class BuildManager : MonoBehaviour
 {
     [Header("Câmeras")]
-    public Camera thirdPersonCamera;
-    public Camera buildCamera;
+    public CinemachineCamera buildCamera;
 
     [Header("Lista de Construções")]
     public List<GameObject> buildablePrefabs;
@@ -18,9 +18,13 @@ public class BuildManager : MonoBehaviour
 
     public bool isBuildingMode = false;
 
+    private const int PriorityBuild = 20;
+    private const int PriorityInactive = 0;
+
+
     void Start()
     {
-        buildCamera.gameObject.SetActive(false);
+        buildCamera.Priority.Value = PriorityInactive;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -46,18 +50,19 @@ public class BuildManager : MonoBehaviour
 
     void ToggleBuildMode(bool state)
     {
-        thirdPersonCamera.gameObject.SetActive(!state);
-        buildCamera.gameObject.SetActive(state);
-
-        UIManager.Instance.ShowBuildUI(state);
-
-        Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = state;
-
-        if (!state)
+        if (state)
         {
+            buildCamera.Priority.Value = PriorityBuild;
+        }
+        else
+        {
+            buildCamera.Priority.Value = PriorityInactive;
             ClearSelection();
         }
+
+        UIManager.Instance.ShowBuildUI(state);
+        Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = state;
     }
 
     void HandleBuildGhost()
@@ -80,30 +85,21 @@ public class BuildManager : MonoBehaviour
         MeshRenderer ghostRenderer = currentBuildGhost.GetComponent<MeshRenderer>();
         if (ghostRenderer == null) return;
 
-        Ray ray = buildCamera.ScreenPointToRay(Input.mousePosition);
+        // CORRIGIDO: O Raycast agora parte da câmera principal da cena (Camera.main)
+        // Isso garante que estamos usando a câmera "real" que está renderizando o jogo.
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit))
         {
-            // Primeiro Raycast: da câmera para o mouse
             GridPlacement gridPlacer = selectedPrefab.GetComponent<GridPlacement>();
+            currentBuildGhost.transform.position = hit.point;
+            gridPlacer.SnapToGrid();
 
-            // Alinha a posição do ghost em X e Z usando o ponto de colisão
-            Vector3 snappedPosition = hit.point;
-
-            currentBuildGhost.transform.position = snappedPosition;
-            gridPlacer.SnapToGrid(); // Alinha X e Z à grade
-
-            // Segundo Raycast: do ghost para baixo para encontrar o chão
-            
             RaycastHit groundHit;
             if (Physics.Raycast(currentBuildGhost.transform.position, Vector3.down, out groundHit, Mathf.Infinity))
             {
-                // Obtém a altura do objeto
                 float objectHeight = selectedPrefab.GetComponent<GridPlacement>().GetObjectHeight();
-
-                // Define a posição Y do ghost na altura do chão + metade da altura do objeto
-                // Isso posiciona o objeto sobre o chão, não dentro dele
                 currentBuildGhost.transform.position = new Vector3(
                     currentBuildGhost.transform.position.x,
                     groundHit.point.y + (objectHeight / 2f),
@@ -112,7 +108,8 @@ public class BuildManager : MonoBehaviour
             }
 
             int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
-            if (CurrencyManager.Instance.HasEnoughMoney(buildingCost))
+
+            if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
             {
                 ghostRenderer.material = validPlacementMaterial;
             }
@@ -130,17 +127,15 @@ public class BuildManager : MonoBehaviour
         GameObject selectedPrefab = buildablePrefabs[selectedPrefabIndex];
         int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
 
-        if (CurrencyManager.Instance.HasEnoughMoney(buildingCost))
+        if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
         {
-            CurrencyManager.Instance.SpendMoney(buildingCost);
-
+            CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
             Instantiate(selectedPrefab, currentBuildGhost.transform.position, Quaternion.identity);
-
             ClearSelection();
         }
         else
         {
-            Debug.Log("Não há dinheiro suficiente!");
+            Debug.Log("Não há Geoditas suficientes!");
         }
     }
 
@@ -151,7 +146,6 @@ public class BuildManager : MonoBehaviour
         if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Count)
         {
             selectedPrefabIndex = prefabIndex;
-            Debug.Log("Selecionado: " + buildablePrefabs[selectedPrefabIndex].name);
         }
     }
 
@@ -164,5 +158,4 @@ public class BuildManager : MonoBehaviour
         currentBuildGhost = null;
         selectedPrefabIndex = -1;
     }
-
 }

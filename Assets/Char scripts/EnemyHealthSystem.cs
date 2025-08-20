@@ -9,7 +9,6 @@ public class EnemyHealthSystem : MonoBehaviour
     public float currentHealth;
     public bool isDead;
 
-    // Componente controlador
     private EnemyController enemyController;
 
     void Awake()
@@ -24,7 +23,6 @@ public class EnemyHealthSystem : MonoBehaviour
             Debug.LogError("EnemyData não atribuído em " + gameObject.name);
             return;
         }
-
         currentHealth = enemyData.GetHealth(level);
         isDead = false;
     }
@@ -45,14 +43,27 @@ public class EnemyHealthSystem : MonoBehaviour
     {
         isDead = true;
 
-        // Notifica o controlador sobre a morte
+        // Adiciona as recompensas ao jogador
+        if (CurrencyManager.Instance != null && enemyData != null)
+        {
+            int geoditesAmount = enemyData.geoditasOnDeath;
+            if (geoditesAmount > 0)
+            {
+                CurrencyManager.Instance.AddCurrency(geoditesAmount, CurrencyType.Geodites);
+            }
+
+            if (Random.value <= enemyData.etherDropChance)
+            {
+                CurrencyManager.Instance.AddCurrency(1, CurrencyType.DarkEther);
+            }
+        }
+
         if (enemyController != null)
         {
             enemyController.HandleDeath();
         }
         else
         {
-            // Fallback caso não haja controlador
             Destroy(gameObject);
         }
     }

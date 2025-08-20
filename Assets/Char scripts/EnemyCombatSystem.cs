@@ -4,7 +4,8 @@ public class EnemyCombatSystem : MonoBehaviour
 {
     [Header("Configurações de Combate")]
     public float attackRange = 2f;
-    public float attackCooldown = 1f;
+    // MODIFICADO: A linha abaixo foi removida, pois agora o cooldown vem do Scriptable Object.
+    // public float attackCooldown = 1f;
 
     [Header("Referências")]
     public Transform attackPoint;
@@ -28,7 +29,6 @@ public class EnemyCombatSystem : MonoBehaviour
 
     void Start()
     {
-        // Pega os dados do inimigo do EnemyController
         if (enemyController != null)
         {
             enemyData = enemyController.enemyData;
@@ -39,7 +39,6 @@ public class EnemyCombatSystem : MonoBehaviour
     {
         if (enemyController == null || enemyController.IsDead) return;
 
-        // Atualiza o cooldown do ataque
         if (!canAttack)
         {
             currentAttackCooldown -= Time.deltaTime;
@@ -70,7 +69,18 @@ public class EnemyCombatSystem : MonoBehaviour
     {
         isAttacking = true;
         canAttack = false;
-        currentAttackCooldown = attackCooldown;
+
+        // MODIFICADO: O cooldown agora é calculado com base no 'attackSpeed' do EnemyDataSO.
+        if (enemyData != null && enemyData.attackSpeed > 0)
+        {
+            // A fórmula é 1 / ataques_por_segundo. Ex: 2 de attackSpeed = 0.5s de cooldown.
+            currentAttackCooldown = 1f / enemyData.attackSpeed;
+        }
+        else
+        {
+            // Valor padrão para evitar divisão por zero caso o valor não esteja configurado.
+            currentAttackCooldown = 1f;
+        }
 
         // Inicia a animação de ataque (se tiver)
         // animator.SetTrigger("Attack");
@@ -83,7 +93,6 @@ public class EnemyCombatSystem : MonoBehaviour
     {
         if (!isAttacking) return;
 
-        // Detecta se o jogador está dentro do alcance no momento do ataque
         Collider[] hitPlayers = Physics.OverlapSphere(attackPoint.position, attackRange, playerLayer);
 
         foreach (Collider playerCollider in hitPlayers)
@@ -91,7 +100,7 @@ public class EnemyCombatSystem : MonoBehaviour
             PlayerHealthSystem playerHealth = playerCollider.GetComponent<PlayerHealthSystem>();
             if (playerHealth != null)
             {
-                // Calcula dano baseado nos dados do inimigo
+                // Este cálculo já estava correto, usando o Scriptable Object.
                 float finalDamage = enemyData.baseATQ + (enemyController.nivel * enemyData.atqPerLevel);
 
                 playerHealth.TakeDamage(finalDamage);
@@ -102,7 +111,6 @@ public class EnemyCombatSystem : MonoBehaviour
         isAttacking = false;
     }
 
-    // Visualização do alcance de ataque no editor
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;

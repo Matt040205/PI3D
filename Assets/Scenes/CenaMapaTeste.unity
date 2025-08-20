@@ -4696,6 +4696,8 @@ MonoBehaviour:
   enemiesPerHordeMin: 1
   enemiesPerHordeMax: 1
   victoryHorde: 5
+  enemyTypes:
+  - {fileID: 11400000, guid: 6c387383024c2f64eae487681be4e202, type: 2}
   spawnPoints:
   - {fileID: 195748446}
   - {fileID: 1945827120}

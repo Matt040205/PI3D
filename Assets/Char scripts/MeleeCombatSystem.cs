@@ -49,7 +49,7 @@ public class MeleeCombatSystem : MonoBehaviour
             Vector3 directionToTarget = (target.transform.position - attackPoint.position).normalized;
             float angleToTarget = Vector3.Angle(attackPoint.forward, directionToTarget);
 
-           if (angleToTarget < attackAngle / 2)
+            if (angleToTarget < attackAngle / 2)
             {
                 // Aplica dano
                 EnemyHealthSystem enHealth = target.GetComponent<EnemyHealthSystem>();

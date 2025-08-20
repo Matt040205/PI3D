@@ -8,12 +8,15 @@ public class HordeManager : MonoBehaviour
     public int enemiesPerHordeMax = 10;
     public int victoryHorde = 5;
 
+    [Header("Dados dos Inimigos")]
+    public EnemyDataSO[] enemyTypes; // Tipos de inimigos disponíveis
+
     [Header("Pontos de Spawn")]
     public List<Transform> spawnPoints;
     private int lastSpawnPointIndex = -1;
 
     [Header("Pontos de Patrulha")]
-    public List<Transform> patrolPoints; // NOVA LISTA DE PONTOS DE PATRULHA
+    public List<Transform> patrolPoints;
 
     [Header("Status da Horda")]
     public int currentHorde = 0;
@@ -24,6 +27,12 @@ public class HordeManager : MonoBehaviour
 
     void Start()
     {
+        if (EnemyPoolManager.Instance == null)
+        {
+            Debug.LogError("EnemyPoolManager não encontrado na cena!");
+            return;
+        }
+
         StartNextHorde();
     }
 
@@ -79,9 +88,15 @@ public class HordeManager : MonoBehaviour
             return;
         }
 
-        if (patrolPoints.Count == 0) // Verifica se os pontos de patrulha existem
+        if (patrolPoints.Count == 0)
         {
             Debug.LogError("Faltam pontos de patrulha!");
+            return;
+        }
+
+        if (enemyTypes.Length == 0)
+        {
+            Debug.LogError("Faltam tipos de inimigos configurados!");
             return;
         }
 
@@ -92,16 +107,29 @@ public class HordeManager : MonoBehaviour
             int spawnPointIndex = GetRandomSpawnPointIndex();
             Transform spawnPoint = spawnPoints[spawnPointIndex];
 
+            // Seleciona um tipo de inimigo aleatório
+            int enemyTypeIndex = Random.Range(0, enemyTypes.Length);
+            EnemyDataSO enemyData = enemyTypes[enemyTypeIndex];
+
             GameObject newEnemy = EnemyPoolManager.Instance.GetPooledEnemy();
             newEnemy.transform.position = spawnPoint.position;
             newEnemy.transform.rotation = spawnPoint.rotation;
 
+            // Configura o EnemyController
             EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
             if (enemyController != null)
             {
-                // AQUI ESTÁ A MUDANÇA: passa a nova lista de pontos de patrulha
-                enemyController.patrolPoints = this.patrolPoints;
+                enemyController.enemyData = enemyData;
+                enemyController.SetPatrolPoints(patrolPoints);
                 enemyController.nivel = enemyLevel;
+            }
+
+            // Configura o EnemyHealthSystem
+            EnemyHealthSystem healthSystem = newEnemy.GetComponent<EnemyHealthSystem>();
+            if (healthSystem != null)
+            {
+                healthSystem.enemyData = enemyData;
+                healthSystem.InitializeHealth(enemyLevel);
             }
 
             aliveEnemies.Add(newEnemy);

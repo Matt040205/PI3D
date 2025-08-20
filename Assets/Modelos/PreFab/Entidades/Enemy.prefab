@@ -14,9 +14,10 @@ GameObject:
   - component: {fileID: 412960945236169891}
   - component: {fileID: 1339044775062443076}
   - component: {fileID: 547551850936748957}
-  m_Layer: 0
+  - component: {fileID: 7142536988730194936}
+  m_Layer: 7
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -151,12 +152,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df184ae1d6bc84c47939a5d4c33d4624, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHP: 100
-  baseATQ: 10
-  baseSpeed: 3
+  enemyData: {fileID: 11400000, guid: 6c387383024c2f64eae487681be4e202, type: 2}
   nivel: 1
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   chaseDistance: 50
+--- !u!114 &7142536988730194936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4303901930220415248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f53259ddc7ac814bbc7a821061a63a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyData: {fileID: 11400000, guid: 6c387383024c2f64eae487681be4e202, type: 2}
+  currentHealth: 0
+  isDead: 0

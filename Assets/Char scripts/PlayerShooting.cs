@@ -16,18 +16,19 @@ public class PlayerShooting : MonoBehaviour
     public int currentAmmo;
     public bool isReloading;
     public bool isFiring;
-    public float reloadStartTime; // Adicionado para cálculo de tempo de recarga
+    public float reloadStartTime;
 
     private float nextShotTime;
     private CameraController cameraController;
     private Transform modelPivot;
     private ProjectilePool projectilePool;
-    // private ImpactEffectPool impactEffectPool;
+    private Camera mainCamera;
 
     void Start()
     {
         currentAmmo = characterData.magazineSize;
         cameraController = FindObjectOfType<CameraController>();
+        mainCamera = Camera.main;
 
         // Busca a referência do modelPivot
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
@@ -38,10 +39,9 @@ public class PlayerShooting : MonoBehaviour
 
         // Busca os pools
         projectilePool = ProjectilePool.Instance;
-        // impactEffectPool = ImpactEffectPool.Instance;
 
         // Cria pools se não existirem
-        if (projectilePool == null)
+        if (projectilePool == null && projectileVisualPrefab != null)
         {
             GameObject poolObj = new GameObject("ProjectilePool");
             projectilePool = poolObj.AddComponent<ProjectilePool>();
@@ -122,11 +122,20 @@ public class PlayerShooting : MonoBehaviour
         if (hasHit)
         {
             // Aplicar dano ao inimigo
-            EnemyHealthSystem health = hit.collider.GetComponent<EnemyHealthSystem>();
-            if (health != null)
+            EnemyHealthSystem enemyHealth = hit.collider.GetComponent<EnemyHealthSystem>();
+            if (enemyHealth != null)
             {
-                health.TakeDamage(characterData.damage);
+                enemyHealth.TakeDamage(characterData.damage);
+                Debug.Log("Acertou inimigo: " + hit.collider.name + " com " + characterData.damage + " de dano");
             }
+            else
+            {
+                Debug.Log("Acertou algo que não é inimigo: " + hit.collider.name);
+            }
+        }
+        else
+        {
+            Debug.Log("Tiro disparado mas não acertou nada");
         }
 
         // 4. Criar projétil visual usando pool
@@ -153,7 +162,18 @@ public class PlayerShooting : MonoBehaviour
     {
         if (cameraController != null && cameraController.isAiming)
         {
-            return cameraController.GetAimDirection();
+            // Se estiver mirando, usa a direção central da câmera
+            Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, maxDistance, hitLayers))
+            {
+                return (hit.point - firePoint.position).normalized;
+            }
+            else
+            {
+                return ray.direction;
+            }
         }
         else if (modelPivot != null)
         {
@@ -166,7 +186,7 @@ public class PlayerShooting : MonoBehaviour
     void StartReload()
     {
         isReloading = true;
-        reloadStartTime = Time.time; // Guarda o tempo de início da recarga
+        reloadStartTime = Time.time;
         Invoke("FinishReload", characterData.reloadSpeed);
     }
 

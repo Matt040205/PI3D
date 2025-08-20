@@ -95,11 +95,20 @@ public class BuildManager : MonoBehaviour
             gridPlacer.SnapToGrid(); // Alinha X e Z à grade
 
             // Segundo Raycast: do ghost para baixo para encontrar o chão
+            
             RaycastHit groundHit;
             if (Physics.Raycast(currentBuildGhost.transform.position, Vector3.down, out groundHit, Mathf.Infinity))
             {
-                // Define a posição Y do ghost na altura exata do chão
-                currentBuildGhost.transform.position = new Vector3(currentBuildGhost.transform.position.x, groundHit.point.y, currentBuildGhost.transform.position.z);
+                // Obtém a altura do objeto
+                float objectHeight = selectedPrefab.GetComponent<GridPlacement>().GetObjectHeight();
+
+                // Define a posição Y do ghost na altura do chão + metade da altura do objeto
+                // Isso posiciona o objeto sobre o chão, não dentro dele
+                currentBuildGhost.transform.position = new Vector3(
+                    currentBuildGhost.transform.position.x,
+                    groundHit.point.y + (objectHeight / 2f),
+                    currentBuildGhost.transform.position.z
+                );
             }
 
             int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
@@ -155,4 +164,5 @@ public class BuildManager : MonoBehaviour
         currentBuildGhost = null;
         selectedPrefabIndex = -1;
     }
+
 }

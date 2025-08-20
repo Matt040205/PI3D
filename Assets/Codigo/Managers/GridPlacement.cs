@@ -37,4 +37,20 @@ public class GridPlacement : MonoBehaviour
 
         transform.position = new Vector3(alignedX, currentPosition.y, alignedZ);
     }
+    public float GetObjectHeight()
+    {
+        Renderer rend = GetComponent<Renderer>();
+        if (rend != null)
+        {
+            return rend.bounds.size.y;
+        }
+
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            return col.bounds.size.y;
+        }
+
+        return 0f;
+    }
 }

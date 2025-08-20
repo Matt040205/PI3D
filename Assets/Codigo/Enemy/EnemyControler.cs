@@ -15,23 +15,24 @@ public class EnemyController : MonoBehaviour
     // Componentes
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
+    private Rigidbody rb;
 
     // Status calculados
     private float currentDamage;
     private float currentMoveSpeed;
 
-    // Variáveis de comportamento
+    // Variï¿½veis de comportamento
     private int currentPointIndex = 0;
     private Transform target;
     private Vector3 lastPatrolPosition;
     private bool returningToPatrol = false;
 
-    [Header("Configurações")]
+    [Header("Configuraï¿½ï¿½es")]
     public float chaseDistance = 50f;
     public float attackDistance = 2f;
     public float stoppingDistance = 1.5f;
 
-    // Referência para o jogador
+    // Referï¿½ncia para o jogador
     private Transform playerTransform;
 
     // Propriedades
@@ -42,7 +43,16 @@ public class EnemyController : MonoBehaviour
     {
         healthSystem = GetComponent<EnemyHealthSystem>();
         combatSystem = GetComponent<EnemyCombatSystem>();
+        rb = GetComponent<Rigidbody>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Garante que hï¿½ um Rigidbody
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+            rb.useGravity = true;
+        }
     }
 
     void OnEnable()
@@ -50,11 +60,11 @@ public class EnemyController : MonoBehaviour
         InitializeEnemy();
     }
 
-    void Update()
+    void FixedUpdate() // Usamos FixedUpdate para fï¿½sica
     {
         if (IsDead) return;
 
-        // Verifica continuamente se o jogador está dentro da distância de perseguição
+        // Verifica continuamente se o jogador estï¿½ dentro da distï¿½ncia de perseguiï¿½ï¿½o
         CheckForPlayer();
 
         if (target != null)
@@ -71,21 +81,28 @@ public class EnemyController : MonoBehaviour
     {
         if (enemyData == null)
         {
-            Debug.LogError("EnemyData não atribuído em " + gameObject.name);
+            Debug.LogError("EnemyData nï¿½o atribuï¿½do em " + gameObject.name);
             return;
         }
 
-        // Calcula status baseado no nível
+        // Calcula status baseado no nï¿½vel
         currentDamage = enemyData.GetDamage(nivel);
         currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
 
-        // Inicializa o sistema de saúde
+        // Inicializa o sistema de saï¿½de
         healthSystem.InitializeHealth(nivel);
 
         // Reseta estado
         currentPointIndex = 0;
         returningToPatrol = false;
         target = null;
+
+        // Reseta a fï¿½sica
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     public void TakeDamage(float damageAmount, Transform attacker = null)
@@ -98,7 +115,7 @@ public class EnemyController : MonoBehaviour
             lastPatrolPosition = transform.position;
             target = attacker;
             returningToPatrol = false;
-            Debug.Log("Inimigo começou a perseguir o jogador após levar dano");
+            Debug.Log("Inimigo comeï¿½ou a perseguir o jogador apï¿½s levar dano");
         }
     }
 
@@ -110,18 +127,18 @@ public class EnemyController : MonoBehaviour
 
     private void DropRewards()
     {
-        // Lógica para dropar geoditas
+        // Lï¿½gica para dropar geoditas
         for (int i = 0; i < enemyData.geoditasOnDeath; i++)
         {
-            // Implemente sua lógica de drop aqui
+            // Implemente sua lï¿½gica de drop aqui
             Debug.Log("Dropping geodita");
         }
 
-        // Lógica para dropar éter negro
+        // Lï¿½gica para dropar ï¿½ter negro
         if (Random.value <= enemyData.etherDropChance)
         {
-            // Implemente drop de éter negro aqui
-            Debug.Log("Dropping éter negro");
+            // Implemente drop de ï¿½ter negro aqui
+            Debug.Log("Dropping ï¿½ter negro");
         }
     }
 
@@ -131,13 +148,13 @@ public class EnemyController : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // Se o jogador estiver dentro da distância de perseguição, começa a perseguir
+        // Se o jogador estiver dentro da distï¿½ncia de perseguiï¿½ï¿½o, comeï¿½a a perseguir
         if (distanceToPlayer <= chaseDistance && target == null)
         {
             lastPatrolPosition = transform.position;
             target = playerTransform;
             returningToPatrol = false;
-            Debug.Log("Jogador detectado, iniciando perseguição");
+            Debug.Log("Jogador detectado, iniciando perseguiï¿½ï¿½o");
         }
         // Se o jogador estiver muito longe, para de perseguir
         else if (distanceToPlayer > chaseDistance && target == playerTransform)
@@ -155,7 +172,7 @@ public class EnemyController : MonoBehaviour
             float distanceToLastPoint = Vector3.Distance(transform.position, lastPatrolPosition);
             if (distanceToLastPoint > 0.1f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, lastPatrolPosition, currentMoveSpeed * Time.deltaTime);
+                MoveTowardsPosition(lastPatrolPosition);
             }
             else
             {
@@ -165,12 +182,30 @@ public class EnemyController : MonoBehaviour
         }
 
         Transform currentPoint = patrolPoints[currentPointIndex];
-        transform.position = Vector3.MoveTowards(transform.position, currentPoint.position, currentMoveSpeed * Time.deltaTime);
+        MoveTowardsPosition(currentPoint.position);
 
         float distanceToPoint = Vector3.Distance(transform.position, currentPoint.position);
         if (distanceToPoint < 0.1f)
         {
             currentPointIndex = (currentPointIndex + 1) % patrolPoints.Count;
+        }
+    }
+
+    private void MoveTowardsPosition(Vector3 targetPosition)
+    {
+        if (rb == null) return;
+
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // Ignora o eixo Y para movimento no plano horizontal
+
+        // Aplica movimento usando fï¿½sica
+        rb.MovePosition(transform.position + direction * currentMoveSpeed * Time.fixedDeltaTime);
+
+        // Rotaciona para olhar na direï¿½ï¿½o do movimento
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.fixedDeltaTime));
         }
     }
 
@@ -191,15 +226,16 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // Se estiver dentro da distância de ataque, para de se mover e ataca
+        // Se estiver dentro da distï¿½ncia de ataque, para de se mover e ataca
         if (distanceToTarget <= attackDistance)
         {
-            // Apenas olha para o alvo, o sistema de combate cuidará do ataque
+            // Apenas olha para o alvo, o sistema de combate cuidarï¿½ do ataque
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if (direction != Vector3.zero)
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 5f * Time.deltaTime);
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.fixedDeltaTime));
             }
 
             // Chama o sistema de combate para atacar
@@ -210,23 +246,15 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // Move-se em direção ao alvo
-        transform.position = Vector3.MoveTowards(transform.position, target.position, currentMoveSpeed * Time.deltaTime);
-
-        // Rotaciona para olhar para o alvo
-        Vector3 moveDirection = (target.position - transform.position).normalized;
-        moveDirection.y = 0;
-        if (moveDirection != Vector3.zero)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDirection), 5f * Time.deltaTime);
-        }
+        // Move-se em direï¿½ï¿½o ao alvo
+        MoveTowardsPosition(target.position);
     }
 
     private void ForgetTarget()
     {
         target = null;
         returningToPatrol = true;
-        Debug.Log("Alvo perdido, retornando à patrulha");
+        Debug.Log("Alvo perdido, retornando ï¿½ patrulha");
     }
 
     // Para ser chamado pelo HordeManager
@@ -235,10 +263,10 @@ public class EnemyController : MonoBehaviour
         patrolPoints = points;
     }
 
-    // Visualização no editor para debug
+    // Visualizaï¿½ï¿½o no editor para debug
     void OnDrawGizmosSelected()
     {
-        // Desenha a esfera de detecção
+        // Desenha a esfera de detecï¿½ï¿½o
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
 
@@ -246,7 +274,7 @@ public class EnemyController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // Desenha a direção do movimento se estiver perseguindo
+        // Desenha a direï¿½ï¿½o do movimento se estiver perseguindo
         if (target != null)
         {
             Gizmos.color = Color.red;

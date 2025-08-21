@@ -15,6 +15,10 @@ public class CommanderController : MonoBehaviour
         currentHealth = characterData.maxHealth;
         currentAmmo = characterData.magazineSize;
 
+        if (characterData.passive != null)
+        {
+            characterData.passive.OnEquip(this.gameObject);
+        }
         // Aplica velocidade do SO
         //GetComponent<PlayerMovement>().moveSpeed = characterData.moveSpeed;
     }

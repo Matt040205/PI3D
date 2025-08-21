@@ -27,16 +27,20 @@ public class EnemyHealthSystem : MonoBehaviour
         isDead = false;
     }
 
-    public void TakeDamage(float damage)
+    // MUDANÇA AQUI: de 'void' para 'bool'
+    public bool TakeDamage(float damage)
     {
-        if (isDead) return;
+        if (isDead) return false;
 
         currentHealth -= damage;
 
         if (currentHealth <= 0)
         {
             Die();
+            return true; // AVISA: Sim, o dano matou o inimigo.
         }
+
+        return false; // AVISA: Não, o inimigo sobreviveu.
     }
 
     private void Die()

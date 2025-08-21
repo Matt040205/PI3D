@@ -20593,6 +20593,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2684468934285267859, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: meleeSystem
+      value: 
+      objectReference: {fileID: 2015683253}
+    - target: {fileID: 2684468934285267859, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: shootingSystem
+      value: 
+      objectReference: {fileID: 2015683256}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23316,6 +23324,28 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2015683253 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+  m_PrefabInstance: {fileID: 1726836409}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 346bceffbab365e48a8a61873f9f9e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2015683256 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9215532886368702831, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+  m_PrefabInstance: {fileID: 1726836409}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd551060b6341b64e92f7dd6212cd9ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2028623271
 PrefabInstance:
   m_ObjectHideFlags: 0

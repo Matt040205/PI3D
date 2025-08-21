@@ -22,10 +22,10 @@ public class CharacterBase : ScriptableObject
 
     [Header("Commander Specifics")]
     public int magazineSize = 10;
-    public PassiveAbility passive;
-    public ActiveAbility ability1;
-    public ActiveAbility ability2;
-    public ActiveAbility ultimate;
+    public PassivaAbility passive;
+    public Ability ability1;
+    public Ability ability2;
+    public Ability ultimate;
 
     [Header("Tower Specifics (Placeholder)")]
     public int cost = 50;

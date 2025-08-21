@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CharacterData", menuName = "Tower Defense/Character Base")]
@@ -9,11 +10,11 @@ public class CharacterBase : ScriptableObject
     public float moveSpeed = 5f;
     public float reloadSpeed = 2f;
     public float attackSpeed = 1f; // Tiros por segundo
+    public float meleeRange = 2f; // Pode ser usado como Range da torre
 
     [Header("Combat Settings")]
     public CombatType combatType = CombatType.Ranged;
     public FireMode fireMode = FireMode.SemiAuto;
-    public float meleeRange = 2f;
     public float meleeAngle = 90f;
 
     [Header("Type Settings")]
@@ -27,35 +28,18 @@ public class CharacterBase : ScriptableObject
     public Ability ability2;
     public Ability ultimate;
 
+    // --- ADIÇÃO AQUI ---
+    [Header("Tower Upgrades")]
+    [Tooltip("A lista de caminhos de upgrade disponíveis quando este personagem é uma torre.")]
+    public List<UpgradePath> upgradePaths;
+    // --- FIM DA ADIÇÃO ---
+
     [Header("Tower Specifics (Placeholder)")]
     public int cost = 50;
 }
 
-public enum CombatType
-{
-    Ranged,
-    Melee
-}
+// Os Enums (CombatType, FireMode) continuam os mesmos
+public enum CombatType { Ranged, Melee }
+public enum FireMode { SemiAuto, FullAuto }
 
-public enum FireMode
-{
-    SemiAuto,   // Disparo único por clique
-    FullAuto    // Disparo contínuo enquanto o botão estiver pressionado
-}
-
-[System.Serializable]
-public struct PassiveAbility
-{
-    public string abilityName;
-    [TextArea] public string description;
-    public Sprite icon;
-}
-
-[System.Serializable]
-public struct ActiveAbility
-{
-    public string abilityName;
-    [TextArea] public string description;
-    public Sprite icon;
-    public float cooldown;
-}
+// As Structs de Habilidade foram substituídas pelos ScriptableObjects 'Ability' e 'PassiveAbility'

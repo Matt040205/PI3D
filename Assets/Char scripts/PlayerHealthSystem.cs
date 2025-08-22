@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections; // Adicione este namespace para usar Coroutines
 
 public class PlayerHealthSystem : MonoBehaviour
 {
@@ -9,7 +10,9 @@ public class PlayerHealthSystem : MonoBehaviour
 
     private float timeSinceLastDamage;
 
-    // Evento para notificar mudanÁas na sa˙de
+    public Transform respawnPoint;
+
+    // Evento para notificar mudan√ßas na sade
     public event Action OnHealthChanged;
 
     void Start()
@@ -39,7 +42,7 @@ public class PlayerHealthSystem : MonoBehaviour
             currentHealth += characterData.maxHealth * 0.01f * Time.deltaTime;
             currentHealth = Mathf.Min(currentHealth, characterData.maxHealth);
 
-            // Notifica a mudanÁa durante a regeneraÁ„o
+            // Notifica a mudana durante a regenerao
             NotifyHealthChanged();
         }
     }
@@ -63,8 +66,43 @@ public class PlayerHealthSystem : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Player morreu!");
-        // LÛgica de morte
+        // Garante que o ponto de respawn est atribu√≠do
+        if (respawnPoint != null)
+        {
+            // Tenta pegar o CharacterController
+            CharacterController controller = GetComponent<CharacterController>();
+
+            // Tenta pegar o script de movimento
+            PlayerMovement movementScript = GetComponent<PlayerMovement>();
+
+            // Desativa temporariamente o script e o controlador para permitir o teletransporte
+            if (controller != null) controller.enabled = false;
+            if (movementScript != null) movementScript.enabled = false;
+
+            // Teletransporta o jogador para o ponto de respawn
+            transform.position = respawnPoint.position;
+
+            // Inicia uma coroutine para reativar o movimento e o controlador
+            StartCoroutine(ReactivatePlayer(controller, movementScript));
+        }
+        else
+        {
+            Debug.LogWarning("O respawnPoint n√£o foi atribu√≠do! O jogador n√£o pode ser teletransportado.");
+        }
+
+        // Restaura a sade do jogador
+        currentHealth = characterData.maxHealth;
+        NotifyHealthChanged();
+    }
+
+    private IEnumerator ReactivatePlayer(CharacterController controller, PlayerMovement movementScript)
+    {
+        // Espera um frame para garantir que a posi√ß√£o foi atualizada
+        yield return null;
+
+        // Reativa o controlador e o script de movimento
+        if (controller != null) controller.enabled = true;
+        if (movementScript != null) movementScript.enabled = true;
     }
 
     void NotifyHealthChanged()

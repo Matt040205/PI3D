@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4638686060242446458}
   - component: {fileID: 8524874085612215196}
   m_Layer: 0
-  m_Name: Padaria
+  m_Name: BlocoTeste
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

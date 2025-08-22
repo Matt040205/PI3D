@@ -78,45 +78,89 @@ public class BuildManager : MonoBehaviour
         if (currentBuildGhost == null)
         {
             currentBuildGhost = Instantiate(selectedPrefab);
+            // Desativar o collider para evitar que ele bloqueie o raycast
             Collider ghostCollider = currentBuildGhost.GetComponent<Collider>();
-            if (ghostCollider != null) ghostCollider.isTrigger = true;
+            if (ghostCollider != null) ghostCollider.enabled = false;
+
+            // Desativar o script de GridPlacement para evitar que ele execute a lógica no ghost
+            GridPlacement ghostGrid = currentBuildGhost.GetComponent<GridPlacement>();
+            if (ghostGrid != null) ghostGrid.enabled = false;
         }
 
         MeshRenderer ghostRenderer = currentBuildGhost.GetComponent<MeshRenderer>();
         if (ghostRenderer == null) return;
 
-        // CORRIGIDO: O Raycast agora parte da câmera principal da cena (Camera.main)
-        // Isso garante que estamos usando a câmera "real" que está renderizando o jogo.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        bool isOverValidSurface = false; // Variável para controlar se o raycast acertou uma superfície válida
+
+        // VERIFICAÇÃO PRINCIPAL: Checa se o raycast acertou algo
         if (Physics.Raycast(ray, out hit))
         {
-            GridPlacement gridPlacer = selectedPrefab.GetComponent<GridPlacement>();
-            currentBuildGhost.transform.position = hit.point;
-            gridPlacer.SnapToGrid();
-
-            RaycastHit groundHit;
-            if (Physics.Raycast(currentBuildGhost.transform.position, Vector3.down, out groundHit, Mathf.Infinity))
+            // Se acertou um objeto com a tag "Local"
+            if (hit.transform.CompareTag("Local"))
             {
-                float objectHeight = selectedPrefab.GetComponent<GridPlacement>().GetObjectHeight();
+                isOverValidSurface = true;
+
+                // Posiciona o ghost no local exato do hit
+                GridPlacement gridPlacer = selectedPrefab.GetComponent<GridPlacement>();
+                Vector3 placementPosition = hit.point;
+
+                // Se o prefab tiver um componente GridPlacement, ajuste a posição
+                if (gridPlacer != null)
+                {
+                    // Este passo foi movido para o GridPlacement em si, garantindo que
+                    // ele use a lgica de grid corretamente.
+                    // O script GridPlacement original precisa de uma pequena correo para isso.
+                    // Vou te dar essa correo tambm.
+                    placementPosition = hit.point;
+                }
+
+                // Ajusta a altura do ghost
+                float objectHeight = 0;
+                if (selectedPrefab.GetComponent<GridPlacement>() != null)
+                {
+                    objectHeight = selectedPrefab.GetComponent<GridPlacement>().GetObjectHeight();
+                }
+                else
+                {
+                    objectHeight = selectedPrefab.GetComponent<MeshRenderer>().bounds.size.y;
+                }
+
                 currentBuildGhost.transform.position = new Vector3(
-                    currentBuildGhost.transform.position.x,
-                    groundHit.point.y + (objectHeight / 2f),
-                    currentBuildGhost.transform.position.z
+                    placementPosition.x,
+                    hit.point.y + (objectHeight / 2f),
+                    placementPosition.z
                 );
-            }
 
-            int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
-
-            if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
-            {
-                ghostRenderer.material = validPlacementMaterial;
             }
             else
             {
-                ghostRenderer.material = invalidPlacementMaterial;
+                // Se o raycast acertou outra coisa que não seja "Local"
+                isOverValidSurface = false;
+                // Move o ghost para a posição de hit, mas a cor ficará vermelha
+                currentBuildGhost.transform.position = hit.point;
             }
+        }
+        else
+        {
+            // Se o raycast não acertou nada (está no céu, por exemplo)
+            isOverValidSurface = false;
+        }
+
+        // Lógica para mudar a cor do ghost
+        int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
+        bool hasEnoughCurrency = CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites);
+
+        // O ghost só será verde se estiver sobre uma superfície válida E o jogador tiver dinheiro
+        if (isOverValidSurface && hasEnoughCurrency)
+        {
+            ghostRenderer.material = validPlacementMaterial;
+        }
+        else
+        {
+            ghostRenderer.material = invalidPlacementMaterial;
         }
     }
 
@@ -127,15 +171,28 @@ public class BuildManager : MonoBehaviour
         GameObject selectedPrefab = buildablePrefabs[selectedPrefabIndex];
         int buildingCost = selectedPrefab.GetComponent<GridPlacement>().cost;
 
-        if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
+        // Obtém a posição atual do ghost
+        Vector3 ghostPosition = currentBuildGhost.transform.position;
+
+        // Verifica se a cor do ghost é válida, indicando que a colocação é permitida
+        // Esta é a verificação crucial. Se o material for verde, a colocação é válida.
+        if (currentBuildGhost.GetComponent<MeshRenderer>().material.name.Contains(validPlacementMaterial.name))
         {
-            CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
-            Instantiate(selectedPrefab, currentBuildGhost.transform.position, Quaternion.identity);
-            ClearSelection();
-        }
-        else
-        {
-            Debug.Log("Não há Geoditas suficientes!");
+            if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
+            {
+                // Instancia o objeto real na posição do ghost
+                Instantiate(selectedPrefab, ghostPosition, Quaternion.identity);
+
+                // Gasta a moeda
+                CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
+
+                // Limpa a seleo, removendo o ghost
+                ClearSelection();
+            }
+            else
+            {
+                Debug.Log("Não há Geoditas suficientes!");
+            }
         }
     }
 

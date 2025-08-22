@@ -23840,7 +23840,7 @@ GameObject:
   - component: {fileID: 2056349557}
   - component: {fileID: 2056349558}
   m_Layer: 0
-  m_Name: Pooling
+  m_Name: Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23921,6 +23921,7 @@ MonoBehaviour:
   buildCamera: {fileID: 2106906705}
   buildablePrefabs:
   - {fileID: 3333250326587255744, guid: 503fb7bb38b0225498f4e96bfcf914ab, type: 3}
+  - {fileID: 7734725407009037971, guid: 4d14d003461c1c840ac62da38e8680f5, type: 3}
   validPlacementMaterial: {fileID: 2100000, guid: 73563327067872d4ba7be49d1e11a506, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: aab2a511bf791ce4a89881888cef9450, type: 2}
   isBuildingMode: 0

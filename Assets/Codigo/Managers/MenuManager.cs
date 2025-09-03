@@ -3,6 +3,10 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    [Header("Configuração da Cena")]
+    // Variável pública para você arrastar ou digitar o nome da cena no Inspetor
+    public string nomeDaCena;
+
     [Header("Menus")]
     // Referências para os GameObjects de cada tela do menu
     public GameObject menuPanel;
@@ -21,10 +25,19 @@ public class MenuManager : MonoBehaviour
 
     // --- Funções de Navegação ---
 
-    // Inicia o jogo, carregando a cena "EscolherPersonagem"
+    // Inicia o jogo, carregando a cena definida na variável 'nomeDaCena'
     public void StartGame()
     {
-        SceneManager.LoadScene("EscolherPersonagem");
+        // Verifica se um nome de cena foi definido no inspetor para evitar erros
+        if (!string.IsNullOrEmpty(nomeDaCena))
+        {
+            SceneManager.LoadScene(nomeDaCena);
+        }
+        else
+        {
+            // Se nenhum nome de cena foi definido, exibe um erro no console do Unity
+            Debug.LogError("O nome da cena não foi definido no Inspetor do MenuManager!");
+        }
     }
 
     // Navega para o menu de Opções

@@ -5248,6 +5248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af665e18fd3f36d4ca7809e7170c804f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nomeDaCena: CenaMapaTeste
   menuPanel: {fileID: 0}
   optionsPanel: {fileID: 0}
   creditosPanel: {fileID: 0}
@@ -21959,7 +21960,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 751058866}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103263291}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: StartGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &751058866
 MonoBehaviour:
   m_ObjectHideFlags: 0

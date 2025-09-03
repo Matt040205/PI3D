@@ -22,7 +22,7 @@ MonoBehaviour:
   fireMode: 1
   meleeAngle: 90
   isCommander: 1
-  characterIcon: {fileID: 0}
+  characterIcon: {fileID: 21300000, guid: 37dab28801f23da4fb46b29fcaf2438a, type: 3}
   magazineSize: 10
   passive: {fileID: 11400000, guid: b61c336051a635a408e390d109a5ec57, type: 2}
   ability1: {fileID: 11400000, guid: 8ca2198072e5ed34b9f668a75693c362, type: 2}

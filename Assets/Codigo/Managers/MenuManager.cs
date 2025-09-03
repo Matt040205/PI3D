@@ -26,7 +26,7 @@ public class MenuManager : MonoBehaviour
     // --- Funções de Navegação ---
 
     // Inicia o jogo, carregando a cena definida na variável 'nomeDaCena'
-    public void StartGame()
+    public void ChangeScene()
     {
         // Verifica se um nome de cena foi definido no inspetor para evitar erros
         if (!string.IsNullOrEmpty(nomeDaCena))

@@ -30,6 +30,7 @@ public class EnemyPoolManager : MonoBehaviour
             GameObject newEnemy = Instantiate(enemyPrefab);
             newEnemy.SetActive(false);
             enemyPool.Add(newEnemy);
+            return;
         }
     }
 

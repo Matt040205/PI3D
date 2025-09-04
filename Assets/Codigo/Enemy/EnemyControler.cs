@@ -34,13 +34,13 @@ public class EnemyController : MonoBehaviour
 
     // Variáveis de comportamento
     private int currentPointIndex = 0;
-    private Transform target; // O alvo será quase sempre o jogador, ou null.
+    private Transform target;
 
     [Header("Configurações")]
     public float chaseDistance = 50f;
     public float attackDistance = 2f;
 
-    // Referência para o jogador
+    // Referência para o jogador (agora privada e preenchida externamente)
     private Transform playerTransform;
 
     // Propriedades
@@ -52,7 +52,6 @@ public class EnemyController : MonoBehaviour
         healthSystem = GetComponent<EnemyHealthSystem>();
         combatSystem = GetComponent<EnemyCombatSystem>();
         rb = GetComponent<Rigidbody>();
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         if (rb == null)
         {
@@ -62,32 +61,57 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    // REMOVIDO: A busca pelo Player no OnEnable foi removida.
+    void OnEnable() { }
+
+    // --- NOVO MÉTODO DE INICIALIZAÇÃO ---
+    // Este método é chamado pelo HordeManager para configurar o inimigo.
+    public void InitializeEnemy(Transform player, List<Transform> path, EnemyDataSO data, int level)
     {
-        InitializeEnemy();
+        this.playerTransform = player;
+        this.patrolPoints = path;
+        this.enemyData = data;
+        this.nivel = level;
+
+        if (enemyData == null)
+        {
+            Debug.LogError("EnemyData não atribuído em " + gameObject.name);
+            gameObject.SetActive(false); // Desativa se não tiver dados
+            return;
+        }
+
+        currentDamage = enemyData.GetDamage(nivel);
+        currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
+        healthSystem.enemyData = this.enemyData; // Garante que o HealthSystem também tenha os dados
+        healthSystem.InitializeHealth(nivel);
+        currentPointIndex = 0;
+        target = null;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     void FixedUpdate()
     {
         if (IsDead) return;
 
-        // 1. Decide se deve focar no jogador
         DecideTarget();
 
-        // 2. Age com base na decisão
         if (target != null)
         {
-            // Se o alvo for o jogador, persiga-o.
             ChaseTarget();
         }
         else
         {
-            // Se não houver alvo, siga o caminho de patrulha.
             Patrol();
         }
     }
 
-    // MODIFICADO: Lógica de decisão simplificada
+    // O resto do script (DecideTarget, Patrol, ChaseTarget, etc.) permanece o mesmo.
+    // Ele já funciona com a variável 'playerTransform', que agora é preenchida corretamente.
+
     private void DecideTarget()
     {
         if (playerTransform == null)
@@ -95,43 +119,29 @@ public class EnemyController : MonoBehaviour
             target = null;
             return;
         }
-
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-
-        // Se a prioridade é o jogador, use a distância de perseguição normal
         if (mainPriority == AITargetPriority.Player && distanceToPlayer <= chaseDistance)
         {
             target = playerTransform;
             return;
         }
-
-        // Se a prioridade é o objetivo, o inimigo só ataca o jogador por autodefesa (se ele chegar perto)
         if (mainPriority == AITargetPriority.Objective && distanceToPlayer <= selfDefenseRadius)
         {
             target = playerTransform;
             return;
         }
-
-        // Em todos os outros casos, o inimigo não tem um alvo (foco na patrulha)
         target = null;
     }
 
-    // MODIFICADO: Lógica de Patrulha agora é o comportamento principal
     private void Patrol()
     {
-        // Se não houver pontos de patrulha ou se já chegou ao final...
         if (patrolPoints == null || patrolPoints.Count == 0 || currentPointIndex >= patrolPoints.Count)
         {
-            // --- MUDANÇA PRINCIPAL AQUI ---
-            // Chegou ao objetivo. Causa dano e se autodestrói.
             AttackObjectiveAndDie();
-            return; // Para a execução do método aqui
+            return;
         }
-
-        // O resto do método continua igual...
         Transform currentDestination = patrolPoints[currentPointIndex];
         MoveTowardsPosition(currentDestination.position);
-
         float distanceToPoint = Vector3.Distance(transform.position, currentDestination.position);
         if (distanceToPoint < 0.5f)
         {
@@ -139,34 +149,23 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // NOVO: Adicione este método inteiro dentro da classe EnemyController.cs
     private void AttackObjectiveAndDie()
     {
-        // Encontra o sistema de vida do objetivo na cena
         ObjectiveHealthSystem objective = FindFirstObjectByType<ObjectiveHealthSystem>();
         if (objective != null)
         {
-            // Causa dano ao objetivo. O dano pode ser um valor fixo,
-            // ou baseado na vida restante do inimigo, por exemplo.
-            // Vamos usar o dano base do inimigo.
             float damageToObjective = enemyData.GetDamage(nivel);
             objective.TakeDamage(damageToObjective);
         }
-
-        // Desativa o inimigo, devolvendo-o ao pool sem dar recompensas
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 
     private void ChaseTarget()
     {
         if (target == null) return;
-
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
-
-        // Se estiver dentro da distância de ataque, para de se mover e ataca
         if (distanceToTarget <= attackDistance)
         {
-            // Apenas olha para o alvo
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if (direction != Vector3.zero)
@@ -174,37 +173,14 @@ public class EnemyController : MonoBehaviour
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
             }
-
-            // Chama o sistema de combate para atacar
             if (combatSystem != null)
             {
                 combatSystem.TryAttack();
             }
         }
-        else // Se estiver fora da distância de ataque, move-se em direção ao alvo
+        else
         {
             MoveTowardsPosition(target.position);
-        }
-    }
-
-    // As funções abaixo não precisaram de grandes mudanças
-
-    public void InitializeEnemy()
-    {
-        if (enemyData == null)
-        {
-            Debug.LogError("EnemyData não atribuído em " + gameObject.name);
-            return;
-        }
-        currentDamage = enemyData.GetDamage(nivel);
-        currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
-        healthSystem.InitializeHealth(nivel);
-        currentPointIndex = 0; // Reinicia o caminho
-        target = null;
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
         }
     }
 
@@ -230,7 +206,7 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(float damageAmount, Transform attacker = null)
     {
         healthSystem.TakeDamage(damageAmount);
-        if (attacker != null && target == null) // Inicia perseguição se for atacado
+        if (attacker != null && target == null)
         {
             target = attacker;
         }

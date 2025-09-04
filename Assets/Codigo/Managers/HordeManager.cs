@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections; // Adicionado para usar Coroutines
 using System.Collections.Generic;
 
 public class HordeManager : MonoBehaviour
@@ -11,7 +12,6 @@ public class HordeManager : MonoBehaviour
     [Header("Dados dos Inimigos")]
     public EnemyDataSO[] enemyTypes;
 
-    // MODIFICADO: Substituímos as listas antigas por uma única lista de rotas.
     [Header("Configuração das Rotas")]
     public List<SpawnPath> spawnPaths;
     private int lastPathIndex = -1;
@@ -23,6 +23,10 @@ public class HordeManager : MonoBehaviour
     private List<GameObject> aliveEnemies = new List<GameObject>();
     private bool waveIsActive = false;
 
+    // --- ADIÇÃO AQUI ---
+    // Variável para guardar a referência do jogador
+    private Transform playerTransform;
+
     void Start()
     {
         if (EnemyPoolManager.Instance == null)
@@ -30,6 +34,31 @@ public class HordeManager : MonoBehaviour
             Debug.LogError("EnemyPoolManager não encontrado na cena!");
             return;
         }
+
+        // --- MUDANÇA AQUI ---
+        // Em vez de iniciar a horda diretamente, chamamos uma coroutine
+        // que primeiro encontra o jogador.
+        StartCoroutine(FindPlayerAndBeginHorde());
+    }
+
+    // --- NOVO MÉTODO ---
+    // Esta rotina garante que vamos procurar o Player DEPOIS que ele foi criado.
+    private IEnumerator FindPlayerAndBeginHorde()
+    {
+        // Espera um único frame. Isso dá tempo para o GameSetupManager rodar seu método Start().
+        yield return null;
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            playerTransform = playerObject.transform;
+        }
+        else
+        {
+            Debug.LogError("HordeManager não conseguiu encontrar o Player! A IA do inimigo pode falhar.");
+        }
+
+        // Agora que temos a referência (ou falhamos em encontrá-la), começamos a primeira horda.
         StartNextHorde();
     }
 
@@ -38,12 +67,10 @@ public class HordeManager : MonoBehaviour
         if (waveIsActive)
         {
             CheckForRemainingEnemies();
-
             if (aliveEnemies.Count == 0)
             {
                 waveIsActive = false;
                 Debug.Log("Horda " + currentHorde + " concluída!");
-
                 if (currentHorde >= victoryHorde)
                 {
                     Debug.Log("Parabéns! Você venceu o jogo!");
@@ -56,6 +83,56 @@ public class HordeManager : MonoBehaviour
         }
     }
 
+    void SpawnEnemies()
+    {
+        if (spawnPaths == null || spawnPaths.Count == 0)
+        {
+            Debug.LogError("Nenhuma rota (SpawnPath) configurada!");
+            return;
+        }
+        if (enemyTypes.Length == 0)
+        {
+            Debug.LogError("Faltam tipos de inimigos configurados!");
+            return;
+        }
+
+        int enemiesToSpawn = Random.Range(enemiesPerHordeMin, enemiesPerHordeMax + 1);
+
+        for (int i = 0; i < enemiesToSpawn; i++)
+        {
+            int pathIndex = GetRandomPathIndex();
+            SpawnPath selectedPath = spawnPaths[pathIndex];
+
+            if (selectedPath.spawnPoint == null || selectedPath.patrolPoints == null || selectedPath.patrolPoints.Count == 0)
+            {
+                Debug.LogWarning("A rota '" + selectedPath.pathName + "' não está configurada corretamente. Pulando este spawn.");
+                continue;
+            }
+
+            int enemyTypeIndex = Random.Range(0, enemyTypes.Length);
+            EnemyDataSO enemyData = enemyTypes[enemyTypeIndex];
+
+            // MODIFICADO: Usamos a referência correta do PoolManager
+            GameObject newEnemy = EnemyPoolManager.Instance.GetPooledEnemy();
+            newEnemy.transform.position = selectedPath.spawnPoint.position;
+            newEnemy.transform.rotation = selectedPath.spawnPoint.rotation;
+
+            EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
+            if (enemyController != null)
+            {
+                // --- MUDANÇA PRINCIPAL AQUI ---
+                // Agora, passamos a referência do Player para o inimigo no momento da inicialização.
+                enemyController.InitializeEnemy(playerTransform, selectedPath.patrolPoints, enemyData, enemyLevel);
+            }
+
+            // O HealthSystem não precisa ser configurado aqui se o EnemyController já faz isso.
+            // Removido para evitar redundância.
+
+            aliveEnemies.Add(newEnemy);
+        }
+    }
+
+    // O resto do seu script continua igual
     void CheckForRemainingEnemies()
     {
         for (int i = aliveEnemies.Count - 1; i >= 0; i--)
@@ -76,75 +153,14 @@ public class HordeManager : MonoBehaviour
         waveIsActive = true;
     }
 
-    // MODIFICADO: A lógica de Spawn agora usa a lista de SpawnPath
-    void SpawnEnemies()
-    {
-        if (spawnPaths == null || spawnPaths.Count == 0)
-        {
-            Debug.LogError("Nenhuma rota (SpawnPath) configurada!");
-            return;
-        }
-        if (enemyTypes.Length == 0)
-        {
-            Debug.LogError("Faltam tipos de inimigos configurados!");
-            return;
-        }
-
-        int enemiesToSpawn = Random.Range(enemiesPerHordeMin, enemiesPerHordeMax + 1);
-
-        for (int i = 0; i < enemiesToSpawn; i++)
-        {
-            // 1. Seleciona uma rota aleatória (caminho A, caminho B, etc.)
-            int pathIndex = GetRandomPathIndex();
-            SpawnPath selectedPath = spawnPaths[pathIndex];
-
-            // Validação para garantir que a rota selecionada está bem configurada
-            if (selectedPath.spawnPoint == null || selectedPath.patrolPoints == null || selectedPath.patrolPoints.Count == 0)
-            {
-                Debug.LogWarning("A rota '" + selectedPath.pathName + "' não está configurada corretamente. Pulando este spawn.");
-                continue; // Pula para o próximo inimigo
-            }
-
-            // 2. Seleciona um tipo de inimigo aleatório
-            int enemyTypeIndex = Random.Range(0, enemyTypes.Length);
-            EnemyDataSO enemyData = enemyTypes[enemyTypeIndex];
-
-            // 3. Pega um inimigo do pool e o posiciona
-            GameObject newEnemy = EnemyPoolManager.Instance.GetPooledEnemy();
-            newEnemy.transform.position = selectedPath.spawnPoint.position;
-            newEnemy.transform.rotation = selectedPath.spawnPoint.rotation;
-
-            // 4. Configura o inimigo com os dados da ROTA SELECIONADA
-            EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
-            if (enemyController != null)
-            {
-                enemyController.enemyData = enemyData;
-                enemyController.SetPatrolPoints(selectedPath.patrolPoints); // <-- A MUDANÇA PRINCIPAL!
-                enemyController.nivel = enemyLevel;
-            }
-
-            EnemyHealthSystem healthSystem = newEnemy.GetComponent<EnemyHealthSystem>();
-            if (healthSystem != null)
-            {
-                healthSystem.enemyData = enemyData;
-                healthSystem.InitializeHealth(enemyLevel);
-            }
-
-            aliveEnemies.Add(newEnemy);
-        }
-    }
-
-    // MODIFICADO: Renomeado para refletir que estamos escolhendo uma rota, não só um ponto.
     int GetRandomPathIndex()
     {
         if (spawnPaths.Count <= 1) return 0;
-
         int newIndex;
         do
         {
             newIndex = Random.Range(0, spawnPaths.Count);
         } while (newIndex == lastPathIndex);
-
         lastPathIndex = newIndex;
         return newIndex;
     }

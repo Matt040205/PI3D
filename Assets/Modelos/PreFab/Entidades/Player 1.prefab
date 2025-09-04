@@ -489,6 +489,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   currentHealth: 0
   isRegenerating: 0
+  respawnPoint: {fileID: 0}
 --- !u!114 &6853114845528409664
 MonoBehaviour:
   m_ObjectHideFlags: 0

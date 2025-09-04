@@ -1,3 +1,4 @@
+// CharacterBase.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ public class CharacterBase : ScriptableObject
     [Header("Type Settings")]
     public bool isCommander = true;
     public Sprite characterIcon;
+    public GameObject commanderPrefab;
 
     [Header("Commander Specifics")]
     public int magazineSize = 10;
@@ -28,18 +30,13 @@ public class CharacterBase : ScriptableObject
     public Ability ability2;
     public Ability ultimate;
 
-    // --- ADIÇÃO AQUI ---
     [Header("Tower Upgrades")]
     [Tooltip("A lista de caminhos de upgrade disponíveis quando este personagem é uma torre.")]
     public List<UpgradePath> upgradePaths;
-    // --- FIM DA ADIÇÃO ---
 
     [Header("Tower Specifics (Placeholder)")]
     public int cost = 50;
 }
 
-// Os Enums (CombatType, FireMode) continuam os mesmos
 public enum CombatType { Ranged, Melee }
 public enum FireMode { SemiAuto, FullAuto }
-
-// As Structs de Habilidade foram substituídas pelos ScriptableObjects 'Ability' e 'PassiveAbility'

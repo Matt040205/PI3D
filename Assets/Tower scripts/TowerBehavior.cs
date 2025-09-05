@@ -7,7 +7,7 @@ using UnityEngine;
 public abstract class TowerBehavior : MonoBehaviour
 {
     // Uma referência protegida para a torre que possui este comportamento.
-    protected TowerController towerController;
+    public TowerController towerController;
 
     /// <summary>
     /// Método de inicialização chamado pelo TowerController quando este comportamento é adicionado.

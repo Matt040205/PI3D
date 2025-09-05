@@ -12,6 +12,19 @@ public class CharacterBase : ScriptableObject
     public float reloadSpeed = 2f;
     public float attackSpeed = 1f; // Tiros por segundo
     public float meleeRange = 2f; // Pode ser usado como Range da torre
+    public float armor = 0f;
+
+    [Tooltip("Chance de causar um acerto crítico, de 0.0 a 1.0 (ex: 0.1 = 10%).")]
+    [Range(0f, 1f)]
+    public float critChance = 0.05f; // 5% de chance base
+
+    [Tooltip("Multiplicador de dano em um acerto crítico (ex: 1.5 = 150% do dano normal).")]
+    public float critDamage = 1.5f; // 150% de dano base
+
+    // --- ADIÇÃO AQUI ---
+    [Tooltip("Quanto da armadura do inimigo é ignorada, de 0.0 a 1.0 (ex: 0.5 = 50%).")]
+    [Range(0f, 1f)]
+    public float armorPenetration = 0f; // Começa com 0%
 
     [Header("Combat Settings")]
     public CombatType combatType = CombatType.Ranged;

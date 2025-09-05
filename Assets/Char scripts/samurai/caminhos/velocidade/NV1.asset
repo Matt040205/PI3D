@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
-  m_Name: Novo Upgrade
+  m_Name: NV1
   m_EditorClassIdentifier: 
   upgradeName: 
   description: 
   icon: {fileID: 0}
   geoditeCost: 0
   darkEtherCost: 0
-  modifiers: []
+  modifiers:
+  - statToModify: 1
+    modType: 1
+    value: 0.2
   behaviorToUnlock: {fileID: 0}

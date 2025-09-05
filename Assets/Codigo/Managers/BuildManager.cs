@@ -1,4 +1,4 @@
-// BuildManager.cs (Com depuração e nova lógica de altura)
+// BuildManager.cs (Solução revisada para posicionamento de torres)
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
@@ -19,6 +19,10 @@ public class BuildManager : MonoBehaviour
     public Material invalidPlacementMaterial;
 
     public bool isBuildingMode = false;
+    public float gridSize = 1f;
+
+    [Header("Configuração de Altura")]
+    public float globalHeightOffset = 0.5f; // Ajuste este valor no Inspector conforme necessário
 
     private const int PriorityBuild = 20;
     private const int PriorityInactive = 0;
@@ -83,7 +87,12 @@ public class BuildManager : MonoBehaviour
         {
             ClearSelection();
         }
-        UIManager.Instance.ShowBuildUI(state);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowBuildUI(state);
+        }
+
         Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = state;
     }
@@ -120,24 +129,13 @@ public class BuildManager : MonoBehaviour
 
         if (isOverValidSurface)
         {
-            // --- NOVA LÓGICA DE ALTURA ---
-            // Pega o collider do ghost para calcular a altura
-            Collider ghostCollider = currentBuildGhost.GetComponentInChildren<Collider>();
-            if (ghostCollider != null)
-            {
-                // A altura a ser adicionada é metade da altura total do collider
-                float yOffset = ghostCollider.bounds.extents.y;
-                currentBuildGhost.transform.position = hit.point + new Vector3(0, yOffset, 0);
-            }
-            else
-            {
-                // Se não houver collider, posiciona no ponto de impacto
-                currentBuildGhost.transform.position = hit.point;
-            }
+            // Nova abordagem: usa o ponto de contato e ajusta a altura
+            float calculatedHeight = CalculateRequiredHeight(hit.point, selectedTowerData.towerPrefab);
+            currentBuildGhost.transform.position = new Vector3(hit.point.x, hit.point.y + calculatedHeight, hit.point.z);
         }
         else if (Physics.Raycast(ray, out hit))
         {
-            currentBuildGhost.transform.position = hit.point;
+            currentBuildGhost.transform.position = hit.point + Vector3.up * globalHeightOffset;
         }
 
         int buildingCost = selectedTowerData.cost;
@@ -148,6 +146,30 @@ public class BuildManager : MonoBehaviour
         {
             ghostRenderer.material = (isOverValidSurface && hasEnoughCurrency) ? validPlacementMaterial : invalidPlacementMaterial;
         }
+    }
+
+    private float CalculateRequiredHeight(Vector3 hitPoint, GameObject prefab)
+    {
+        // Calcula a distância do ponto de impacto até a base do objeto
+        Collider col = prefab.GetComponentInChildren<Collider>();
+        if (col != null)
+        {
+            // Calcula a distância do centro do objeto até a base
+            float bottomDistance = col.bounds.extents.y;
+
+            // Projeta um ray para baixo para encontrar o terreno exato
+            Ray downRay = new Ray(hitPoint + Vector3.up * 10f, Vector3.down);
+            RaycastHit downHit;
+
+            if (Physics.Raycast(downRay, out downHit, 20f))
+            {
+                // Retorna a diferença de altura necessária
+                return downHit.point.y - hitPoint.y + bottomDistance + globalHeightOffset;
+            }
+        }
+
+        // Fallback: usa o offset global
+        return globalHeightOffset;
     }
 
     void PlaceBuilding()
@@ -162,10 +184,14 @@ public class BuildManager : MonoBehaviour
 
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
             {
-                // Usa a mesma lógica de altura para a torre final
+                // Usa a posição do fantasma (já com altura correta)
                 Vector3 finalPosition = currentBuildGhost.transform.position;
-                Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
 
+                // Aplica grid snapping apenas no XZ
+                finalPosition.x = Mathf.Round(finalPosition.x / gridSize) * gridSize;
+                finalPosition.z = Mathf.Round(finalPosition.z / gridSize) * gridSize;
+
+                Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
                 ClearSelection();
             }

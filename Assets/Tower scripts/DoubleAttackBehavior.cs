@@ -1,45 +1,43 @@
+// DoubleAttackBehavior.cs
 using UnityEngine;
 
+/// <summary>
+/// Concede à torre uma chance de atacar uma segunda vez imediatamente.
+/// </summary>
 public class DoubleAttackBehavior : TowerBehavior
 {
-    private float chance = 0.25f; // 25% de chance de atacar novamente
+    [Header("Configuração do Ataque Duplo")]
+    [Tooltip("A chance de atacar uma segunda vez (0.25 para 25%).")]
+    [Range(0f, 1f)]
+    public float chance = 0.25f;
 
-    /// <summary>
-    /// Sobrescrevemos o método Initialize para nos "inscrevermos" no evento de ataque da torre.
-    /// </summary>
     public override void Initialize(TowerController owner)
     {
         base.Initialize(owner);
         if (towerController != null)
         {
-            // Diz para a torre: "Quando você atacar, me avise chamando meu método HandleAttack."
-            towerController.OnAttack += HandleAttack;
+            // Se conecta ao evento que avisa quando um alvo tomou dano.
+            towerController.OnTargetDamaged += TryDoubleAttack;
         }
     }
 
-    /// <summary>
-    /// Este método é chamado toda vez que a torre ataca.
-    /// </summary>
-    private void HandleAttack(Transform target)
+    // Este método é chamado após o dano ser aplicado.
+    private void TryDoubleAttack(EnemyHealthSystem target)
     {
-        // Roda a chance de atacar novamente
+        // Random.value gera um número aleatório entre 0.0 e 1.0
         if (Random.value <= chance)
         {
-            Debug.Log("CORTE DUPLO ATIVADO!");
-            // Pede para a torre atacar o mesmo alvo novamente.
-            // towerController.PerformAttack(target); // Descomente quando o método de ataque existir
+            Debug.Log("SORTE! Corte Duplo ativado!");
+            // Chama o método público que criamos na torre para forçar um novo tiro.
+            towerController.PerformExtraAttack();
         }
     }
 
-    /// <summary>
-    /// Método chamado automaticamente quando o componente é destruído.
-    /// É MUITO importante se "desinscrever" do evento para evitar erros.
-    /// </summary>
     private void OnDestroy()
     {
         if (towerController != null)
         {
-            towerController.OnAttack -= HandleAttack;
+            towerController.OnTargetDamaged -= TryDoubleAttack;
         }
     }
 }

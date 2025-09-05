@@ -1,39 +1,60 @@
+// HealingAuraBehavior.cs
 using UnityEngine;
 
+/// <summary>
+/// Cura torres aliadas dentro de um raio a cada segundo.
+/// </summary>
 public class HealingAuraBehavior : TowerBehavior
 {
-    // Parâmetros que definem o funcionamento da aura.
-    private float healAmountPerSecond = 5f;
-    private float auraRange = 7f;
-    private float tickRate = 1f; // A cada 1 segundo para não rodar a cada frame
-    private float timer;
+    [Header("Configuração da Aura")]
+    [Tooltip("A cura por segundo, como porcentagem da vida máxima do alvo (0.01 = 1%).")]
+    public float healPercentagePerSecond = 0.01f;
+    public float auraRadius = 5f;
 
-    void FixedUpdate()
+    private float timer; // Timer para contar a cada segundo
+
+    // Usamos o Update para a lógica de aura que roda constantemente
+    void Update()
     {
-        // Se o comportamento não foi devidamente inicializado, ele não faz nada.
+        // Se a torre não estiver inicializada, não faz nada.
         if (towerController == null) return;
 
-        timer += Time.fixedDeltaTime;
-        if (timer >= tickRate)
+        timer += Time.deltaTime;
+        // A cada 1 segundo...
+        if (timer >= 1f)
         {
-            timer = 0f;
-            HealNearbyAllies();
+            // ...procura e cura as torres.
+            HealNearbyTowers();
+            timer = 0f; // Reseta o timer
         }
     }
 
-    private void HealNearbyAllies()
+    void HealNearbyTowers()
     {
-        // Encontra todos os colliders em um raio
-        Collider[] nearbyAllies = Physics.OverlapSphere(transform.position, auraRange);
-        foreach (var allyCollider in nearbyAllies)
+        // Cria uma esfera invisível e pega tudo que colidir com ela
+        Collider[] colliders = Physics.OverlapSphere(transform.position, auraRadius);
+
+        foreach (var col in colliders)
         {
-            // Tenta pegar o sistema de vida do objeto encontrado
-            var healthSystem = allyCollider.GetComponent<PlayerHealthSystem>();
-            if (healthSystem != null)
+            // Verifica se o objeto encontrado tem um TowerController
+            TowerController otherTower = col.GetComponent<TowerController>();
+
+            // Se for uma torre e não for ela mesma...
+            if (otherTower != null && otherTower != this.towerController)
             {
-                // Aplica a cura
-                healthSystem.Heal(healAmountPerSecond * tickRate);
+                // ...calcula a cura e chama o método Heal que criamos.
+                // (Esta linha está comentada pois precisa que o TowerController tenha o 'maxHealth' público)
+                // float healAmount = otherTower.maxHealth * healPercentagePerSecond;
+                // otherTower.Heal(healAmount);
+                Debug.Log($"Aura curando a torre {otherTower.name}.");
             }
         }
+    }
+
+    // Desenha uma esfera no editor para vermos o alcance da aura
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, auraRadius);
     }
 }

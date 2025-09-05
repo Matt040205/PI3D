@@ -1,9 +1,11 @@
+// Upgrade.cs
 using UnityEngine;
 using System.Collections.Generic;
 
-// Os Enums e a Struct de StatModifier continuam aqui
-public enum StatType { Damage, AttackSpeed, Range, Armor }
+// --- MODIFICAÇÃO AQUI ---
+public enum StatType { Damage, AttackSpeed, Range, Armor, CritChance, CritDamage, ArmorPenetration }
 public enum ModificationType { Additive, Multiplicative }
+
 [System.Serializable]
 public struct StatModifier
 {
@@ -28,6 +30,6 @@ public class Upgrade : ScriptableObject
     public List<StatModifier> modifiers;
 
     [Header("Comportamento Especial Desbloqueado")]
-    [Tooltip("Arraste o SCRIPT do comportamento que este upgrade desbloqueia (Ex: DoubleAttackBehavior).")]
+    [Tooltip("Arraste o PREFAB do comportamento que este upgrade desbloqueia (Ex: DoubleAttackBehavior).")]
     public TowerBehavior behaviorToUnlock;
 }

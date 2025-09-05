@@ -17,13 +17,14 @@ MonoBehaviour:
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 1
-  meleeRange: 2
+  meleeRange: 1000
   combatType: 0
   fireMode: 0
   meleeAngle: 90
   isCommander: 1
   characterIcon: {fileID: 21300000, guid: 7e0b9d605fae73a499232103c1892355, type: 3}
-  commanderPrefab: {fileID: 0}
+  commanderPrefab: {fileID: 2682399473942067493, guid: 797cbc794ef4bd9448a9c47960fbab51, type: 3}
+  towerPrefab: {fileID: 7734725407009037971, guid: 4d14d003461c1c840ac62da38e8680f5, type: 3}
   magazineSize: 10
   passive: {fileID: 0}
   ability1: {fileID: 0}

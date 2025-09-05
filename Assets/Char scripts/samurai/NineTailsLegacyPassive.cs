@@ -9,7 +9,7 @@ public class NineTailsLegacyPassive : PassivaAbility
 
     public override void OnEquip(GameObject owner)
     {
-        Debug.Log("Passiva equipada: " + abilityName);
+       // Debug.Log("Passiva equipada: " + abilityName);
 
        /*  Encontra todas as torres na cena
         //TowerController[] allTowers = FindObjectsOfType<TowerController>();

@@ -22,6 +22,7 @@ public class CharacterBase : ScriptableObject
     public bool isCommander = true;
     public Sprite characterIcon;
     public GameObject commanderPrefab;
+    public GameObject towerPrefab;
 
     [Header("Commander Specifics")]
     public int magazineSize = 10;

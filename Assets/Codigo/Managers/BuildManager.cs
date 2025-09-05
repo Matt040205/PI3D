@@ -1,4 +1,4 @@
-// Cole esta versão no seu BuildManager
+// BuildManager.cs (Com depuração e nova lógica de altura)
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
@@ -6,13 +6,20 @@ using Unity.Cinemachine;
 public class BuildManager : MonoBehaviour
 {
     public static BuildManager Instance;
+
+    [Header("Câmeras")]
     public CinemachineCamera buildCamera;
+
     private List<CharacterBase> availableTowers = new List<CharacterBase>();
     private CharacterBase selectedTowerData;
+
+    [Header("Visual do Ghost")]
     private GameObject currentBuildGhost;
     public Material validPlacementMaterial;
     public Material invalidPlacementMaterial;
+
     public bool isBuildingMode = false;
+
     private const int PriorityBuild = 20;
     private const int PriorityInactive = 0;
 
@@ -31,7 +38,6 @@ public class BuildManager : MonoBehaviour
 
     public void SetAvailableTowers(CharacterBase[] selectedTeam)
     {
-        Debug.Log("--- DEBUG: BuildManager.SetAvailableTowers() foi chamado. ---");
         availableTowers.Clear();
         for (int i = 1; i < selectedTeam.Length; i++)
         {
@@ -40,19 +46,12 @@ public class BuildManager : MonoBehaviour
                 availableTowers.Add(selectedTeam[i]);
             }
         }
-
         if (UIManager.Instance != null)
         {
-            Debug.Log("DEBUG: UIManager encontrado. Chamando UpdateBuildUI com " + availableTowers.Count + " torres.");
             UIManager.Instance.UpdateBuildUI(availableTowers);
-        }
-        else
-        {
-            Debug.LogError("DEBUG FALHA: UIManager.Instance é NULO!");
         }
     }
 
-    // O resto do script (Update, PlaceBuilding, etc.) continua igual...
     public void SelectTowerToBuild(CharacterBase towerData)
     {
         ClearSelection();
@@ -66,6 +65,7 @@ public class BuildManager : MonoBehaviour
             isBuildingMode = !isBuildingMode;
             ToggleBuildMode(isBuildingMode);
         }
+
         if (isBuildingMode)
         {
             HandleBuildGhost();
@@ -90,21 +90,59 @@ public class BuildManager : MonoBehaviour
 
     void HandleBuildGhost()
     {
-        if (selectedTowerData == null) { if (currentBuildGhost != null) Destroy(currentBuildGhost); return; }
-        GameObject selectedPrefab = selectedTowerData.commanderPrefab;
-        if (selectedPrefab == null) return;
+        if (selectedTowerData == null)
+        {
+            if (currentBuildGhost != null) Destroy(currentBuildGhost);
+            return;
+        }
+
+        GameObject selectedPrefab = selectedTowerData.towerPrefab;
+        if (selectedPrefab == null)
+        {
+            if (currentBuildGhost != null) Destroy(currentBuildGhost);
+            return;
+        }
+
         if (currentBuildGhost == null)
         {
             currentBuildGhost = Instantiate(selectedPrefab);
-            Collider ghostCollider = currentBuildGhost.GetComponent<Collider>();
-            if (ghostCollider != null) ghostCollider.enabled = false;
+            var towerController = currentBuildGhost.GetComponentInChildren<TowerController>();
+            if (towerController) towerController.enabled = false;
+
+            Collider[] colliders = currentBuildGhost.GetComponentsInChildren<Collider>();
+            foreach (var col in colliders) col.enabled = false;
         }
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+
         bool isOverValidSurface = Physics.Raycast(ray, out hit) && hit.transform.CompareTag("Local");
-        currentBuildGhost.transform.position = hit.point;
+
+        if (isOverValidSurface)
+        {
+            // --- NOVA LÓGICA DE ALTURA ---
+            // Pega o collider do ghost para calcular a altura
+            Collider ghostCollider = currentBuildGhost.GetComponentInChildren<Collider>();
+            if (ghostCollider != null)
+            {
+                // A altura a ser adicionada é metade da altura total do collider
+                float yOffset = ghostCollider.bounds.extents.y;
+                currentBuildGhost.transform.position = hit.point + new Vector3(0, yOffset, 0);
+            }
+            else
+            {
+                // Se não houver collider, posiciona no ponto de impacto
+                currentBuildGhost.transform.position = hit.point;
+            }
+        }
+        else if (Physics.Raycast(ray, out hit))
+        {
+            currentBuildGhost.transform.position = hit.point;
+        }
+
         int buildingCost = selectedTowerData.cost;
         bool hasEnoughCurrency = CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites);
+
         var ghostRenderer = currentBuildGhost.GetComponentInChildren<MeshRenderer>();
         if (ghostRenderer != null)
         {
@@ -115,14 +153,19 @@ public class BuildManager : MonoBehaviour
     void PlaceBuilding()
     {
         if (selectedTowerData == null || currentBuildGhost == null) return;
-        GameObject selectedPrefab = selectedTowerData.commanderPrefab;
-        int buildingCost = selectedTowerData.cost;
+
         var ghostRenderer = currentBuildGhost.GetComponentInChildren<MeshRenderer>();
         if (ghostRenderer != null && ghostRenderer.material.name.Contains(validPlacementMaterial.name))
         {
+            GameObject prefabToBuild = selectedTowerData.towerPrefab;
+            int buildingCost = selectedTowerData.cost;
+
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
             {
-                Instantiate(selectedPrefab, currentBuildGhost.transform.position, Quaternion.identity);
+                // Usa a mesma lógica de altura para a torre final
+                Vector3 finalPosition = currentBuildGhost.transform.position;
+                Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
+
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
                 ClearSelection();
             }
@@ -131,7 +174,10 @@ public class BuildManager : MonoBehaviour
 
     void ClearSelection()
     {
-        if (currentBuildGhost != null) { Destroy(currentBuildGhost); }
+        if (currentBuildGhost != null)
+        {
+            Destroy(currentBuildGhost);
+        }
         currentBuildGhost = null;
         selectedTowerData = null;
     }

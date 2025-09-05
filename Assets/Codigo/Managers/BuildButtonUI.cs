@@ -9,7 +9,7 @@ public class BuildButtonUI : MonoBehaviour
 
     public void CreateBuildButtons(List<CharacterBase> availableTowers)
     {
-        Debug.Log("--- DEBUG: BuildButtonUI.CreateBuildButtons() foi chamado. ---");
+       // Debug.Log("--- DEBUG: BuildButtonUI.CreateBuildButtons() foi chamado. ---");
 
         if (buttonContainer == null) { Debug.LogError("DEBUG FALHA: 'Button Container' está NULO!"); return; }
         if (buildButtonPrefab == null) { Debug.LogError("DEBUG FALHA: 'Build Button Prefab' está NULO!"); return; }
@@ -19,12 +19,12 @@ public class BuildButtonUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        Debug.Log("DEBUG: Criando " + availableTowers.Count + " botões...");
+        //Debug.Log("DEBUG: Criando " + availableTowers.Count + " botões...");
         foreach (CharacterBase towerData in availableTowers)
         {
             if (towerData == null) continue;
             GameObject buttonGO = Instantiate(buildButtonPrefab, buttonContainer);
-            Debug.Log("DEBUG: Botão criado para " + towerData.name);
+           // Debug.Log("DEBUG: Botão criado para " + towerData.name);
 
             // O resto do script...
             Image buttonImage = buttonGO.GetComponent<Image>();

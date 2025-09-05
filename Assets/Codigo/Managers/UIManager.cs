@@ -22,10 +22,10 @@ public class UIManager : MonoBehaviour
 
     public void UpdateBuildUI(List<CharacterBase> availableTowers)
     {
-        Debug.Log("--- DEBUG: UIManager.UpdateBuildUI() foi chamado. ---");
+        //Debug.Log("--- DEBUG: UIManager.UpdateBuildUI() foi chamado. ---");
         if (buildButtonUI != null)
         {
-            Debug.Log("DEBUG: buildButtonUI encontrado. Chamando CreateBuildButtons...");
+           // Debug.Log("DEBUG: buildButtonUI encontrado. Chamando CreateBuildButtons...");
             buildButtonUI.CreateBuildButtons(availableTowers);
         }
         else

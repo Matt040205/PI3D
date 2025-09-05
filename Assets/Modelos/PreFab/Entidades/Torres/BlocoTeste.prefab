@@ -45,7 +45,6 @@ GameObject:
   - component: {fileID: 4638686060242446458}
   - component: {fileID: 8524874085612215196}
   - component: {fileID: 8430815442730106590}
-  - component: {fileID: 7280199160676705466}
   m_Layer: 0
   m_Name: BlocoTeste
   m_TagString: Untagged
@@ -172,20 +171,3 @@ MonoBehaviour:
   towerData: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   partToRotate: {fileID: 3335132613750380018}
   enemyTag: Enemy
---- !u!114 &7280199160676705466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3333250326587255744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26b6d08e2ebf6914da9956f404d87464, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyTag: Enemy
-  attackRange: 10
-  damagePerShot: 20
-  fireRate: 1
-  maxHealth: 100

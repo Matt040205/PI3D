@@ -135,7 +135,7 @@ public class PlayerShooting : MonoBehaviour
         }
         else
         {
-            Debug.Log("Tiro disparado mas não acertou nada");
+          //  Debug.Log("Tiro disparado mas não acertou nada");
         }
 
         // 4. Criar projétil visual usando pool

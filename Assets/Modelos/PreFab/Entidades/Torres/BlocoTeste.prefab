@@ -170,4 +170,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   towerData: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   partToRotate: {fileID: 3335132613750380018}
+  firePoint: {fileID: 3335132613750380018}
   enemyTag: Enemy
+  currentPathLevels: 

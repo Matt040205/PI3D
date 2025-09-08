@@ -1,8 +1,8 @@
-// TowerController.cs (VERSÃO FINAL PARA TESTES)
+// TowerController.cs (VERSÃO FINAL PARA TESTES COM LOGS DETALHADOS)
 using UnityEngine;
 using System;
 using System.Linq;
-using System.Collections.Generic; // Necessário para a lista de comportamentos
+using System.Collections.Generic;
 
 public class TowerController : MonoBehaviour
 {
@@ -22,25 +22,20 @@ public class TowerController : MonoBehaviour
     // --- Propriedade Pública de Estado ---
     public bool IsDestroyed { get; private set; }
 
-    // --- Status Base (Carregados no início) ---
-    private float maxHealth;
-    private float baseArmor;
-    private float baseDamage;
-    private float baseAttackSpeed;
-    private float baseCritChance;
-    private float baseCritDamage;
-    private float baseArmorPenetration;
-    private float baseRange;
-
-    // --- Status Atuais e Modificadores de Buff ---
+    // --- Status Atuais da Instância da Torre ---
     private float currentHealth;
-    private float armorBonus = 0f;
-    private float attackSpeedBonusMultiplier = 1.0f;
-    private float damageBonusMultiplier = 1.0f;
+    private float maxHealth;
+    private float currentArmor;
+    private float currentDamage;
+    private float currentAttackSpeed;
+    private float currentCritChance;
+    private float currentCritDamage;
+    private float currentArmorPenetration;
+    private float currentRange;
 
     // --- Variáveis de Controle Interno ---
     private List<TowerBehavior> activeBehaviors = new List<TowerBehavior>();
-    public int[] currentPathLevels; // Público para a UI de teste poder ler e modificar
+    public int[] currentPathLevels;
     private Transform targetEnemy;
     private float fireCountdown = 0f;
 
@@ -53,32 +48,24 @@ public class TowerController : MonoBehaviour
             return;
         }
         currentPathLevels = new int[towerData.upgradePaths.Count];
-        ApplyStatsFromBase(); // Carrega os status iniciais
+        CloneBaseStats();
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
-    // Carrega ou recarrega os status a partir do ScriptableObject
-    void ApplyStatsFromBase()
+    void CloneBaseStats()
     {
         maxHealth = towerData.maxHealth;
-        baseArmor = towerData.armor;
-        baseDamage = towerData.damage;
-        baseAttackSpeed = towerData.attackSpeed;
-        baseCritChance = towerData.critChance;
-        baseCritDamage = towerData.critDamage;
-        baseArmorPenetration = towerData.armorPenetration;
-        baseRange = towerData.meleeRange;
-
-        // Reseta a vida se estiver recarregando os status
-        if (currentHealth > maxHealth || currentHealth <= 0 && !IsDestroyed)
-        {
-            currentHealth = maxHealth;
-        }
-
-        IsDestroyed = false; // Garante que a torre não comece destruída
+        currentHealth = maxHealth;
+        currentArmor = towerData.armor;
+        currentDamage = towerData.damage;
+        currentAttackSpeed = towerData.attackSpeed;
+        currentCritChance = towerData.critChance;
+        currentCritDamage = towerData.critDamage;
+        currentArmorPenetration = towerData.armorPenetration;
+        currentRange = towerData.meleeRange;
+        IsDestroyed = false;
     }
 
-    // --- MÉTODO-CHAVE PARA APLICAR UPGRADES ---
     public void ApplyUpgrade(Upgrade upgradeToApply)
     {
         if (upgradeToApply == null)
@@ -89,107 +76,108 @@ public class TowerController : MonoBehaviour
 
         Debug.Log($"<color=cyan>Aplicando upgrade '{upgradeToApply.upgradeName}' na torre {gameObject.name}</color>");
 
-        // 1. Aplica os modificadores de status (direto no ScriptableObject para ser permanente)
         foreach (var modifier in upgradeToApply.modifiers)
         {
             ApplyModifier(modifier);
         }
 
-        // 2. Adiciona o novo comportamento, se houver
         if (upgradeToApply.behaviorToUnlock != null)
         {
             GameObject behaviorObject = Instantiate(upgradeToApply.behaviorToUnlock.gameObject, transform);
             TowerBehavior newBehavior = behaviorObject.GetComponent<TowerBehavior>();
-
             if (newBehavior != null)
             {
                 newBehavior.Initialize(this);
                 activeBehaviors.Add(newBehavior);
-                Debug.Log($"Comportamento '{newBehavior.GetType().Name}' adicionado.");
+                // ESTE LOG CONFIRMA QUE A HABILIDADE FOI ADICIONADA
+                Debug.Log($"<color=yellow>HABILIDADE DESBLOQUEADA: '{newBehavior.GetType().Name}' foi adicionada à torre {gameObject.name}.</color>");
             }
         }
-
-        // 3. Re-aplica todos os status para que as mudanças sejam refletidas imediatamente
-        ApplyStatsFromBase();
     }
 
-    // Método auxiliar para aplicar modificadores de status
     private void ApplyModifier(StatModifier modifier)
     {
         float value = modifier.value;
-        // NOTA: A lógica aqui assume que bônus multiplicativos são baseados no valor original.
-        // Uma lógica mais complexa poderia ser necessária para múltiplos bônus multiplicativos.
         switch (modifier.statToModify)
         {
             case StatType.Damage:
-                float oldDamage = towerData.damage;
-                towerData.damage = (modifier.modType == ModificationType.Additive) ? towerData.damage + value : towerData.damage * (1 + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Dano da torre {gameObject.name} mudou de {oldDamage.ToString("F1")} para {towerData.damage.ToString("F1")}</color>");
+                currentDamage = (modifier.modType == ModificationType.Additive) ? currentDamage + value : currentDamage * (1 + value);
                 break;
             case StatType.AttackSpeed:
-                float oldAttackSpeed = towerData.attackSpeed;
-                towerData.attackSpeed = (modifier.modType == ModificationType.Additive) ? towerData.attackSpeed + value : towerData.attackSpeed * (1 + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Velocidade de Ataque da torre {gameObject.name} mudou de {oldAttackSpeed.ToString("F1")} para {towerData.attackSpeed.ToString("F1")}</color>");
+                currentAttackSpeed = (modifier.modType == ModificationType.Additive) ? currentAttackSpeed + value : currentAttackSpeed * (1 + value);
                 break;
             case StatType.Range:
-                float oldRange = towerData.meleeRange;
-                towerData.meleeRange = (modifier.modType == ModificationType.Additive) ? towerData.meleeRange + value : towerData.meleeRange * (1 + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Alcance da torre {gameObject.name} mudou de {oldRange.ToString("F1")} para {towerData.meleeRange.ToString("F1")}</color>");
+                currentRange = (modifier.modType == ModificationType.Additive) ? currentRange + value : currentRange * (1 + value);
                 break;
             case StatType.Armor:
-                float oldArmor = towerData.armor;
-                towerData.armor = Mathf.Clamp01(towerData.armor + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Armadura da torre {gameObject.name} mudou de {oldArmor.ToString("F2")} para {towerData.armor.ToString("F2")}</color>");
+                currentArmor = Mathf.Clamp01(currentArmor + value);
                 break;
             case StatType.CritChance:
-                float oldCritChance = towerData.critChance;
-                towerData.critChance = Mathf.Clamp01(towerData.critChance + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Chance Crítica da torre {gameObject.name} mudou de {oldCritChance.ToString("P0")} para {towerData.critChance.ToString("P0")}</color>");
+                currentCritChance = Mathf.Clamp01(currentCritChance + value);
+                break;
+            case StatType.CritDamage:
+                currentCritDamage = (modifier.modType == ModificationType.Additive) ? currentCritDamage + value : currentCritDamage * (1 + value);
                 break;
             case StatType.ArmorPenetration:
-                float oldArmorPen = towerData.armorPenetration;
-                towerData.armorPenetration = Mathf.Clamp01(towerData.armorPenetration + value);
-                Debug.Log($"<color=lime>UPGRADE Aplicado: Penetração de Armadura da torre {gameObject.name} mudou de {oldArmorPen.ToString("P0")} para {towerData.armorPenetration.ToString("P0")}</color>");
+                currentArmorPenetration = Mathf.Clamp01(currentArmorPenetration + value);
                 break;
         }
     }
 
-
     void Update()
     {
-        if (IsDestroyed) return;
-        if (targetEnemy == null) return;
+        if (IsDestroyed || targetEnemy == null) return;
         if (partToRotate != null) RotateTowardsTarget();
 
         fireCountdown -= Time.deltaTime;
         if (fireCountdown <= 0f)
         {
-            float finalAttackSpeed = baseAttackSpeed * attackSpeedBonusMultiplier;
-            fireCountdown = 1f / finalAttackSpeed;
+            fireCountdown = 1f / currentAttackSpeed;
             Shoot();
         }
     }
 
+    // ===== ÁREA DE TESTE COM LOGS DE DANO =====
     void Shoot()
     {
         if (targetEnemy == null) return;
         EnemyHealthSystem healthSystem = targetEnemy.GetComponent<EnemyHealthSystem>();
         if (healthSystem != null)
         {
-            float damageToDeal = baseDamage * damageBonusMultiplier;
-            bool isCritical = UnityEngine.Random.value <= baseCritChance;
+            float damageToDeal = currentDamage;
+            bool isCritical = UnityEngine.Random.value <= currentCritChance;
+
+            string logMessage = $"<color=white>{gameObject.name} atacou {targetEnemy.name}.</color> ";
+
             if (isCritical)
             {
-                damageToDeal *= baseCritDamage;
+                float criticalDamage = damageToDeal * currentCritDamage;
+                logMessage += $"<color=red>CRÍTICO! Dano: {criticalDamage.ToString("F1")}</color> (Base: {damageToDeal.ToString("F1")} * {currentCritDamage.ToString("F1")})";
+                damageToDeal = criticalDamage;
             }
+            else
+            {
+                logMessage += $"<color=green>Dano normal: {damageToDeal.ToString("F1")}</color>";
+            }
+
+            // Permite que outros scripts (habilidades) modifiquem o dano antes de ser aplicado
             if (OnCalculateDamage != null)
             {
+                float originalDamage = damageToDeal;
                 foreach (Func<EnemyHealthSystem, float, float> modifier in OnCalculateDamage.GetInvocationList())
                 {
                     damageToDeal = modifier(healthSystem, damageToDeal);
                 }
+                if (originalDamage != damageToDeal)
+                {
+                    logMessage += $" | <color=lightblue>Dano modificado por habilidade para: {damageToDeal.ToString("F1")}</color>";
+                }
             }
-            healthSystem.TakeDamage(damageToDeal, baseArmorPenetration);
+
+            // NOVO LOG DE DANO!
+            Debug.Log(logMessage);
+
+            healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
             OnTargetDamaged?.Invoke(healthSystem);
             if (isCritical)
             {
@@ -211,8 +199,7 @@ public class TowerController : MonoBehaviour
                 remainingDamage = barrier.AbsorbDamage(remainingDamage);
             }
         }
-        float totalArmor = Mathf.Clamp01(baseArmor + armorBonus);
-        float finalDamage = remainingDamage * (1 - totalArmor);
+        float finalDamage = remainingDamage * (1 - currentArmor);
         currentHealth -= finalDamage;
         if (currentHealth <= 0)
         {
@@ -236,14 +223,13 @@ public class TowerController : MonoBehaviour
         Debug.Log($"Torre {gameObject.name} foi revivida!");
     }
 
-    // MÉTODOS PÚBLICOS PARA BUFFS
+    // MÉTODOS PÚBLICOS E DE CONTROLE (Sem alterações)
     public void Heal(float amount) { currentHealth = Mathf.Min(currentHealth + amount, maxHealth); }
-    public void AddArmorBonus(float amount) { armorBonus += amount; }
-    public void AddAttackSpeedBonus(float amount) { attackSpeedBonusMultiplier += amount; }
-    public void AddDamageBonus(float amount) { damageBonusMultiplier += amount; }
+    public void AddArmorBonus(float amount) { currentArmor += amount; }
+    public void AddAttackSpeedBonus(float amount) { currentAttackSpeed *= (1 + amount); }
+    public void AddDamageBonus(float amount) { currentDamage *= (1 + amount); }
     public void PerformExtraAttack() { Shoot(); }
 
-    // MÉTODOS DE CONTROLE
     void UpdateTarget()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
@@ -259,7 +245,7 @@ public class TowerController : MonoBehaviour
                 nearestEnemy = enemy.transform;
             }
         }
-        if (nearestEnemy != null && shortestDistance <= baseRange) { targetEnemy = nearestEnemy; }
+        if (nearestEnemy != null && shortestDistance <= currentRange) { targetEnemy = nearestEnemy; }
         else { targetEnemy = null; }
     }
 
@@ -274,6 +260,6 @@ public class TowerController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, baseRange);
+        Gizmos.DrawWireSphere(transform.position, currentRange);
     }
 }

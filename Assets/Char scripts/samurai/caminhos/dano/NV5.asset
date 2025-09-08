@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: NV5
   m_EditorClassIdentifier: 
-  upgradeName: 
+  upgradeName: "Dan\xE7a das Caudas"
   description: 
   icon: {fileID: 0}
   geoditeCost: 0

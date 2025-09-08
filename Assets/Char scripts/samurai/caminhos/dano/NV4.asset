@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: NV4
   m_EditorClassIdentifier: 
-  upgradeName: 
+  upgradeName: Corte Duplo
   description: 
   icon: {fileID: 0}
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []
-  behaviorToUnlock: {fileID: 0}
+  behaviorToUnlock: {fileID: 2603595840160005909, guid: a74eecb88a734c54fb09d37e694e756e, type: 3}

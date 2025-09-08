@@ -313,7 +313,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 15567554}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 907435281}
+        m_TargetAssemblyTypeName: UpgradePanelUI, Assembly-CSharp
+        m_MethodName: UpgradePath
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &17908305
 GameObject:
   m_ObjectHideFlags: 0
@@ -4957,7 +4969,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemiesPerHordeMin: 1
   enemiesPerHordeMax: 1
-  victoryHorde: 5
+  victoryHorde: 50
   enemyTypes:
   - {fileID: 11400000, guid: 6c387383024c2f64eae487681be4e202, type: 2}
   spawnPaths:
@@ -8135,7 +8147,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 711442727}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 907435281}
+        m_TargetAssemblyTypeName: UpgradePanelUI, Assembly-CSharp
+        m_MethodName: UpgradePath
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &732802501
 GameObject:
   m_ObjectHideFlags: 0
@@ -24976,7 +25000,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2134243830}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 907435281}
+        m_TargetAssemblyTypeName: UpgradePanelUI, Assembly-CSharp
+        m_MethodName: UpgradePath
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &2139431511
 PrefabInstance:
   m_ObjectHideFlags: 0

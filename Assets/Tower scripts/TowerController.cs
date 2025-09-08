@@ -54,6 +54,7 @@ public class TowerController : MonoBehaviour
         }
         currentPathLevels = new int[towerData.upgradePaths.Count];
         ApplyStatsFromBase(); // Carrega os status iniciais
+        InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
     // Carrega ou recarrega os status a partir do ScriptableObject
@@ -121,23 +122,34 @@ public class TowerController : MonoBehaviour
         switch (modifier.statToModify)
         {
             case StatType.Damage:
+                float oldDamage = towerData.damage;
                 towerData.damage = (modifier.modType == ModificationType.Additive) ? towerData.damage + value : towerData.damage * (1 + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Dano da torre {gameObject.name} mudou de {oldDamage.ToString("F1")} para {towerData.damage.ToString("F1")}</color>");
                 break;
             case StatType.AttackSpeed:
+                float oldAttackSpeed = towerData.attackSpeed;
                 towerData.attackSpeed = (modifier.modType == ModificationType.Additive) ? towerData.attackSpeed + value : towerData.attackSpeed * (1 + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Velocidade de Ataque da torre {gameObject.name} mudou de {oldAttackSpeed.ToString("F1")} para {towerData.attackSpeed.ToString("F1")}</color>");
                 break;
             case StatType.Range:
+                float oldRange = towerData.meleeRange;
                 towerData.meleeRange = (modifier.modType == ModificationType.Additive) ? towerData.meleeRange + value : towerData.meleeRange * (1 + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Alcance da torre {gameObject.name} mudou de {oldRange.ToString("F1")} para {towerData.meleeRange.ToString("F1")}</color>");
                 break;
-            // Adicione os outros casos (Armor, CritChance, etc.) aqui seguindo o mesmo padrão
             case StatType.Armor:
+                float oldArmor = towerData.armor;
                 towerData.armor = Mathf.Clamp01(towerData.armor + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Armadura da torre {gameObject.name} mudou de {oldArmor.ToString("F2")} para {towerData.armor.ToString("F2")}</color>");
                 break;
             case StatType.CritChance:
+                float oldCritChance = towerData.critChance;
                 towerData.critChance = Mathf.Clamp01(towerData.critChance + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Chance Crítica da torre {gameObject.name} mudou de {oldCritChance.ToString("P0")} para {towerData.critChance.ToString("P0")}</color>");
                 break;
             case StatType.ArmorPenetration:
+                float oldArmorPen = towerData.armorPenetration;
                 towerData.armorPenetration = Mathf.Clamp01(towerData.armorPenetration + value);
+                Debug.Log($"<color=lime>UPGRADE Aplicado: Penetração de Armadura da torre {gameObject.name} mudou de {oldArmorPen.ToString("P0")} para {towerData.armorPenetration.ToString("P0")}</color>");
                 break;
         }
     }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3335132613750380018}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 4638686060242446458}
   - component: {fileID: 8524874085612215196}
   - component: {fileID: 8430815442730106590}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BlocoTeste
   m_TagString: Untagged
   m_Icon: {fileID: 0}

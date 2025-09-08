@@ -24019,6 +24019,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradePanel: {fileID: 907435281}
+  towerLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1001 &2059375045
 PrefabInstance:
   m_ObjectHideFlags: 0

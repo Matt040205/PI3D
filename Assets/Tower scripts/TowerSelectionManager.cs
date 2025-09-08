@@ -1,5 +1,7 @@
-// TowerSelectionManager.cs (VERSÃO DE DEPURAÇÃO)
+// TowerSelectionManager.cs (Nova Versão com LayerMask)
 using UnityEngine;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class TowerSelectionManager : MonoBehaviour
 {
@@ -8,44 +10,45 @@ public class TowerSelectionManager : MonoBehaviour
     [Header("Referências da UI")]
     public UpgradePanelUI upgradePanel;
 
+    [Header("Configuração da Seleção")]
+    public LayerMask towerLayerMask; // NOVO: Campo para definir a camada das torres
+
     private TowerController selectedTower;
-    private Camera mainCamera; // Adicionado para otimização
 
     void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
-        mainCamera = Camera.main; // Guarda a referência da câmera no início
     }
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("--- Clique do mouse detectado ---");
-
-            if (mainCamera == null)
+            if (EventSystem.current.IsPointerOverGameObject())
             {
-                Debug.LogError("Câmera principal não encontrada! O Raycast não vai funcionar.");
+                // Este log ajuda a confirmar se a UI está bloqueando o clique.
+                // Se esta mensagem aparece, o problema é um painel da UI com "Raycast Target" ativado.
+                Debug.Log("<color=yellow>Clique ignorado pois foi feito sobre a UI.</color>");
                 return;
             }
 
-            if (upgradePanel == null)
+            Camera currentCamera = Camera.main;
+            if (currentCamera == null)
             {
-                Debug.LogError("Referência do UpgradePanel não está definida no TowerSelectionManager!");
+                Debug.LogError("Câmera principal não encontrada!");
                 return;
             }
 
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, 100f))
+            // MUDANÇA PRINCIPAL AQUI:
+            // Usamos uma distância maior (1000f) e a towerLayerMask para garantir
+            // que o raio só vai procurar por colisões na camada "Towers".
+            if (Physics.Raycast(ray, out hit, 1000f, towerLayerMask))
             {
-                Debug.Log($"Raycast atingiu o objeto: '{hit.collider.name}' na layer '{LayerMask.LayerToName(hit.collider.gameObject.layer)}'");
+                Debug.Log($"<color=cyan>Raycast atingiu o objeto '{hit.collider.name}' na camada '{LayerMask.LayerToName(hit.collider.gameObject.layer)}'</color>");
 
                 TowerController tower = hit.collider.GetComponent<TowerController>();
 
@@ -54,15 +57,12 @@ public class TowerSelectionManager : MonoBehaviour
                     Debug.Log($"<color=green>Objeto '{hit.collider.name}' é uma torre! Chamando SelectTower...</color>");
                     SelectTower(tower);
                 }
-                else
-                {
-                    Debug.Log("<color=orange>Objeto atingido não é uma torre. Deselecionando.</color>");
-                    DeselectTower();
-                }
+                // Não precisamos mais de um 'else' aqui, pois o raycast só vai atingir torres.
             }
             else
             {
-                Debug.Log("<color=red>Clique não atingiu nenhum objeto com Collider. Deselecionando.</color>");
+                // Se o raycast não atingiu NADA na camada de torres, então deselecionamos.
+                Debug.Log("<color=red>Clique não atingiu nenhuma torre. Deselecionando.</color>");
                 DeselectTower();
             }
         }
@@ -70,16 +70,12 @@ public class TowerSelectionManager : MonoBehaviour
 
     void SelectTower(TowerController tower)
     {
-        Debug.Log($"Lógica SelectTower iniciada. Torre clicada: {tower.name}, Torre já selecionada: {(selectedTower != null ? selectedTower.name : "Nenhuma")}");
-
         if (tower == selectedTower && upgradePanel.IsPanelVisible())
         {
-            Debug.Log("Clicou na mesma torre com o painel visível. Escondendo o painel.");
             DeselectTower();
         }
         else
         {
-            Debug.Log("Selecionando nova torre ou mostrando painel para a torre atual.");
             selectedTower = tower;
             upgradePanel.ShowPanel(selectedTower);
         }

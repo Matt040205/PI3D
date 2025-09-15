@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8909b441e1976c499ca46d46274b7c1, type: 3}
+  m_Name: Kit da Coruja Arqueira
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  damage: 25
+  moveSpeed: 5
+  reloadSpeed: 0.5
+  attackSpeed: 0.5
+  meleeRange: 20
+  armor: 0
+  critChance: 0.05
+  critDamage: 2.5
+  armorPenetration: 0
+  combatType: 0
+  fireMode: 0
+  meleeAngle: 90
+  isCommander: 1
+  characterIcon: {fileID: 0}
+  commanderPrefab: {fileID: 0}
+  towerPrefab: {fileID: 0}
+  magazineSize: 10
+  passive: {fileID: 0}
+  ability1: {fileID: 0}
+  ability2: {fileID: 0}
+  ultimate: {fileID: 0}
+  upgradePaths: []
+  cost: 50

@@ -1,22 +1,22 @@
 using UnityEngine;
-using System.Collections.Generic; // Necessário para a lista de caminhos de upgrade
 
-[CreateAssetMenu(fileName = "CorujaArqueiraData", menuName = "Tower Defense/Personagens/Coruja Arqueira")]
-public class CorujaArqueiraKit : CharacterBase
+[CreateAssetMenu(fileName = "Kit da Coruja Arqueira", menuName = "ExoBeasts/Personagens/Coruja Arqueira")]
+public class CorujaArqueiraKit : ScriptableObject
 {
-    private void OnValidate()
-    {
-        // Define os atributos da Coruja Arqueira de acordo com o design
-        maxHealth = 100f; // Vida Baixa
-        damage = 25f; // Dano Alto (exemplo de valor base)
-        critDamage = 2.5f; // Dano super alto para headshot/crítico
-        moveSpeed = 5f; // Velocidade moderada
-        attackSpeed = 0.5f; // Ataque lento
-        reloadSpeed = 0.5f; // Recarga lenta
+    [Header("Atributos Básicos")]
+    public float health = 100f; // Exemplo de vida
+    public string weaponType = "Arco";
+    public string primaryAttackName = "Flecha Certeira";
+    public float damage = 20f; // Dano base
+    public float headshotBonus = 5f; // Bônus de dano para headshot
+    public float movementSpeed = 5f; // Velocidade de movimento moderada
+    public float attackSpeed = 0.5f; // Velocidade de ataque lenta
+    public float reloadSpeed = 0.5f; // Velocidade de recarga lenta
+    public float abilitySpeed = 1.5f; // Velocidade de habilidades rápida
 
-        // Tipo de Combate
-        combatType = CombatType.Ranged;
-        fireMode = FireMode.SemiAuto;
-        meleeRange = 20f; // Grande alcance para um arqueiro
-    }
+    [Header("Habilidades")]
+    public PassivaComandanteCoruja passivaComandante;
+    public HabilidadeVooGracioso vooGracioso;
+    public HabilidadePerseguindoPresas perseguindoPresas;
+    public HabilidadeCacadoraNoturna cacadoraNoturna;
 }

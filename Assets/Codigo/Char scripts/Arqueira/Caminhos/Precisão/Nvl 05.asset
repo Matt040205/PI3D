@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
+  m_Name: Nvl 05
+  m_EditorClassIdentifier: 
+  upgradeName: Marca da Presa
+  description: Inimigos marcados recebem +30% de danos de todas as torres
+  icon: {fileID: 0}
+  geoditeCost: 0
+  darkEtherCost: 0
+  modifiers: []
+  behaviorToUnlock: {fileID: 5914133528100460328, guid: 4881bcecd65f7f5488312a08edf6a942, type: 3}

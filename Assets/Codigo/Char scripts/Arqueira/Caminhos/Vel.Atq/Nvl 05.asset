@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
+  m_Name: Nvl 05
+  m_EditorClassIdentifier: 
+  upgradeName: "F\xFAria da Ca\xE7adora"
+  description: "Vel. Atq aumenta 5% a cada cr\xEDtico (Acumula at\xE9 8x)"
+  icon: {fileID: 0}
+  geoditeCost: 0
+  darkEtherCost: 0
+  modifiers: []
+  behaviorToUnlock: {fileID: -5741030748455702053, guid: 1ff9a196bb86e7b4690744c9eb9d377f, type: 3}

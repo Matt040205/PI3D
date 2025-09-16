@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd551060b6341b64e92f7dd6212cd9ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
+  characterData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   firePoint: {fileID: 3294448804810150574}
   projectileVisualPrefab: {fileID: 9104921844974723845, guid: f14f768e29c3c2c4ca827c7d1b39d783, type: 3}
   impactEffectPrefab: {fileID: 0}
@@ -285,10 +285,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b9cdfdf192d574b9e71799e33de84d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
-  shootingSystem: {fileID: 0}
-  meleeSystem: {fileID: 0}
-  healthSystem: {fileID: 0}
+  characterData: {fileID: 0}
+  shootingSystem: {fileID: 4461165537539138510}
+  meleeSystem: {fileID: -5728898866971823336}
+  healthSystem: {fileID: -5441518424919623612}
 --- !u!114 &-5441518424919623612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,7 +301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400ca40dab2b75e438b75aa20d656754, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
+  characterData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   currentHealth: 0
   isRegenerating: 0
   respawnPoint: {fileID: 0}
@@ -350,7 +350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7daf35d1eb67da2418a29830be30835b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
+  characterData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
 --- !u!114 &-8271029888155451222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 653ac7fcc28b1464e9deb54761118942, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
+  characterData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   currentHealth: 0
   currentAmmo: 0
 --- !u!1 &4310731720572642051

@@ -12,27 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8909b441e1976c499ca46d46274b7c1, type: 3}
   m_Name: Kit da Coruja Arqueira
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  health: 100
+  weaponType: Arco
+  primaryAttackName: Flecha Certeira
   damage: 25
-  moveSpeed: 5
-  reloadSpeed: 0.5
+  headshotBonus: 5
+  movementSpeed: 5
   attackSpeed: 0.5
-  meleeRange: 20
-  armor: 0
-  critChance: 0.05
-  critDamage: 2.5
-  armorPenetration: 0
-  combatType: 0
-  fireMode: 0
-  meleeAngle: 90
-  isCommander: 1
-  characterIcon: {fileID: 0}
-  commanderPrefab: {fileID: 0}
-  towerPrefab: {fileID: 0}
-  magazineSize: 10
-  passive: {fileID: 0}
-  ability1: {fileID: 0}
-  ability2: {fileID: 0}
-  ultimate: {fileID: 0}
-  upgradePaths: []
-  cost: 50
+  reloadSpeed: 0.5
+  abilitySpeed: 1.5
+  passivaComandante: {fileID: 11400000, guid: d77900114f53af24ca8fd30a3a2f32a0, type: 2}
+  vooGracioso: {fileID: 11400000, guid: 83353ca2497ac8944b2074b258ff3d0b, type: 2}
+  perseguindoPresas: {fileID: 11400000, guid: 022522f316d084241b8532e3dbdcdc5f, type: 2}
+  cacadoraNoturna: {fileID: 11400000, guid: a23108746863c454c83f8079760abd06, type: 2}

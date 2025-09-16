@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e80d5215918e4742bb35c00478c7b3b, type: 3}
   m_Name: "Ca\xE7adora Noturna"
   m_EditorClassIdentifier: 
-  abilityName: Nova Habilidade
+  abilityName: "Ca\xE7adora Noturna"
   icon: {fileID: 0}
   cooldown: 1
   damage: 500

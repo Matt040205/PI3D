@@ -27,7 +27,7 @@ MonoBehaviour:
   meleeAngle: 90
   isCommander: 0
   characterIcon: {fileID: 21300000, guid: 82119f4032ab72646a22b35d4fc801ca, type: 3}
-  commanderPrefab: {fileID: 2602693989954052603, guid: ef0adf55690ca254ba77c5f8e2ea20ba, type: 3}
+  commanderPrefab: {fileID: 1325491475885760399, guid: a6b2566ee8f37924f89ec31a933bb4da, type: 3}
   towerPrefab: {fileID: 5586063003785400700, guid: fcb695c59e8d8aa44a030a957a857285, type: 3}
   magazineSize: 10
   passive: {fileID: 11400000, guid: d77900114f53af24ca8fd30a3a2f32a0, type: 2}

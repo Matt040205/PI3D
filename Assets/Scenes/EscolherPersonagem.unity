@@ -1063,7 +1063,7 @@ MonoBehaviour:
   todosOsPersonagens:
   - {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   - {fileID: 11400000, guid: 9630a35620054cf4db1008eb33d8d40a, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   painelEquipe: {fileID: 23436998}
   painelEscolhaPersonagem: {fileID: 770851659}
   painelDetalhes: {fileID: 1573295511}

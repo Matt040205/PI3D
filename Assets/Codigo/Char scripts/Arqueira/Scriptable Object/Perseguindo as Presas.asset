@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dc0d909279d35e479a0c82ed818769b, type: 3}
   m_Name: Perseguindo as Presas
   m_EditorClassIdentifier: 
-  abilityName: Nova Habilidade
+  abilityName: Perseguindo as Presas
   icon: {fileID: 0}
   cooldown: 1
   markDuration: 5

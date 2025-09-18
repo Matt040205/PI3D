@@ -13,6 +13,8 @@ public class MenuManager : MonoBehaviour
     public GameObject optionsPanel;
     public GameObject creditosPanel;
     public GameObject sonsPanel;
+    public GameObject PausePanel;
+    public GameObject HUDPanel;
 
     void Start()
     {
@@ -42,7 +44,31 @@ public class MenuManager : MonoBehaviour
 
     public void Resume()
     {
-        if (menuPanel != null) menuPanel.SetActive(false);
+        // Esconde o painel do menu
+        if (PausePanel != null)
+        {
+            PausePanel.SetActive(false);
+            HUDPanel.SetActive(true);
+}
+
+        // Retoma a escala de tempo
+        Time.timeScale = 1f;
+
+        // Desativa a variável de pausa global
+        PauseControl.isPaused = false;
+
+        // Lógica para o cursor, baseada no BuildManager
+        BuildManager buildManager = FindObjectOfType<BuildManager>();
+        if (buildManager != null && buildManager.isBuildingMode)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     // Navega para o menu de Opções

@@ -10,21 +10,43 @@ public class PassivaComandanteCoruja : PassivaAbility
     [Tooltip("Permite pulo duplo para o personagem")]
     public bool canDoubleJump = true;
 
-    // A lógica de aplicação da passiva seria no script do CommanderController
+    // NOVO: Adiciona um campo para o BuildManager para que a passiva possa acessá-lo.
+    // Isso deve ser atribuído pelo CommanderController ou GameManager.
+    public BuildManager buildManager;
 
     public override void OnEquip(GameObject owner)
     {
-        // Lógica para aplicar os efeitos da passiva no jogador ou no jogo.
-        // Exemplo: notificar um gerenciador para aumentar o dano das torres
-        // e habilitar o pulo duplo no script de movimento do personagem.
         Debug.Log("Passiva de Comandante da Coruja equipada: Dano das torres aumentado e pulo duplo ativado.");
+
+        // 1. Aplica o bônus de dano a todas as torres
+        if (buildManager != null)
+        {
+           // buildManager.ApplyDamageBonusToAllTowers(bonusDamagePercent);
+        }
+
+        // 2. Habilita o pulo duplo no script de movimento do jogador
+        PlayerMovement playerMovement = owner.GetComponent<PlayerMovement>();
+        if (playerMovement != null)
+        {
+            playerMovement.canDoubleJump = canDoubleJump;
+        }
     }
 
     public override void OnUnequip(GameObject owner)
     {
-        // Lógica para remover os efeitos da passiva.
-        // Exemplo: notificar o gerenciador para remover o bônus de dano das torres
-        // e desabilitar o pulo duplo.
         Debug.Log("Passiva de Comandante da Coruja desequipada: Efeitos removidos.");
+
+        // 1. Remove o bônus de dano de todas as torres
+        if (buildManager != null)
+        {
+            //buildManager.RemoveDamageBonusFromAllTowers(bonusDamagePercent);
+        }
+
+        // 2. Desabilita o pulo duplo
+        PlayerMovement playerMovement = owner.GetComponent<PlayerMovement>();
+        if (playerMovement != null)
+        {
+            playerMovement.canDoubleJump = false;
+        }
     }
 }

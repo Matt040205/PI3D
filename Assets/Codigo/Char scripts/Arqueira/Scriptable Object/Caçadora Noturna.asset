@@ -17,3 +17,4 @@ MonoBehaviour:
   cooldown: 1
   damage: 500
   radius: 1000
+  logicPrefab: {fileID: 611448088471345569, guid: 32b6440f8c3f85c4ba60e7ad55be97c4, type: 3}

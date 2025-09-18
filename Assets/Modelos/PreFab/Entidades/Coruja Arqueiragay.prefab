@@ -249,6 +249,11 @@ MonoBehaviour:
   rotationSpeed: 13
   cameraController: {fileID: 0}
   modelPivot: {fileID: 7315494051637842559}
+  isGrounded: 0
+  canDoubleJump: 0
+  isFloating: 0
+  floatDuration: 0
+  jumpHeightModifier: 1
 --- !u!114 &4461165537539138510
 MonoBehaviour:
   m_ObjectHideFlags: 0

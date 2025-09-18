@@ -24,23 +24,25 @@ public class PlayerShooting : MonoBehaviour
     private ProjectilePool projectilePool;
     private Camera mainCamera;
 
+    // Variáveis para o bônus de habilidade
+    private bool hasNextShotBonus = false;
+    private float nextShotDamageBonus = 1f;
+    private float nextShotAreaBonus = 1f;
+
     void Start()
     {
         currentAmmo = characterData.magazineSize;
         cameraController = FindObjectOfType<CameraController>();
         mainCamera = Camera.main;
 
-        // Busca a referência do modelPivot
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
         if (playerMovement != null)
         {
             modelPivot = playerMovement.GetModelPivot();
         }
 
-        // Busca os pools
         projectilePool = ProjectilePool.Instance;
 
-        // Cria pools se não existirem
         if (projectilePool == null && projectileVisualPrefab != null)
         {
             GameObject poolObj = new GameObject("ProjectilePool");
@@ -53,12 +55,15 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
+        if (PauseControl.isPaused)
+        {
+            return;
+        }
+
         if (isReloading) return;
 
-        // Controle de disparo baseado no modo de fogo
         if (characterData.fireMode == FireMode.FullAuto)
         {
-            // Disparo automático: atira enquanto o botão estiver pressionado
             if (Input.GetButton("Fire1") && Time.time >= nextShotTime)
             {
                 if (currentAmmo > 0)
@@ -71,9 +76,8 @@ public class PlayerShooting : MonoBehaviour
                 }
             }
         }
-        else // FireMode.SemiAuto
+        else
         {
-            // Disparo semi-automático: atira uma vez por clique
             if (Input.GetButtonDown("Fire1") && Time.time >= nextShotTime)
             {
                 if (currentAmmo > 0)
@@ -87,26 +91,30 @@ public class PlayerShooting : MonoBehaviour
             }
         }
 
-        // Recarga manual com tecla R
         if (Input.GetKeyDown(KeyCode.R) && currentAmmo < characterData.magazineSize)
         {
             StartReload();
         }
     }
 
+    public void SetNextShotBonus(float damageBonus, float areaBonus)
+    {
+        hasNextShotBonus = true;
+        nextShotDamageBonus = damageBonus;
+        nextShotAreaBonus = areaBonus;
+        Debug.Log("<color=cyan>Habilidade Voo Gracioso ativada:</color> O próximo tiro tem o bônus. hasNextShotBonus = " + hasNextShotBonus);
+    }
+
     void Shoot()
     {
-        // Atualiza a posição do firePoint baseado no modelo
         if (modelPivot != null)
         {
             firePoint.position = modelPivot.position + modelPivot.forward * 0.5f;
             firePoint.rotation = modelPivot.rotation;
         }
 
-        // 1. Determinar direção do disparo
         Vector3 shotDirection = GetShotDirection();
 
-        // 2. Calcular trajetória com Raycast
         RaycastHit hit;
         bool hasHit = Physics.Raycast(
             firePoint.position,
@@ -116,17 +124,28 @@ public class PlayerShooting : MonoBehaviour
             hitLayers
         );
 
-        // 3. Processar acerto
         Vector3 hitPosition = hasHit ? hit.point : firePoint.position + shotDirection * maxDistance;
 
         if (hasHit)
         {
-            // Aplicar dano ao inimigo
             EnemyHealthSystem enemyHealth = hit.collider.GetComponent<EnemyHealthSystem>();
             if (enemyHealth != null)
             {
-                enemyHealth.TakeDamage(characterData.damage);
-                Debug.Log("Acertou inimigo: " + hit.collider.name + " com " + characterData.damage + " de dano");
+                float finalDamage = characterData.damage;
+
+                if (hasNextShotBonus)
+                {
+                    finalDamage *= nextShotDamageBonus;
+                    Debug.Log("<color=yellow>BÔNUS APLICADO:</color> Dano do tiro foi aumentado de " + characterData.damage + " para " + finalDamage + ".");
+
+                    // Reseta os bônus após o tiro
+                    hasNextShotBonus = false;
+                    nextShotDamageBonus = 1f;
+                    nextShotAreaBonus = 1f;
+                }
+
+                enemyHealth.TakeDamage(finalDamage);
+                Debug.Log("Acertou inimigo: " + hit.collider.name + " com " + finalDamage + " de dano");
             }
             else
             {
@@ -135,10 +154,9 @@ public class PlayerShooting : MonoBehaviour
         }
         else
         {
-          //  Debug.Log("Tiro disparado mas não acertou nada");
+            //  Debug.Log("Tiro disparado mas não acertou nada");
         }
 
-        // 4. Criar projétil visual usando pool
         if (projectilePool != null && projectileVisualPrefab != null)
         {
             GameObject visualProjectile = projectilePool.GetProjectile(
@@ -153,7 +171,6 @@ public class PlayerShooting : MonoBehaviour
             }
         }
 
-        // 5. Atualizar estado
         nextShotTime = Time.time + (1f / characterData.attackSpeed);
         currentAmmo--;
     }
@@ -162,7 +179,6 @@ public class PlayerShooting : MonoBehaviour
     {
         if (cameraController != null && cameraController.isAiming)
         {
-            // Se estiver mirando, usa a direção central da câmera
             Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
 
@@ -180,7 +196,7 @@ public class PlayerShooting : MonoBehaviour
             return modelPivot.forward;
         }
 
-        return transform.forward; // Fallback
+        return transform.forward;
     }
 
     void StartReload()
@@ -196,7 +212,6 @@ public class PlayerShooting : MonoBehaviour
         isReloading = false;
     }
 
-    // Método adicionado para a UI
     public float GetRemainingReloadTime()
     {
         if (!isReloading) return 0;

@@ -16,9 +16,18 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController controller;
     private Vector3 velocity;
-    private bool isGrounded;
+    public bool isGrounded;
     private float currentSpeed;
     private float rotationVelocity;
+
+    // Variáveis da passiva do comandante
+    public bool canDoubleJump = false;
+    private bool hasDoubleJumped = false;
+
+    // NOVO: Variáveis para flutuação no ar (Voo Gracioso)
+    public bool isFloating = false;
+    public float floatDuration = 0f;
+    public float jumpHeightModifier = 1f;
 
     private void Start()
     {
@@ -32,9 +41,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        HandleMovement();
-        HandleJump();
-        ApplyGravity();
+        // Verifica se o jogo está pausado antes de executar a lógica
+        if (PauseControl.isPaused)
+        {
+            return;
+        }
+
+        // NOVO: Lógica de flutuação
+        if (isFloating)
+        {
+            // Impede a gravidade e o movimento
+            velocity.y = 0;
+            floatDuration -= Time.deltaTime;
+            if (floatDuration <= 0)
+            {
+                isFloating = false;
+            }
+        }
+        else
+        {
+            HandleMovement();
+            HandleJump();
+            ApplyGravity();
+        }
     }
 
     private void HandleMovement()
@@ -57,13 +86,31 @@ public class PlayerMovement : MonoBehaviour
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
         }
+        else
+        {
+            controller.Move(Vector3.zero);
+        }
     }
 
     private void HandleJump()
     {
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+            hasDoubleJumped = false;
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            if (isGrounded)
+            {
+                velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
+                isGrounded = false;
+            }
+            else if (canDoubleJump && !hasDoubleJumped)
+            {
+                velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
+                hasDoubleJumped = true;
+            }
         }
     }
 

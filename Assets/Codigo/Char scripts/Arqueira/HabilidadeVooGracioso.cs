@@ -4,18 +4,25 @@ using UnityEngine;
 public class HabilidadeVooGracioso : Ability
 {
     [Header("Configurações da Habilidade")]
-    public float jumpHeightModifier = 1.5f; // Modificador de pulo para o terceiro pulo
-    public float staticAimDuration = 3f; // Duração para ficar estático no ar
-    public float bonusDamageMultiplier = 1.5f; // Multiplicador de dano para a próxima flecha
-    public float bonusAreaMultiplier = 1.2f; // Multiplicador de área de efeito
+    public float jumpHeightModifier = 1.5f;
+    public float staticAimDuration = 3f;
+    public float bonusDamageMultiplier = 1.5f;
+    public float bonusAreaMultiplier = 1.2f;
+
+    [Tooltip("Arraste o prefab da lógica da habilidade aqui.")]
+    public VooGraciosoLogic logicPrefab;
 
     public override bool Activate(GameObject quemUsou)
     {
-        // Lógica para o pulo duplo e o terceiro pulo.
-        // O pulo extra deve ser tratado no script de movimento do personagem.
+        if (logicPrefab == null)
+        {
+            Debug.LogError("O prefab da lógica da habilidade está NULO no ScriptableObject 'Voo Gracioso'!");
+            return true;
+        }
 
-        // Lógica para ficar estático no ar e aumentar o dano.
-        // Isso pode envolver uma coroutine ou um temporizador no script do jogador.
+        VooGraciosoLogic logic = Instantiate(logicPrefab, quemUsou.transform);
+        logic.StartEffect(quemUsou, jumpHeightModifier, staticAimDuration, bonusDamageMultiplier, bonusAreaMultiplier);
+
         Debug.Log("Voo Gracioso ativado. Próxima flecha causa mais dano e área.");
         return true;
     }

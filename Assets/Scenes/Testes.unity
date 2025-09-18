@@ -382,13 +382,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 968367f4e1f81284383328b14c0794dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thirdPersonCamera: {fileID: 1913402643}
   buildCamera: {fileID: 552859554}
-  buildablePrefabs:
-  - {fileID: 3333250326587255744, guid: 503fb7bb38b0225498f4e96bfcf914ab, type: 3}
   validPlacementMaterial: {fileID: 2100000, guid: 73563327067872d4ba7be49d1e11a506, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: aab2a511bf791ce4a89881888cef9450, type: 2}
   isBuildingMode: 0
+  gridSize: 1
+  globalHeightOffset: 0.5
 --- !u!114 &385822027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,8 +400,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80ca9bd02a96e354cbb3e858c0d47943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentMoney: 500
-  moneyText: {fileID: 2096221828}
+  geoditesText: {fileID: 0}
+  darkEtherText: {fileID: 0}
+  initialGeodites: 500
+  initialDarkEther: 0
 --- !u!114 &385822028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -418,6 +419,7 @@ MonoBehaviour:
   hudPanel: {fileID: 1934064912}
   pausePanel: {fileID: 1421064081}
   buildPanel: {fileID: 2018120721}
+  buildButtonUI: {fileID: 0}
 --- !u!4 &385822029
 Transform:
   m_ObjectHideFlags: 0
@@ -1783,11 +1785,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
---- !u!20 &1913402643 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 9154805944776655941, guid: 154617ccef2d7a74c97883928cb050a0, type: 3}
-  m_PrefabInstance: {fileID: 1548213738}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1934064912
 GameObject:
   m_ObjectHideFlags: 0

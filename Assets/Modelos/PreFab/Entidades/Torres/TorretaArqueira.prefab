@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e9e6dbb81e44b84189adf70fda72f61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerData: {fileID: 11400000, guid: a0e5b50598c81f5449d33ea11b18b95d, type: 2}
+  towerData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   partToRotate: {fileID: 4189758858454157828}
   firePoint: {fileID: 4189758858454157828}
   enemyTag: Enemy

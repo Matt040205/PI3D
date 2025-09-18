@@ -4,13 +4,24 @@ using UnityEngine;
 public class HabilidadeCacadoraNoturna : Ability
 {
     [Header("Configurações da Habilidade")]
-    public float damage = 500f; // Dano da ultimate
-    public float radius = 1000f; // Raio global (ou muito grande)
+    public float damage = 500f;
+    public float radius = 1000f;
+
+    [Tooltip("Arraste o prefab da lógica da habilidade aqui.")]
+    public CacadoraNoturnaLogic logicPrefab;
 
     public override bool Activate(GameObject quemUsou)
     {
-        // Lógica para disparar um projétil ou efeito global.
-        // Causar dano a todos os inimigos no mapa.
+        if (logicPrefab == null)
+        {
+            Debug.LogError("O prefab da lógica da habilidade está NULO no ScriptableObject 'Caçadora Noturna'!");
+            return true;
+        }
+
+        // Instancia a lógica da habilidade e a inicia
+        CacadoraNoturnaLogic logic = Instantiate(logicPrefab, quemUsou.transform);
+        logic.StartUltimateEffect(quemUsou, damage, radius);
+
         Debug.Log("Caçadora Noturna ativado. Dano a todos os inimigos.");
         return true;
     }

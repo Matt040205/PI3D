@@ -3,13 +3,13 @@ using UnityEngine;
 public class PauseControl : MonoBehaviour
 {
     [Header("Gerenciador de UI")]
-    public UIManager uiManager; // Referência ao UIManager
+    public UIManager uiManager;
 
-    private bool isPaused = false;
+    // --- NOVA VARIÁVEL GLOBAL ---
+    public static bool isPaused = false;
 
     // Remove Start para evitar conflito com UIManager.Start()
-    // O controle do mouse inicial será feito pelo BuildManager ou UIManager
-    void Start() { /* Vazio, inicialização feita pelo UIManager */ }
+    void Start() { /* Vazio */ }
 
     void Update()
     {
@@ -35,6 +35,7 @@ public class PauseControl : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        // --- ATUALIZAÇÃO AQUI ---
         isPaused = true;
     }
 
@@ -44,19 +45,18 @@ public class PauseControl : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        // Retorna o controle do cursor para o BuildManager ou para o estado Locked normal
-        // Se estiver no modo de construção, o BuildManager vai gerenciar
         if (FindObjectOfType<BuildManager>() != null && FindObjectOfType<BuildManager>().isBuildingMode)
         {
-            Cursor.lockState = CursorLockMode.None; // Permanece livre para construção
+            Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
-            Cursor.lockState = CursorLockMode.Locked; // Volta para o estado travado do jogo
+            Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
+        // --- ATUALIZAÇÃO AQUI ---
         isPaused = false;
     }
 }

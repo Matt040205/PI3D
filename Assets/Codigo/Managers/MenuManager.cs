@@ -40,6 +40,11 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    public void Resume()
+    {
+        if (menuPanel != null) menuPanel.SetActive(false);
+    }
+
     // Navega para o menu de Opções
     public void Options()
     {

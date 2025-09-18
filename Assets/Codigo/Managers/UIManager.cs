@@ -22,10 +22,8 @@ public class UIManager : MonoBehaviour
 
     public void UpdateBuildUI(List<CharacterBase> availableTowers)
     {
-        //Debug.Log("--- DEBUG: UIManager.UpdateBuildUI() foi chamado. ---");
         if (buildButtonUI != null)
         {
-           // Debug.Log("DEBUG: buildButtonUI encontrado. Chamando CreateBuildButtons...");
             buildButtonUI.CreateBuildButtons(availableTowers);
         }
         else
@@ -34,7 +32,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // O resto do seu script...
     public void ShowHUD()
     {
         if (hudPanel != null) hudPanel.SetActive(true);

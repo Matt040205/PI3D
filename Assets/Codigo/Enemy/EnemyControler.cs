@@ -61,11 +61,8 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // REMOVIDO: A busca pelo Player no OnEnable foi removida.
     void OnEnable() { }
 
-    // --- NOVO MÉTODO DE INICIALIZAÇÃO ---
-    // Este método é chamado pelo HordeManager para configurar o inimigo.
     public void InitializeEnemy(Transform player, List<Transform> path, EnemyDataSO data, int level)
     {
         this.playerTransform = player;
@@ -76,13 +73,13 @@ public class EnemyController : MonoBehaviour
         if (enemyData == null)
         {
             Debug.LogError("EnemyData não atribuído em " + gameObject.name);
-            gameObject.SetActive(false); // Desativa se não tiver dados
+            gameObject.SetActive(false);
             return;
         }
 
         currentDamage = enemyData.GetDamage(nivel);
         currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
-        healthSystem.enemyData = this.enemyData; // Garante que o HealthSystem também tenha os dados
+        healthSystem.enemyData = this.enemyData;
         healthSystem.InitializeHealth(nivel);
         currentPointIndex = 0;
         target = null;
@@ -108,9 +105,6 @@ public class EnemyController : MonoBehaviour
             Patrol();
         }
     }
-
-    // O resto do script (DecideTarget, Patrol, ChaseTarget, etc.) permanece o mesmo.
-    // Ele já funciona com a variável 'playerTransform', que agora é preenchida corretamente.
 
     private void DecideTarget()
     {
@@ -142,10 +136,19 @@ public class EnemyController : MonoBehaviour
         }
         Transform currentDestination = patrolPoints[currentPointIndex];
         MoveTowardsPosition(currentDestination.position);
-        float distanceToPoint = Vector3.Distance(transform.position, currentDestination.position);
-        if (distanceToPoint < 0.5f)
+    }
+
+    // LÓGICA CORRIGIDA: VERIFICA SE O TRIGGER É O PONTO DE PATRULHA CORRETO
+    void OnTriggerEnter(Collider other)
+    {
+        if (patrolPoints != null && currentPointIndex < patrolPoints.Count)
         {
-            currentPointIndex++;
+            // Verifica se o objeto que colidiu é o ponto de patrulha atual na sequência
+            if (other.transform == patrolPoints[currentPointIndex])
+            {
+                Debug.Log("Inimigo chegou ao ponto de patrulha: " + other.gameObject.name + ". Avançando para o próximo.");
+                currentPointIndex++;
+            }
         }
     }
 

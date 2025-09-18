@@ -17,3 +17,4 @@ MonoBehaviour:
   cooldown: 1
   markDuration: 5
   bonusDamageMultiplier: 1.25
+  logicPrefab: {fileID: -3805560666713553375, guid: 031f0c9fda890d1428d6c69286508bc2, type: 3}

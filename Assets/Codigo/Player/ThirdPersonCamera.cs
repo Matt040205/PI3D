@@ -42,6 +42,13 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (target == null) return;
 
+        if (PauseControl.isPaused)
+        {
+            // Adicionei um log para confirmar que a verificação de pausa está funcionando
+            Debug.Log("<color=red>Aviso:</color> O jogo está pausado. O script da câmera deveria estar ignorando a entrada do mouse.");
+            return;
+        }
+
         // Controle de zoom com o scroll do mouse
         float zoomInput = Input.GetAxis("Mouse ScrollWheel");
         currentDistance -= zoomInput * zoomSensitivity;

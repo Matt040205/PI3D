@@ -17,7 +17,7 @@ MonoBehaviour:
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 1
-  meleeRange: 2
+  meleeRange: 15
   armor: 0
   critChance: 0.05
   critDamage: 1.5

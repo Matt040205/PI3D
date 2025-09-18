@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4189758858454157828}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GameObject
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 1279959590294642314}
   - component: {fileID: -1759111353024339394}
   - component: {fileID: -1678697986927562302}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TorretaArqueira
   m_TagString: Untagged
   m_Icon: {fileID: 0}

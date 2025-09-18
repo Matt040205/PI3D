@@ -141,15 +141,17 @@ public class TowerController : MonoBehaviour
     // ===== ÁREA DE TESTE COM LOGS DE DANO =====
     void Shoot()
     {
-        if (targetEnemy == null) return;
+        if (targetEnemy == null)
+            return;
         EnemyHealthSystem healthSystem = targetEnemy.GetComponent<EnemyHealthSystem>();
+        Debug.Log("0");
         if (healthSystem != null)
         {
             float damageToDeal = currentDamage;
             bool isCritical = UnityEngine.Random.value <= currentCritChance;
 
             string logMessage = $"<color=white>{gameObject.name} atacou {targetEnemy.name}.</color> ";
-
+            Debug.Log("1");
             if (isCritical)
             {
                 float criticalDamage = damageToDeal * currentCritDamage;
@@ -160,7 +162,7 @@ public class TowerController : MonoBehaviour
             {
                 logMessage += $"<color=green>Dano normal: {damageToDeal.ToString("F1")}</color>";
             }
-
+            Debug.Log("2");
             // Permite que outros scripts (habilidades) modifiquem o dano antes de ser aplicado
             if (OnCalculateDamage != null)
             {
@@ -173,10 +175,12 @@ public class TowerController : MonoBehaviour
                 {
                     logMessage += $" | <color=lightblue>Dano modificado por habilidade para: {damageToDeal.ToString("F1")}</color>";
                 }
+                Debug.Log("3");
             }
+      
 
-            // NOVO LOG DE DANO!
-            Debug.Log(logMessage);
+                // NOVO LOG DE DANO!
+                Debug.Log(logMessage);
 
             bool enemyDied = healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
 
@@ -191,7 +195,9 @@ public class TowerController : MonoBehaviour
             {
                 OnCriticalHit?.Invoke(healthSystem);
             }
+            
         }
+        Debug.Log("4");
     }
 
     public void TakeDamage(float amount)

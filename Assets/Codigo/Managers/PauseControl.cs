@@ -5,10 +5,8 @@ public class PauseControl : MonoBehaviour
     [Header("Gerenciador de UI")]
     public UIManager uiManager;
 
-    // --- NOVA VARIÁVEL GLOBAL ---
     public static bool isPaused = false;
 
-    // Remove Start para evitar conflito com UIManager.Start()
     void Start() { /* Vazio */ }
 
     void Update()
@@ -35,7 +33,6 @@ public class PauseControl : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // --- ATUALIZAÇÃO AQUI ---
         isPaused = true;
     }
 
@@ -45,7 +42,9 @@ public class PauseControl : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        if (FindObjectOfType<BuildManager>() != null && FindObjectOfType<BuildManager>().isBuildingMode)
+        // --- MUDANÇA AQUI ---
+        // Acessando isBuildingMode com o nome da classe, não com uma instância
+        if (BuildManager.isBuildingMode)
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -56,7 +55,6 @@ public class PauseControl : MonoBehaviour
             Cursor.visible = false;
         }
 
-        // --- ATUALIZAÇÃO AQUI ---
         isPaused = false;
     }
 }

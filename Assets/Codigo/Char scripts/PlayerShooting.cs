@@ -55,7 +55,9 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
-        if (PauseControl.isPaused)
+        // --- ADIÇÃO AQUI ---
+        // Se o jogo está pausado ou no modo de construção, a lógica de tiro é ignorada
+        if (PauseControl.isPaused || BuildManager.isBuildingMode)
         {
             return;
         }
@@ -138,7 +140,6 @@ public class PlayerShooting : MonoBehaviour
                     finalDamage *= nextShotDamageBonus;
                     Debug.Log("<color=yellow>BÔNUS APLICADO:</color> Dano do tiro foi aumentado de " + characterData.damage + " para " + finalDamage + ".");
 
-                    // Reseta os bônus após o tiro
                     hasNextShotBonus = false;
                     nextShotDamageBonus = 1f;
                     nextShotAreaBonus = 1f;

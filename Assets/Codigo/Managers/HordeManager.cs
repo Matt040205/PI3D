@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections; // Adicionado para usar Coroutines
+using TMPro; // Adiciona a biblioteca para usar TextMeshPro
+using System.Collections;
 using System.Collections.Generic;
 
 public class HordeManager : MonoBehaviour
@@ -20,11 +21,13 @@ public class HordeManager : MonoBehaviour
     public int currentHorde = 0;
     public int enemyLevel = 1;
 
+    // Nova variável para o texto da horda na UI
+    [Header("UI")]
+    public TextMeshProUGUI hordeText;
+    public TextMeshProUGUI hordeTextBuild;
+
     private List<GameObject> aliveEnemies = new List<GameObject>();
     private bool waveIsActive = false;
-
-    // --- ADIÇÃO AQUI ---
-    // Variável para guardar a referência do jogador
     private Transform playerTransform;
 
     void Start()
@@ -35,17 +38,11 @@ public class HordeManager : MonoBehaviour
             return;
         }
 
-        // --- MUDANÇA AQUI ---
-        // Em vez de iniciar a horda diretamente, chamamos uma coroutine
-        // que primeiro encontra o jogador.
         StartCoroutine(FindPlayerAndBeginHorde());
     }
 
-    // --- NOVO MÉTODO ---
-    // Esta rotina garante que vamos procurar o Player DEPOIS que ele foi criado.
     private IEnumerator FindPlayerAndBeginHorde()
     {
-        // Espera um único frame. Isso dá tempo para o GameSetupManager rodar seu método Start().
         yield return null;
 
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -58,7 +55,6 @@ public class HordeManager : MonoBehaviour
             Debug.LogError("HordeManager não conseguiu encontrar o Player! A IA do inimigo pode falhar.");
         }
 
-        // Agora que temos a referência (ou falhamos em encontrá-la), começamos a primeira horda.
         StartNextHorde();
     }
 
@@ -74,6 +70,7 @@ public class HordeManager : MonoBehaviour
                 if (currentHorde >= victoryHorde)
                 {
                     Debug.Log("Parabéns! Você venceu o jogo!");
+                    // Pode adicionar um evento de vitória aqui
                 }
                 else
                 {
@@ -81,6 +78,28 @@ public class HordeManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    // --- NOVO MÉTODO ---
+    private void UpdateHordeUI()
+    {
+        if (hordeText != null && hordeTextBuild != null)
+        {
+            hordeTextBuild.text = $"{currentHorde}/{victoryHorde}";
+            hordeText.text = $"{currentHorde}/{victoryHorde}";
+        }
+    }
+
+    void StartNextHorde()
+    {
+        currentHorde++;
+        enemyLevel = currentHorde;
+        Debug.Log("Iniciando Horda " + currentHorde);
+        SpawnEnemies();
+        waveIsActive = true;
+
+        // Chamada para atualizar a UI
+        UpdateHordeUI();
     }
 
     void SpawnEnemies()
@@ -112,7 +131,6 @@ public class HordeManager : MonoBehaviour
             int enemyTypeIndex = Random.Range(0, enemyTypes.Length);
             EnemyDataSO enemyData = enemyTypes[enemyTypeIndex];
 
-            // MODIFICADO: Usamos a referência correta do PoolManager
             GameObject newEnemy = EnemyPoolManager.Instance.GetPooledEnemy();
             newEnemy.transform.position = selectedPath.spawnPoint.position;
             newEnemy.transform.rotation = selectedPath.spawnPoint.rotation;
@@ -120,19 +138,13 @@ public class HordeManager : MonoBehaviour
             EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
             if (enemyController != null)
             {
-                // --- MUDANÇA PRINCIPAL AQUI ---
-                // Agora, passamos a referência do Player para o inimigo no momento da inicialização.
                 enemyController.InitializeEnemy(playerTransform, selectedPath.patrolPoints, enemyData, enemyLevel);
             }
-
-            // O HealthSystem não precisa ser configurado aqui se o EnemyController já faz isso.
-            // Removido para evitar redundância.
 
             aliveEnemies.Add(newEnemy);
         }
     }
 
-    // O resto do seu script continua igual
     void CheckForRemainingEnemies()
     {
         for (int i = aliveEnemies.Count - 1; i >= 0; i--)
@@ -142,15 +154,6 @@ public class HordeManager : MonoBehaviour
                 aliveEnemies.RemoveAt(i);
             }
         }
-    }
-
-    void StartNextHorde()
-    {
-        currentHorde++;
-        Debug.Log("Iniciando Horda " + currentHorde);
-        enemyLevel = currentHorde;
-        SpawnEnemies();
-        waveIsActive = true;
     }
 
     int GetRandomPathIndex()

@@ -1,4 +1,4 @@
-// TowerSelectionManager.cs (Nova Versão com LayerMask)
+// TowerSelectionManager.cs
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
@@ -8,10 +8,10 @@ public class TowerSelectionManager : MonoBehaviour
     public static TowerSelectionManager Instance;
 
     [Header("Referências da UI")]
-    public UpgradePanelUI upgradePanel;
+    public UpgradePanelUI upgradePanel; // Referência à script do painel de upgrade
 
     [Header("Configuração da Seleção")]
-    public LayerMask towerLayerMask; // NOVO: Campo para definir a camada das torres
+    public LayerMask towerLayerMask;
 
     private TowerController selectedTower;
 
@@ -27,8 +27,6 @@ public class TowerSelectionManager : MonoBehaviour
         {
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                // Este log ajuda a confirmar se a UI está bloqueando o clique.
-                // Se esta mensagem aparece, o problema é um painel da UI com "Raycast Target" ativado.
                 Debug.Log("<color=yellow>Clique ignorado pois foi feito sobre a UI.</color>");
                 return;
             }
@@ -43,9 +41,6 @@ public class TowerSelectionManager : MonoBehaviour
             Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            // MUDANÇA PRINCIPAL AQUI:
-            // Usamos uma distância maior (1000f) e a towerLayerMask para garantir
-            // que o raio só vai procurar por colisões na camada "Towers".
             if (Physics.Raycast(ray, out hit, 1000f, towerLayerMask))
             {
                 Debug.Log($"<color=cyan>Raycast atingiu o objeto '{hit.collider.name}' na camada '{LayerMask.LayerToName(hit.collider.gameObject.layer)}'</color>");
@@ -57,11 +52,9 @@ public class TowerSelectionManager : MonoBehaviour
                     Debug.Log($"<color=green>Objeto '{hit.collider.name}' é uma torre! Chamando SelectTower...</color>");
                     SelectTower(tower);
                 }
-                // Não precisamos mais de um 'else' aqui, pois o raycast só vai atingir torres.
             }
             else
             {
-                // Se o raycast não atingiu NADA na camada de torres, então deselecionamos.
                 Debug.Log("<color=red>Clique não atingiu nenhuma torre. Deselecionando.</color>");
                 DeselectTower();
             }
@@ -77,17 +70,25 @@ public class TowerSelectionManager : MonoBehaviour
         else
         {
             selectedTower = tower;
-            upgradePanel.ShowPanel(selectedTower);
+            // AQUI ESTÁ A LÓGICA: SÓ MOSTRAR O PAINEL DE UPGRADE SE O CLIQUE FOR EM UMA TORRE.
+            if (upgradePanel != null)
+            {
+                upgradePanel.ShowPanel(selectedTower);
+            }
         }
     }
 
-    void DeselectTower()
+    public void DeselectTower()
     {
-        if (selectedTower != null || upgradePanel.IsPanelVisible())
+        if (selectedTower != null || (upgradePanel != null && upgradePanel.IsPanelVisible()))
         {
             Debug.Log("Deselecionando torre e escondendo painel.");
             selectedTower = null;
-            upgradePanel.HidePanel();
+            // AQUI ESTÁ A LÓGICA: ESCONDER O PAINEL DE UPGRADE.
+            if (upgradePanel != null)
+            {
+                upgradePanel.HidePanel();
+            }
         }
     }
 }

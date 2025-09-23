@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
     public bool canDoubleJump = false;
     private bool hasDoubleJumped = false;
 
-    // NOVO: Variáveis para flutuação no ar (Voo Gracioso)
+    // Variáveis para flutuação no ar (Voo Gracioso)
     public bool isFloating = false;
     public float floatDuration = 0f;
     public float jumpHeightModifier = 1f;
@@ -41,13 +41,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Verifica se o jogo está pausado antes de executar a lógica
-        if (PauseControl.isPaused)
+        // --- ADIÇÃO AQUI ---
+        // Se o jogo está pausado ou no modo de construção, a lógica de movimento é ignorada
+        if (PauseControl.isPaused || BuildManager.isBuildingMode)
         {
             return;
         }
 
-        // NOVO: Lógica de flutuação
+        // Lógica de flutuação
         if (isFloating)
         {
             // Impede a gravidade e o movimento

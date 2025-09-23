@@ -1,4 +1,3 @@
-// BuildManager.cs (Solução revisada para posicionamento de torres)
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
@@ -9,6 +8,7 @@ public class BuildManager : MonoBehaviour
 
     [Header("Câmeras")]
     public CinemachineCamera buildCamera;
+    public GameObject upgradePanel; // NOVO: Objeto de UpgradeBar
 
     private List<CharacterBase> availableTowers = new List<CharacterBase>();
     private CharacterBase selectedTowerData;
@@ -18,11 +18,11 @@ public class BuildManager : MonoBehaviour
     public Material validPlacementMaterial;
     public Material invalidPlacementMaterial;
 
-    public bool isBuildingMode = false;
+    public static bool isBuildingMode = false;
     public float gridSize = 1f;
 
     [Header("Configuração de Altura")]
-    public float globalHeightOffset = 0.5f; // Ajuste este valor no Inspector conforme necessário
+    public float globalHeightOffset = 0.5f;
 
     private const int PriorityBuild = 20;
     private const int PriorityInactive = 0;
@@ -129,7 +129,6 @@ public class BuildManager : MonoBehaviour
 
         if (isOverValidSurface)
         {
-            // Nova abordagem: usa o ponto de contato e ajusta a altura
             float calculatedHeight = CalculateRequiredHeight(hit.point, selectedTowerData.towerPrefab);
             currentBuildGhost.transform.position = new Vector3(hit.point.x, hit.point.y + calculatedHeight, hit.point.z);
         }
@@ -150,25 +149,20 @@ public class BuildManager : MonoBehaviour
 
     private float CalculateRequiredHeight(Vector3 hitPoint, GameObject prefab)
     {
-        // Calcula a distância do ponto de impacto até a base do objeto
         Collider col = prefab.GetComponentInChildren<Collider>();
         if (col != null)
         {
-            // Calcula a distância do centro do objeto até a base
             float bottomDistance = col.bounds.extents.y;
 
-            // Projeta um ray para baixo para encontrar o terreno exato
             Ray downRay = new Ray(hitPoint + Vector3.up * 10f, Vector3.down);
             RaycastHit downHit;
 
             if (Physics.Raycast(downRay, out downHit, 20f))
             {
-                // Retorna a diferença de altura necessária
                 return downHit.point.y - hitPoint.y + bottomDistance + globalHeightOffset;
             }
         }
 
-        // Fallback: usa o offset global
         return globalHeightOffset;
     }
 
@@ -184,10 +178,8 @@ public class BuildManager : MonoBehaviour
 
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
             {
-                // Usa a posição do fantasma (já com altura correta)
                 Vector3 finalPosition = currentBuildGhost.transform.position;
 
-                // Aplica grid snapping apenas no XZ
                 finalPosition.x = Mathf.Round(finalPosition.x / gridSize) * gridSize;
                 finalPosition.z = Mathf.Round(finalPosition.z / gridSize) * gridSize;
 
@@ -206,5 +198,7 @@ public class BuildManager : MonoBehaviour
         }
         currentBuildGhost = null;
         selectedTowerData = null;
+        // NOVO: Quando a seleção é limpa, a barra de upgrade também deve ser escondida.
+        TowerSelectionManager.Instance.DeselectTower();
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class UIManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject buildPanel;
     public BuildButtonUI buildButtonUI;
+
+    [Header("Elementos de HUD")]
+    public TextMeshProUGUI timerText;
 
     private void Awake()
     {
@@ -48,7 +52,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            if (BuildManager.Instance != null && BuildManager.Instance.isBuildingMode)
+            if (BuildManager.isBuildingMode)
             {
                 ShowBuildUI(true);
             }
@@ -70,5 +74,15 @@ public class UIManager : MonoBehaviour
         {
             ShowHUD();
         }
+    }
+
+    public void UpdateTimerDisplay(float timeInSeconds)
+    {
+        if (timerText == null) return;
+
+        int minutes = Mathf.FloorToInt(timeInSeconds / 60);
+        int seconds = Mathf.FloorToInt(timeInSeconds % 60);
+
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 }

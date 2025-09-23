@@ -13,6 +13,9 @@ public class UIManager : MonoBehaviour
     [Header("Elementos de HUD")]
     public TextMeshProUGUI timerText;
 
+    // Adicione esta variável para controlar o tempo.
+    private float gameTime = 0f;
+
     private void Awake()
     {
         if (Instance == null) { Instance = this; }
@@ -22,6 +25,13 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         ShowHUD();
+    }
+
+    // Adicione a função Update() para atualizar o temporizador a cada frame.
+    void Update()
+    {
+        gameTime += Time.deltaTime;
+        UpdateTimerDisplay(gameTime);
     }
 
     public void UpdateBuildUI(List<CharacterBase> availableTowers)
@@ -49,6 +59,8 @@ public class UIManager : MonoBehaviour
         if (show)
         {
             if (hudPanel != null) hudPanel.SetActive(false);
+            // Ao pausar, defina a escala de tempo para 0.
+            Time.timeScale = 0f;
         }
         else
         {
@@ -60,6 +72,8 @@ public class UIManager : MonoBehaviour
             {
                 ShowHUD();
             }
+            // Ao despausar, retorne a escala de tempo para 1.
+            Time.timeScale = 1f;
         }
     }
 
@@ -78,7 +92,11 @@ public class UIManager : MonoBehaviour
 
     public void UpdateTimerDisplay(float timeInSeconds)
     {
-        if (timerText == null) return;
+        if (timerText == null)
+        {
+            Debug.LogError("DEBUG FALHA: A variável 'timerText' no UIManager está NULA! Certifique-se de atribuir o TextMeshProUGUI no inspetor da Unity.");
+            return;
+        }
 
         int minutes = Mathf.FloorToInt(timeInSeconds / 60);
         int seconds = Mathf.FloorToInt(timeInSeconds % 60);

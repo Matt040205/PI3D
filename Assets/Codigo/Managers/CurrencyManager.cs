@@ -13,6 +13,7 @@ public class CurrencyManager : MonoBehaviour
     public static CurrencyManager Instance;
 
     [Header("Referências da UI")]
+    public TextMeshProUGUI geoditesTextBuild;
     public TextMeshProUGUI geoditesText;
     public TextMeshProUGUI darkEtherText;
 
@@ -96,6 +97,11 @@ public class CurrencyManager : MonoBehaviour
         if (geoditesText != null)
         {
             geoditesText.text = $"Geoditas: {CurrentGeodites}";
+        }
+
+        if (geoditesTextBuild != null)
+        {
+            geoditesTextBuild.text = $" {CurrentGeodites}";
         }
 
         if (darkEtherText != null)

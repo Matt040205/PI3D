@@ -1,10 +1,11 @@
 using UnityEngine;
-using System; // Necessário para usar o 'Action'
+using System;
 
 public class ObjectiveHealthSystem : MonoBehaviour
 {
+    // A vida máxima agora é 100f, como solicitado.
     [Header("Configurações de Vida")]
-    public float maxHealth = 1000f;
+    public float maxHealth = 100f;
     public float currentHealth;
 
     // Evento para notificar a UI quando a vida mudar (igual ao do jogador)

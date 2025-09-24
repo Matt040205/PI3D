@@ -10,7 +10,6 @@ public class PlayerCombatManager : MonoBehaviour
 
     void Start()
     {
-        // Configura o sistema apropriado baseado no tipo de combate
         if (characterData.combatType == CombatType.Ranged)
         {
             shootingSystem.enabled = true;
@@ -24,13 +23,11 @@ public class PlayerCombatManager : MonoBehaviour
             meleeSystem.characterData = characterData;
         }
 
-        // Configura o sistema de saúde
-       healthSystem.characterData = characterData;
+        healthSystem.characterData = characterData;
     }
 
     void Update()
     {
-        // Atualiza dinamicamente se o tipo mudar (para debug/testes)
         if (characterData.combatType == CombatType.Ranged && !shootingSystem.enabled)
         {
             shootingSystem.enabled = true;

@@ -177,10 +177,10 @@ public class TowerController : MonoBehaviour
                 }
                 Debug.Log("3");
             }
-      
 
-                // NOVO LOG DE DANO!
-                Debug.Log(logMessage);
+
+            // NOVO LOG DE DANO!
+            Debug.Log(logMessage);
 
             bool enemyDied = healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
 
@@ -195,7 +195,7 @@ public class TowerController : MonoBehaviour
             {
                 OnCriticalHit?.Invoke(healthSystem);
             }
-            
+
         }
         Debug.Log("4");
     }

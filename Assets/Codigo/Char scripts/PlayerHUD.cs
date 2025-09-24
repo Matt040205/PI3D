@@ -13,6 +13,8 @@ public class PlayerHUD : MonoBehaviour
     [Header("Referências de Vida do Objetivo")]
     public Image objectiveHealthBarFill;
     public TMP_Text objectiveHealthText;
+    public Image BuildModeObjectiveHealthBarFill;
+    public TMP_Text BuildModeObjectiveHealthText;
 
     [Header("Referências de Munição")]
     public TMP_Text ammoText;
@@ -58,10 +60,7 @@ public class PlayerHUD : MonoBehaviour
         {
             UpdateAmmoDisplay();
         }
-        if (objectiveHealth != null)
-        {
-            UpdateObjectiveHealthDisplay();
-        }
+        UpdateObjectiveHealthDisplay();
         UpdateCurrencyDisplay();
     }
 
@@ -122,10 +121,7 @@ public class PlayerHUD : MonoBehaviour
     void UpdateHealthDisplay()
     {
         healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, targetHealthPercent, healthLerpSpeed * Time.deltaTime);
-        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, healthBarFill.fillAmount);
-        healthBarFill.color = healthColor;
         healthText.text = $"{Mathf.CeilToInt(playerHealth.currentHealth)}/{playerHealth.characterData.maxHealth}";
-        healthText.color = healthColor;
         if (regenEffect != null)
         {
             regenEffect.SetActive(isRegenerating);
@@ -140,21 +136,35 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateObjectiveHealthDisplay()
     {
-        objectiveHealthBarFill.fillAmount = Mathf.Lerp(objectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
-        Color healthColor = Color.Lerp(lowHealthColor, fullHealthColor, objectiveHealthBarFill.fillAmount);
-        objectiveHealthBarFill.color = healthColor;
+        // Ambos os elementos de UI são ativados para que fiquem visíveis o tempo todo.
+        if (objectiveHealthBarFill != null) objectiveHealthBarFill.gameObject.SetActive(true);
+        if (objectiveHealthText != null) objectiveHealthText.gameObject.SetActive(true);
+        if (BuildModeObjectiveHealthBarFill != null) BuildModeObjectiveHealthBarFill.gameObject.SetActive(true);
+        if (BuildModeObjectiveHealthText != null) BuildModeObjectiveHealthText.gameObject.SetActive(true);
+
+        // Atualiza a barra de vida normal
+        if (objectiveHealthBarFill != null)
+        {
+            objectiveHealthBarFill.fillAmount = Mathf.Lerp(objectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
+        }
         if (objectiveHealthText != null)
         {
             objectiveHealthText.text = $"{Mathf.CeilToInt(objectiveHealth.currentHealth)}/{objectiveHealth.maxHealth}";
-            objectiveHealthText.color = healthColor;
+        }
+
+        // Atualiza a barra de vida do modo de construção
+        if (BuildModeObjectiveHealthBarFill != null)
+        {
+            BuildModeObjectiveHealthBarFill.fillAmount = Mathf.Lerp(BuildModeObjectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
+        }
+        if (BuildModeObjectiveHealthText != null)
+        {
+            BuildModeObjectiveHealthText.text = $"{Mathf.CeilToInt(objectiveHealth.currentHealth)}/{objectiveHealth.maxHealth}";
         }
     }
 
-
-    // CORRIGIDO: O conteúdo original deste método foi restaurado.
     void UpdateAmmoDisplay()
     {
-        // Garante que não teremos erros se o 'playerShooting' ainda não foi encontrado.
         if (playerShooting == null) return;
 
         ammoText.text = $"{playerShooting.currentAmmo}/{playerShooting.characterData.magazineSize}";
@@ -177,7 +187,6 @@ public class PlayerHUD : MonoBehaviour
                                             playerShooting.characterData.reloadSpeed);
                 reloadSlider.value = reloadProgress;
 
-                // Corrigi uma pequena inconsistência que poderia dar erro se o fillRect não tivesse uma imagem
                 Image sliderFillImage = reloadSlider.fillRect.GetComponent<Image>();
                 if (sliderFillImage != null)
                 {

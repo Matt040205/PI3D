@@ -1,39 +1,39 @@
 // UpgradePanelUI.cs
 using UnityEngine;
-using UnityEngine.UI; // Essencial para manipular UI
+using UnityEngine.UI;
+using TMPro;
 
 public class UpgradePanelUI : MonoBehaviour
 {
     [Header("Referências Gerais")]
-    public GameObject uiPanel; // O objeto do painel em si
+    public GameObject uiPanel;
 
     [Header("Referências do Caminho 1")]
     public Button upgradeButton1;
     public Text nameText1;
     public Text descriptionText1;
-    public Text costText1;
+    public TextMeshProUGUI costText1;
 
     [Header("Referências do Caminho 2")]
     public Button upgradeButton2;
     public Text nameText2;
     public Text descriptionText2;
-    public Text costText2;
+    public TextMeshProUGUI costText2;
 
     [Header("Referências do Caminho 3")]
     public Button upgradeButton3;
     public Text nameText3;
     public Text descriptionText3;
-    public Text costText3;
+    public TextMeshProUGUI costText3;
 
     private TowerController currentTower;
+    private const int BASE_COST = 50;
 
     void Start()
     {
-        // Garante que o painel comece escondido
         HidePanel();
     }
 
-    // Chamado pelo TowerSelectionManager quando uma torre é selecionada
     public void ShowPanel(TowerController tower)
     {
         currentTower = tower;
@@ -41,7 +41,6 @@ public class UpgradePanelUI : MonoBehaviour
         UpdatePanelInfo();
     }
 
-    // Chamado para esconder o painel
     public void HidePanel()
     {
         currentTower = null;
@@ -49,40 +48,60 @@ public class UpgradePanelUI : MonoBehaviour
     }
     public bool IsPanelVisible()
     {
-        // Retorna true se o painel estiver ativo na cena, false caso contrário.
         return uiPanel.activeSelf;
     }
 
-    // Atualiza as informações nos 3 botões
     void UpdatePanelInfo()
     {
         if (currentTower == null) return;
 
-        // Atualiza o Botão 1
-        UpdatePathButton(0, upgradeButton1, nameText1, descriptionText1, costText1);
-        // Atualiza o Botão 2
-        UpdatePathButton(1, upgradeButton2, nameText2, descriptionText2, costText2);
-        // Atualiza o Botão 3
-        UpdatePathButton(2, upgradeButton3, nameText3, descriptionText3, costText3);
+        bool isAnyPathChosen = false;
+        int chosenPathIndex = -1;
+
+        // Verifica se algum caminho já foi escolhido
+        for (int i = 0; i < currentTower.currentPathLevels.Length; i++)
+        {
+            if (currentTower.currentPathLevels[i] > 0)
+            {
+                isAnyPathChosen = true;
+                chosenPathIndex = i;
+                break;
+            }
+        }
+
+        UpdatePathButton(0, upgradeButton1, nameText1, descriptionText1, costText1, isAnyPathChosen, chosenPathIndex);
+        UpdatePathButton(1, upgradeButton2, nameText2, descriptionText2, costText2, isAnyPathChosen, chosenPathIndex);
+        UpdatePathButton(2, upgradeButton3, nameText3, descriptionText3, costText3, isAnyPathChosen, chosenPathIndex);
     }
 
-    // Lógica genérica para atualizar um botão de caminho
-    void UpdatePathButton(int pathIndex, Button button, Text nameText, Text descText, Text costText)
+    void UpdatePathButton(int pathIndex, Button button, Text nameText, Text descText, TextMeshProUGUI costText, bool isAnyPathChosen, int chosenPathIndex)
     {
+        if (isAnyPathChosen && pathIndex != chosenPathIndex)
+        {
+            button.interactable = false;
+            nameText.text = "BLOQUEADO";
+            descText.text = "Escolha de caminho já feita.";
+            costText.text = "";
+            return;
+        }
+
         int currentLevel = currentTower.currentPathLevels[pathIndex];
         UpgradePath path = currentTower.towerData.upgradePaths[pathIndex];
 
         if (currentLevel < path.upgradesInPath.Count)
         {
             Upgrade nextUpgrade = path.upgradesInPath[currentLevel];
-            button.interactable = true;
+            int upgradeCost = Mathf.FloorToInt(BASE_COST * Mathf.Pow(1.5f, currentLevel));
+            bool canAfford = CurrencyManager.Instance.HasEnoughCurrency(upgradeCost, CurrencyType.Geodites);
+
+            button.interactable = canAfford;
             nameText.text = nextUpgrade.upgradeName;
             descText.text = nextUpgrade.description;
-            costText.text = $"Custo: {nextUpgrade.geoditeCost}"; // Exemplo de custo
+            costText.text = $"Custo: {upgradeCost} Geoditas";
+            costText.color = canAfford ? Color.green : Color.red;
         }
         else
         {
-            // Caminho no nível máximo
             button.interactable = false;
             nameText.text = "MAX";
             descText.text = "Este caminho está no nível máximo.";
@@ -90,11 +109,19 @@ public class UpgradePanelUI : MonoBehaviour
         }
     }
 
-    // --- MÉTODOS PARA SEREM CHAMADOS PELOS BOTÕES ---
-
     public void UpgradePath(int pathIndex)
     {
         if (currentTower == null) return;
+
+        // Impede upgrades se o jogador já escolheu outro caminho
+        for (int i = 0; i < currentTower.currentPathLevels.Length; i++)
+        {
+            if (currentTower.currentPathLevels[i] > 0 && i != pathIndex)
+            {
+                Debug.Log("Você já escolheu um caminho de upgrade para esta torre!");
+                return;
+            }
+        }
 
         int currentLevel = currentTower.currentPathLevels[pathIndex];
         UpgradePath path = currentTower.towerData.upgradePaths[pathIndex];
@@ -102,15 +129,19 @@ public class UpgradePanelUI : MonoBehaviour
         if (currentLevel < path.upgradesInPath.Count)
         {
             Upgrade nextUpgrade = path.upgradesInPath[currentLevel];
+            int upgradeCost = Mathf.FloorToInt(BASE_COST * Mathf.Pow(1.5f, currentLevel));
 
-            // Futuramente, verificar se o jogador tem dinheiro
-            // if (CurrencyManager.Instance.CanAfford(nextUpgrade.geoditeCost)) ...
-
-            currentTower.ApplyUpgrade(nextUpgrade);
-            currentTower.currentPathLevels[pathIndex]++;
-
-            // Atualiza o painel para mostrar o próximo upgrade ou o estado de MAX
-            UpdatePanelInfo();
+            if (CurrencyManager.Instance.HasEnoughCurrency(upgradeCost, CurrencyType.Geodites))
+            {
+                CurrencyManager.Instance.SpendCurrency(upgradeCost, CurrencyType.Geodites);
+                currentTower.ApplyUpgrade(nextUpgrade);
+                currentTower.currentPathLevels[pathIndex]++;
+                UpdatePanelInfo();
+            }
+            else
+            {
+                Debug.Log("Você não tem Geoditas suficientes para este upgrade!");
+            }
         }
     }
 }

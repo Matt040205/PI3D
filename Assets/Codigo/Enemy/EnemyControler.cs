@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 // O enum não precisa de mudanças
 public enum AITargetPriority
@@ -27,6 +28,7 @@ public class EnemyController : MonoBehaviour
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
     private Rigidbody rb;
+    private PlayerHealthSystem playerHealthSystem;
 
     // Status calculados
     private float currentDamage;
@@ -42,6 +44,10 @@ public class EnemyController : MonoBehaviour
 
     // Referência para o jogador (agora privada e preenchida externamente)
     private Transform playerTransform;
+
+    // Variaveis para o ataque no player
+    private bool isAttackingPlayer = false;
+    private float timeSinceLastAttack = 0f;
 
     // Propriedades
     public bool IsDead { get { return healthSystem.isDead; } }
@@ -60,8 +66,6 @@ public class EnemyController : MonoBehaviour
             rb.useGravity = true;
         }
     }
-
-    void OnEnable() { }
 
     public void InitializeEnemy(Transform player, List<Transform> path, EnemyDataSO data, int level)
     {
@@ -104,6 +108,20 @@ public class EnemyController : MonoBehaviour
         {
             Patrol();
         }
+
+        if (isAttackingPlayer)
+        {
+            timeSinceLastAttack += Time.fixedDeltaTime;
+            if (timeSinceLastAttack >= enemyData.attackSpeed)
+            {
+                AttackPlayer();
+                timeSinceLastAttack = 0f;
+            }
+        }
+        else
+        {
+            timeSinceLastAttack = 0f;
+        }
     }
 
     private void DecideTarget()
@@ -138,7 +156,7 @@ public class EnemyController : MonoBehaviour
         MoveTowardsPosition(currentDestination.position);
     }
 
-    // LÓGICA CORRIGIDA: VERIFICA SE O TRIGGER É O PONTO DE PATRULHA CORRETO
+    // USANDO OnTriggerEnter para os pontos de patrulha
     void OnTriggerEnter(Collider other)
     {
         if (patrolPoints != null && currentPointIndex < patrolPoints.Count)
@@ -149,6 +167,46 @@ public class EnemyController : MonoBehaviour
                 Debug.Log("Inimigo chegou ao ponto de patrulha: " + other.gameObject.name + ". Avançando para o próximo.");
                 currentPointIndex++;
             }
+        }
+    }
+
+    // USANDO OnCollisionStay para o dano no player
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            if (playerHealthSystem == null)
+            {
+                playerHealthSystem = collision.gameObject.GetComponent<PlayerHealthSystem>();
+                if (playerHealthSystem != null)
+                {
+                    Debug.Log("Inimigo encontrou o player. Ataque será ativado.");
+                }
+                else
+                {
+                    Debug.LogError("PlayerHealthSystem não encontrado no GameObject do player!");
+                }
+            }
+            isAttackingPlayer = true;
+        }
+    }
+
+    // USANDO OnCollisionExit para parar o ataque.
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            isAttackingPlayer = false;
+            Debug.Log("Inimigo parou de colidir com o player.");
+        }
+    }
+
+    private void AttackPlayer()
+    {
+        if (playerHealthSystem != null)
+        {
+            Debug.Log("Inimigo atacando o jogador! Dano: " + currentDamage);
+            playerHealthSystem.TakeDamage(currentDamage);
         }
     }
 

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1579341735557303328}
   - component: {fileID: 8714992223063737750}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CameraTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7315494051637842559}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,9 +102,9 @@ GameObject:
   - component: {fileID: -6047549214317172513}
   - component: {fileID: -2652353889928515782}
   - component: {fileID: -8271029888155451222}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Coruja Arqueiragay
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 3925514877442559670}
   - component: {fileID: 4086120061550349637}
   - component: {fileID: 74432841764587331}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CM_Aim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -484,7 +484,7 @@ GameObject:
   - component: {fileID: 7216254130472090974}
   - component: {fileID: 963077645668000171}
   - component: {fileID: 8128645392981109252}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CM_Normal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -584,7 +584,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3294448804810150574}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

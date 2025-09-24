@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -44,14 +45,38 @@ public class PlayerHUD : MonoBehaviour
     private ObjectiveHealthSystem objectiveHealth;
     private float targetObjectiveHealthPercent = 1f;
 
+    // Flag para garantir que a assinatura do evento seja feita apenas uma vez
+    private bool isSubscribed = false;
+
 
     void Start()
     {
-        FindGameSystems();
+        // A lógica de busca do objetivo e munição pode ser mantida
+        FindObjectiveAndShootingSystems();
     }
 
     void Update()
     {
+        // Adicionando um sistema de verificação e reconexão robusto
+        if (playerHealth == null)
+        {
+            // Tenta encontrar o jogador a cada frame até que a referência seja encontrada
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerHealth = player.GetComponent<PlayerHealthSystem>();
+            }
+        }
+
+        // Verifica se a referência foi encontrada e ainda não foi inscrita
+        if (playerHealth != null && !isSubscribed)
+        {
+            playerHealth.OnHealthChanged += OnHealthChanged;
+            OnHealthChanged(); // Atualiza a HUD com a vida inicial
+            isSubscribed = true;
+            Debug.Log("PlayerHealthSystem encontrado e evento OnHealthChanged assinado.");
+        }
+
         if (playerHealth != null)
         {
             UpdateHealthDisplay();
@@ -60,8 +85,31 @@ public class PlayerHUD : MonoBehaviour
         {
             UpdateAmmoDisplay();
         }
-        UpdateObjectiveHealthDisplay();
+        if (objectiveHealth != null)
+        {
+            UpdateObjectiveHealthDisplay();
+        }
         UpdateCurrencyDisplay();
+    }
+
+    private void FindObjectiveAndShootingSystems()
+    {
+        GameObject objective = GameObject.FindGameObjectWithTag("Objective");
+        if (objective != null)
+        {
+            objectiveHealth = objective.GetComponent<ObjectiveHealthSystem>();
+            if (objectiveHealth != null)
+            {
+                objectiveHealth.OnHealthChanged += OnObjectiveHealthChanged;
+                OnObjectiveHealthChanged();
+            }
+        }
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerShooting = player.GetComponent<PlayerShooting>();
+        }
     }
 
     void UpdateCurrencyDisplay()
@@ -75,38 +123,6 @@ public class PlayerHUD : MonoBehaviour
             if (darkEtherText != null)
             {
                 darkEtherText.text = $"{CurrencyManager.Instance.CurrentDarkEther}";
-            }
-        }
-    }
-
-    void FindGameSystems()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerHealth = player.GetComponent<PlayerHealthSystem>();
-            playerShooting = player.GetComponent<PlayerShooting>();
-
-            if (playerHealth != null)
-            {
-                playerHealth.OnHealthChanged += OnHealthChanged;
-                OnHealthChanged();
-            }
-        }
-        else
-        {
-            Invoke("FindGameSystems", 0.5f);
-            return;
-        }
-
-        GameObject objective = GameObject.FindGameObjectWithTag("Objective");
-        if (objective != null)
-        {
-            objectiveHealth = objective.GetComponent<ObjectiveHealthSystem>();
-            if (objectiveHealth != null)
-            {
-                objectiveHealth.OnHealthChanged += OnObjectiveHealthChanged;
-                OnObjectiveHealthChanged();
             }
         }
     }

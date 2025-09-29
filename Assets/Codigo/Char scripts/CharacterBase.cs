@@ -26,6 +26,11 @@ public class CharacterBase : ScriptableObject
     [Range(0f, 1f)]
     public float armorPenetration = 0f; // Começa com 0%
 
+    [Header("Ultimate Settings")] // <<< NOVO HEADER ADICIONADO AQUI
+    [Tooltip("A quantidade de carga da Ultimate (em percentual de 0.0 a 1.0) ganha por 1 ponto de dano causado.")]
+    [Range(0f, 0.1f)]
+    public float ultimateChargePerDamage = 0.001f; // Exemplo: 0.001f = 0.1% de carga por 1 de dano
+
     [Header("Combat Settings")]
     public CombatType combatType = CombatType.Ranged;
     public FireMode fireMode = FireMode.SemiAuto;

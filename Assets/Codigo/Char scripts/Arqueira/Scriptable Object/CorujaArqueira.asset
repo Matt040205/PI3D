@@ -22,6 +22,7 @@ MonoBehaviour:
   critChance: 0.05
   critDamage: 1.5
   armorPenetration: 0
+  ultimateChargePerDamage: 0.001
   combatType: 0
   fireMode: 0
   meleeAngle: 90

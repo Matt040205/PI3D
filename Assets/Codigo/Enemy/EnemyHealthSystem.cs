@@ -18,7 +18,7 @@ public class EnemyHealthSystem : MonoBehaviour
     private float baseArmor;
     private float currentArmorModifier = 0f;
     private int armorShredStacks = 0;
-    private float markedDamageMultiplier = 1f;
+    private float markedDamageMultiplier = 1f; // Valor padrão de 1f
 
     private EnemyController enemyController;
     private bool isMarked = false;
@@ -55,11 +55,23 @@ public class EnemyHealthSystem : MonoBehaviour
     {
         if (isDead) return false;
 
+        // O dano é multiplicado pelo fator de marcação (ex: 10 * 1.25 = 12.5)
         float damageWithMark = damage * markedDamageMultiplier;
+
         float armorToIgnore = baseArmor * armorPenetration;
         float effectiveArmor = Mathf.Max(0, baseArmor - currentArmorModifier - armorToIgnore);
-        float damageMultiplier = 1f - effectiveArmor;
+        float damageReduction = effectiveArmor;
+        float damageMultiplier = 1f - damageReduction;
+
+        // O dano final é aplicado após a redução de armadura
         float finalDamage = damageWithMark * damageMultiplier;
+
+        // --- ADIÇÃO PARA DEPURAR O DANO E CONFIRMAR O MULTIPLICADOR ---
+        if (markedDamageMultiplier > 1f)
+        {
+            Debug.Log($"<color=orange>Dano MARCADO:</color> Dano Base {damage}, Multiplicador de Marcação {markedDamageMultiplier}, Armadura Efetiva {effectiveArmor:P0}. Dano Final: {finalDamage}");
+        }
+        // ---------------------------------------------------------------
 
         currentHealth -= finalDamage;
 
@@ -87,17 +99,18 @@ public class EnemyHealthSystem : MonoBehaviour
         {
             enemyRenderer.material = markedMaterial;
             isMarked = true;
-            Debug.Log("<color=green>SUCESSO:</color> O material de " + gameObject.name + " foi alterado para o material de marcação.");
+            Debug.Log($"<color=green>SUCESSO:</color> Inimigo {gameObject.name} marcado! Multiplicador de dano: {multiplier}.");
+        }
+        else if (isMarked)
+        {
+            // Se já estiver marcado, apenas atualiza o multiplicador e o tempo de marcação
+            Debug.Log($"<color=yellow>ATENÇÃO:</color> Inimigo {gameObject.name} já estava marcado. Multiplicador atualizado para {multiplier}.");
         }
         else
         {
-            // NOVO LOG PARA DEPURAR A FALHA
-            Debug.Log("<color=red>FALHA:</color> O material de " + gameObject.name + " não foi alterado. Motivo: " +
-                      "Renderer Nulo? " + (enemyRenderer == null) +
-                      ", MarkedMaterial Nulo? " + (markedMaterial == null) +
-                      ", Já Marcado? " + isMarked);
+            // Log para depurar a falha na alteração visual
+            Debug.Log($"<color=red>FALHA VISUAL:</color> Inimigo {gameObject.name} marcado, mas material não foi alterado. Renderer Nulo? {enemyRenderer == null}, MarkedMaterial Nulo? {markedMaterial == null}");
         }
-        Debug.Log("Inimigo " + gameObject.name + " foi marcado!");
     }
 
     public void RemoveMarkedStatus()

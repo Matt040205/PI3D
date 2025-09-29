@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using System.Collections; // Adicione este namespace para usar Coroutines
+using System.Collections;
 
 public class PlayerHealthSystem : MonoBehaviour
 {
@@ -10,15 +10,51 @@ public class PlayerHealthSystem : MonoBehaviour
 
     private float timeSinceLastDamage;
 
-    public Transform respawnPoint;
+    // Removemos 'public' para que ele não seja configurado no Inspector
+    // Ele será encontrado dinamicamente
+    private Transform respawnPoint;
 
-    // Evento para notificar mudanças na sade
+    // VARIÁVEL PARA O NOME/TAG DO OBJETO DE RESPAWN NA CENA
+    [Header("Configuração de Respawn")]
+    [Tooltip("Nome/Tag do Transform do Respawn Point na cena atual. Ex: 'RespawnPoint'")]
+    public string respawnPointNameOrTag = "RespawnPoint"; // Você pode mudar isso no Inspector
+
+    // Evento para notificar mudanças na saúde
     public event Action OnHealthChanged;
 
     void Start()
     {
         currentHealth = characterData.maxHealth;
         NotifyHealthChanged(); // Notifica o valor inicial
+
+        // --- MUDANÇA PRINCIPAL AQUI: LOCALIZANDO O RESPAWN POINT ---
+        FindRespawnPoint();
+    }
+
+    /// <summary>
+    /// Procura o Respawn Point na cena atual usando o nome ou tag configurado.
+    /// </summary>
+    void FindRespawnPoint()
+    {
+        // 1. Tenta encontrar pelo nome/tag definido no Inspector
+        GameObject respawnObject = GameObject.FindWithTag(respawnPointNameOrTag);
+
+        if (respawnObject == null)
+        {
+            respawnObject = GameObject.Find(respawnPointNameOrTag);
+        }
+
+        if (respawnObject != null)
+        {
+            respawnPoint = respawnObject.transform;
+            Debug.Log($"Respawn Point '{respawnPointNameOrTag}' encontrado com sucesso!", respawnObject);
+        }
+        else
+        {
+            // Isso é um aviso, não um erro fatal, para o caso de querer usar a mesma cena
+            // sem um ponto de respawn explícito (embora seja melhor ter um).
+            Debug.LogWarning($"Respawn Point '{respawnPointNameOrTag}' NÃO foi encontrado na cena! Certifique-se de que ele existe e tem a tag/nome correta.");
+        }
     }
 
     void Update()
@@ -42,7 +78,7 @@ public class PlayerHealthSystem : MonoBehaviour
             currentHealth += characterData.maxHealth * 0.01f * Time.deltaTime;
             currentHealth = Mathf.Min(currentHealth, characterData.maxHealth);
 
-            // Notifica a mudana durante a regenerao
+            // Notifica a mudança durante a regeneração
             NotifyHealthChanged();
         }
     }
@@ -66,7 +102,13 @@ public class PlayerHealthSystem : MonoBehaviour
 
     void Die()
     {
-        // Garante que o ponto de respawn est atribuído
+        // Garante que o ponto de respawn foi encontrado ao iniciar a cena
+        if (respawnPoint == null)
+        {
+            // Tenta encontrar novamente, para o caso de ter sido carregado dinamicamente
+            FindRespawnPoint();
+        }
+
         if (respawnPoint != null)
         {
             // Tenta pegar o CharacterController
@@ -87,10 +129,10 @@ public class PlayerHealthSystem : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("O respawnPoint não foi atribuído! O jogador não pode ser teletransportado.");
+            Debug.LogError("O Respawn Point não foi encontrado! O jogador não pode ser teletransportado.");
         }
 
-        // Restaura a sade do jogador
+        // Restaura a saúde do jogador
         currentHealth = characterData.maxHealth;
         NotifyHealthChanged();
     }

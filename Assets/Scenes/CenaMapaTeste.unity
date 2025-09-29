@@ -10164,9 +10164,17 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5347285654736800633, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5347285654736800633, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2056349561}
+    - target: {fileID: 5347285654736800633, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: MenuScene
+      objectReference: {fileID: 0}
     - target: {fileID: 5398520963198333269, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -20180,7 +20188,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1889514695}
   m_Layer: 0
-  m_Name: SpawnP
+  m_Name: RespawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -21992,7 +22000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af665e18fd3f36d4ca7809e7170c804f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nomeDaCena: MenuScene
   menuPanel: {fileID: 1794278061}
   optionsPanel: {fileID: 1181782580}
   creditosPanel: {fileID: 952988211}

@@ -3,8 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    [Header("Configuração da Cena")]
-    public string nomeDaCena;
+    // A variável nomeDaCena não é mais necessária aqui, pois será passada diretamente pelo botão.
+    // Removi: public string nomeDaCena;
 
     [Header("Menus")]
     public GameObject menuPanel;
@@ -22,7 +22,11 @@ public class MenuManager : MonoBehaviour
         if (sonsPanel != null) sonsPanel.SetActive(false);
     }
 
-    public void ChangeScene()
+    /// <summary>
+    /// Carrega uma nova cena. O nome da cena é passado como parâmetro no evento OnClick do botão.
+    /// </summary>
+    /// <param name="nomeDaCena">O nome exato da cena a ser carregada (configurado no Inspector do botão).</param>
+    public void ChangeScene(string nomeDaCena)
     {
         if (!string.IsNullOrEmpty(nomeDaCena))
         {
@@ -30,7 +34,7 @@ public class MenuManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("O nome da cena não foi definido no Inspetor do MenuManager!");
+            Debug.LogError("O nome da cena não foi definido no Inspetor do botão que chamou ChangeScene!");
         }
     }
 

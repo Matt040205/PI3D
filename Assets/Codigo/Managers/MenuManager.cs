@@ -30,6 +30,16 @@ public class MenuManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(nomeDaCena))
         {
+            // 1. Garante que o tempo volte ao normal.
+            Time.timeScale = 1f;
+
+            // 2. [NOVA LINHA] Garante que o jogo não se considere mais "pausado".
+            PauseControl.isPaused = false;
+
+            // 3. [BOA PRÁTICA] Garante que o cursor esteja visível para os menus.
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
             SceneManager.LoadScene(nomeDaCena);
         }
         else

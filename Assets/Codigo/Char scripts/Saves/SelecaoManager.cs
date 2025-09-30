@@ -1,10 +1,11 @@
-// SelecaoManager.cs (Versão com TextMeshPro)
+// SelecaoManager.cs (Versão Final com Corrotina)
+using System.Collections; // Necessário para Corrotinas
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using TMPro; // << IMPORTANTE: Adicione esta linha
+using TMPro;
 
 public class SelecaoManager : MonoBehaviour
 {
@@ -16,21 +17,21 @@ public class SelecaoManager : MonoBehaviour
     public GameObject painelEscolhaPersonagem;
     public GameObject painelDetalhes;
 
-    [Header("Elementos da UI - Equipe (Automático)")]
+    [Header("Elementos da UI - Equipe")]
     public GameObject slotEquipePrefab;
     public Transform gridEquipeContainer;
     public Button botaoJogar;
     public string nomeDaCenaDoJogo;
 
-    [Header("Elementos da UI - Escolha (Automático)")]
+    [Header("Elementos da UI - Escolha")]
     public GameObject slotEscolhaPrefab;
     public Transform gridEscolhaContainer;
     public Button botaoVoltarDaEscolha;
 
-    [Header("Elementos da UI - Detalhes (TextMeshPro)")]
+    [Header("Elementos da UI - Detalhes")]
     public Image imagemDetalhes;
-    public TextMeshProUGUI nomeDetalhes;    // << MUDANÇA AQUI
-    public TextMeshProUGUI statusDetalhes;  // << MUDANÇA AQUI
+    public TextMeshProUGUI nomeDetalhes;
+    public TextMeshProUGUI statusDetalhes;
     public Button botaoConfirmarEscolha;
     public Button botaoVoltarDosDetalhes;
 
@@ -41,29 +42,85 @@ public class SelecaoManager : MonoBehaviour
 
     void Start()
     {
+        // Inicia a corrotina que vai configurar a UI de forma segura.
+        StartCoroutine(SetupScene());
+    }
+
+    IEnumerator SetupScene()
+    {
+        // 1. Limpa tudo que possa ter sobrado da carga anterior da cena.
+        LimparGrid(gridEquipeContainer);
+        LimparGrid(gridEscolhaContainer);
+        slotsEquipe.Clear();
+        botoesDeEscolha.Clear();
+
+        // 2. Garante que os painéis comecem no estado correto (invisíveis)
+        //    para evitar que pisquem na tela por um frame.
+        painelEquipe.SetActive(false);
+        painelEscolhaPersonagem.SetActive(false);
+        painelDetalhes.SetActive(false);
+
+        // 3. (A PARTE MAIS IMPORTANTE) Espera até o final do frame.
+        //    Isso dá tempo para a Unity inicializar completamente o Canvas e o sistema de UI
+        //    após o carregamento da cena.
+        yield return new WaitForEndOfFrame();
+
+        // 4. Agora que a UI está pronta, configure e popule os grids.
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.LimparSelecao();
         }
 
-        botaoJogar.interactable = false;
+        ConfigurarBotoesPrincipais();
 
+        // Popula os grids
         CriarGridEquipe();
         PopularGridDeEscolha();
-        ConfigurarBotoesDeVoltar();
 
+        // 5. Força o sistema de layout a recalcular as posições imediatamente.
+        LayoutRebuilder.ForceRebuildLayoutImmediate(gridEquipeContainer.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(gridEscolhaContainer.GetComponent<RectTransform>());
+
+        // 6. Finalmente, ativa o painel inicial.
         painelEquipe.SetActive(true);
-        painelEscolhaPersonagem.SetActive(false);
-        painelDetalhes.SetActive(false);
     }
 
+    void LimparGrid(Transform grid)
+    {
+        if (grid == null) return;
+        foreach (Transform child in grid)
+        {
+            if (child != null) Destroy(child.gameObject);
+        }
+    }
+
+    void ConfigurarBotoesPrincipais()
+    {
+        if (botaoJogar != null)
+        {
+            botaoJogar.onClick.RemoveAllListeners();
+            botaoJogar.interactable = false;
+            botaoJogar.onClick.AddListener(IniciarJogo);
+        }
+        if (botaoVoltarDaEscolha != null)
+        {
+            botaoVoltarDaEscolha.onClick.RemoveAllListeners();
+            botaoVoltarDaEscolha.onClick.AddListener(VoltarParaPainelEquipe);
+        }
+        if (botaoVoltarDosDetalhes != null)
+        {
+            botaoVoltarDosDetalhes.onClick.RemoveAllListeners();
+            botaoVoltarDosDetalhes.onClick.AddListener(VoltarParaPainelEscolha);
+        }
+    }
+
+    // As funções abaixo continuam iguais
     void CriarGridEquipe()
     {
         for (int i = 0; i < 8; i++)
         {
             GameObject slotObj = Instantiate(slotEquipePrefab, gridEquipeContainer);
             Button slotButton = slotObj.GetComponent<Button>();
-
             int index = i;
             slotButton.onClick.AddListener(() => AbrirPainelEscolha(index));
             slotsEquipe.Add(slotButton);
@@ -76,23 +133,9 @@ public class SelecaoManager : MonoBehaviour
         {
             GameObject slotObj = Instantiate(slotEscolhaPrefab, gridEscolhaContainer);
             slotObj.GetComponent<Image>().sprite = personagem.characterIcon;
-
             Button slotButton = slotObj.GetComponent<Button>();
             slotButton.onClick.AddListener(() => AbrirPainelDetalhes(personagem));
-
             botoesDeEscolha.Add(personagem, slotButton);
-        }
-    }
-
-    void ConfigurarBotoesDeVoltar()
-    {
-        if (botaoVoltarDaEscolha != null)
-        {
-            botaoVoltarDaEscolha.onClick.AddListener(VoltarParaPainelEquipe);
-        }
-        if (botaoVoltarDosDetalhes != null)
-        {
-            botaoVoltarDosDetalhes.onClick.AddListener(VoltarParaPainelEscolha);
         }
     }
 
@@ -103,20 +146,14 @@ public class SelecaoManager : MonoBehaviour
         painelEscolhaPersonagem.SetActive(true);
         painelDetalhes.SetActive(false);
 
+        if (GameDataManager.Instance == null) return;
+
         CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada;
         foreach (var par in botoesDeEscolha)
         {
             bool jaEscolhido = equipeAtual.Contains(par.Key);
-            bool noSlotAtual = equipeAtual[slotSendoEditado] == par.Key;
-
-            if (jaEscolhido && !noSlotAtual)
-            {
-                par.Value.interactable = false;
-            }
-            else
-            {
-                par.Value.interactable = true;
-            }
+            bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key;
+            par.Value.interactable = !jaEscolhido || noSlotAtual;
         }
     }
 
@@ -124,29 +161,25 @@ public class SelecaoManager : MonoBehaviour
     {
         painelEscolhaPersonagem.SetActive(false);
         painelDetalhes.SetActive(true);
-
         personagemEmVisualizacao = personagem;
-
         imagemDetalhes.sprite = personagem.characterIcon;
-
-        // A lógica aqui continua exatamente a mesma
         nomeDetalhes.text = personagem.name;
         statusDetalhes.text = $"Vida: {personagem.maxHealth}\nDano: {personagem.damage}\nVelocidade: {personagem.moveSpeed}";
-
         botaoConfirmarEscolha.onClick.RemoveAllListeners();
         botaoConfirmarEscolha.onClick.AddListener(ConfirmarEscolha);
     }
 
     void ConfirmarEscolha()
     {
-        GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
-        slotsEquipe[slotSendoEditado].GetComponent<Image>().sprite = personagemEmVisualizacao.characterIcon;
-
-        if (GameDataManager.Instance.equipeSelecionada[0] != null)
+        if (GameDataManager.Instance != null && slotSendoEditado != -1)
         {
-            botaoJogar.interactable = true;
+            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
+            slotsEquipe[slotSendoEditado].GetComponent<Image>().sprite = personagemEmVisualizacao.characterIcon;
+            if (GameDataManager.Instance.equipeSelecionada[0] != null)
+            {
+                botaoJogar.interactable = true;
+            }
         }
-
         VoltarParaPainelEquipe();
     }
 
@@ -168,6 +201,13 @@ public class SelecaoManager : MonoBehaviour
 
     public void IniciarJogo()
     {
-        SceneManager.LoadScene(nomeDaCenaDoJogo);
+        if (!string.IsNullOrEmpty(nomeDaCenaDoJogo))
+        {
+            SceneManager.LoadScene(nomeDaCenaDoJogo);
+        }
+        else
+        {
+            Debug.LogError("O nome da cena do jogo não foi definido no Inspector!");
+        }
     }
 }

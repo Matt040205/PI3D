@@ -68,7 +68,10 @@ public class ProjectileVisual : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            // --- MUDANÇA PARA POOLING: Fallback removido ---
+            // Substitui o Destroy(gameObject) por um log e desativação.
+            Debug.LogError("Projetil escapou do Pool! Desativando em vez de destruir.");
+            gameObject.SetActive(false);
         }
     }
 }

@@ -26,6 +26,15 @@ public class CacadoraNoturnaLogic : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        // --- MUDANÇA PARA POOLING ---
+        ReturnToPool();
+    }
+
+    // --- NOVO MÉTODO PARA RETORNO AO POOL (DESATIVAÇÃO) ---
+    private void ReturnToPool()
+    {
+        // Se este objeto for gerenciado por um Pool Manager de Habilidades/Lógicas:
+        // Você pode substituir a linha abaixo pelo seu AbilityLogicPoolManager.Instance.ReturnLogic(gameObject);
+        gameObject.SetActive(false);
     }
 }

@@ -39,6 +39,14 @@ public class PreyMarkLogic : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        // --- MUDANÇA PARA POOLING ---
+        ReturnToPool();
+    }
+
+    // --- NOVO MÉTODO PARA RETORNO AO POOL (DESATIVAÇÃO) ---
+    private void ReturnToPool()
+    {
+        // Você pode substituir a linha abaixo pelo seu AbilityLogicPoolManager.Instance.ReturnLogic(gameObject);
+        gameObject.SetActive(false);
     }
 }

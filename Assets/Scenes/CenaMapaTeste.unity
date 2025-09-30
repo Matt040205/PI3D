@@ -21922,7 +21922,7 @@ MonoBehaviour:
   geoditesTextBuild: {fileID: 1979527351}
   geoditesText: {fileID: 1042967705}
   darkEtherText: {fileID: 0}
-  initialGeodites: 500
+  initialGeodites: 1000000
   initialDarkEther: 0
 --- !u!114 &2056349557
 MonoBehaviour:

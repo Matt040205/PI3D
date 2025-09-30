@@ -1,6 +1,7 @@
-// EnemyHealthSystem.cs
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq; // Necessário para usar .ToArray() no Awake
 
 public class EnemyHealthSystem : MonoBehaviour
 {
@@ -8,7 +9,9 @@ public class EnemyHealthSystem : MonoBehaviour
     public EnemyDataSO enemyData;
     public Material markedMaterial;
     private Renderer enemyRenderer;
-    private Material originalMaterial;
+
+    // --- MODIFICAÇÃO: Armazenar todos os materiais originais ---
+    private Material[] originalMaterials;
 
     [Header("Status Atual")]
     public float currentHealth;
@@ -18,7 +21,7 @@ public class EnemyHealthSystem : MonoBehaviour
     private float baseArmor;
     private float currentArmorModifier = 0f;
     private int armorShredStacks = 0;
-    private float markedDamageMultiplier = 1f; // Valor padrão de 1f
+    private float markedDamageMultiplier = 1f;
 
     private EnemyController enemyController;
     private bool isMarked = false;
@@ -28,10 +31,23 @@ public class EnemyHealthSystem : MonoBehaviour
     void Awake()
     {
         enemyController = GetComponent<EnemyController>();
-        enemyRenderer = GetComponentInChildren<Renderer>();
+        // Tenta encontrar o Renderer no próprio GameObject ou nos filhos
+        enemyRenderer = GetComponent<Renderer>();
+        if (enemyRenderer == null)
+        {
+            enemyRenderer = GetComponentInChildren<Renderer>();
+        }
+
         if (enemyRenderer != null)
         {
-            originalMaterial = enemyRenderer.material;
+            // --- MUDANÇA PRINCIPAL: CLONA e salva todos os materiais originais ---
+            // Usar .materials (plural) para clonar o array, garantindo que não altere assets originais.
+            originalMaterials = enemyRenderer.materials.ToArray();
+            Debug.Log($"<color=blue>EnemyHealthSystem:</color> Renderer '{enemyRenderer.gameObject.name}' encontrado. {originalMaterials.Length} materiais originais salvos.");
+        }
+        else
+        {
+            Debug.LogError($"<color=red>EnemyHealthSystem:</color> NENHUM RENDERER ENCONTRADO para o inimigo '{gameObject.name}'. A marcação visual NÃO FUNCIONARÁ!");
         }
     }
 
@@ -48,6 +64,12 @@ public class EnemyHealthSystem : MonoBehaviour
         armorShredStacks = 0;
         isDead = false;
         markedDamageMultiplier = 1f;
+
+        // Garante que o inimigo comece com o material original ao ser reutilizado
+        if (enemyRenderer != null && originalMaterials != null)
+        {
+            enemyRenderer.materials = originalMaterials;
+        }
         isMarked = false;
     }
 
@@ -55,7 +77,6 @@ public class EnemyHealthSystem : MonoBehaviour
     {
         if (isDead) return false;
 
-        // O dano é multiplicado pelo fator de marcação (ex: 10 * 1.25 = 12.5)
         float damageWithMark = damage * markedDamageMultiplier;
 
         float armorToIgnore = baseArmor * armorPenetration;
@@ -63,15 +84,12 @@ public class EnemyHealthSystem : MonoBehaviour
         float damageReduction = effectiveArmor;
         float damageMultiplier = 1f - damageReduction;
 
-        // O dano final é aplicado após a redução de armadura
         float finalDamage = damageWithMark * damageMultiplier;
 
-        // --- ADIÇÃO PARA DEPURAR O DANO E CONFIRMAR O MULTIPLICADOR ---
         if (markedDamageMultiplier > 1f)
         {
-            Debug.Log($"<color=orange>Dano MARCADO:</color> Dano Base {damage}, Multiplicador de Marcação {markedDamageMultiplier}, Armadura Efetiva {effectiveArmor:P0}. Dano Final: {finalDamage}");
+            Debug.Log($"<color=orange>Dano MARCADO:</color> Dano Base {damage.ToString("F1")}, Multiplicador de Marcação {markedDamageMultiplier.ToString("F2")}, Armadura Efetiva {effectiveArmor.ToString("F1")}. Dano Final: {finalDamage.ToString("F1")}");
         }
-        // ---------------------------------------------------------------
 
         currentHealth -= finalDamage;
 
@@ -89,39 +107,58 @@ public class EnemyHealthSystem : MonoBehaviour
         {
             armorShredStacks++;
             currentArmorModifier += percentage;
+            Debug.Log($"<color=purple>ARMOR SHRED:</color> {gameObject.name} shredado. Stacks: {armorShredStacks}. Modificador atual: {currentArmorModifier}.");
         }
     }
 
     public void ApplyMarkedStatus(float multiplier)
     {
         markedDamageMultiplier = multiplier;
+
         if (enemyRenderer != null && markedMaterial != null && !isMarked)
         {
-            enemyRenderer.material = markedMaterial;
+            // --- MUDANÇA PRINCIPAL: Cria e aplica um novo array com o MarkedMaterial em todas as slots ---
+            Material[] markedMaterialsArray = new Material[enemyRenderer.materials.Length];
+            for (int i = 0; i < markedMaterialsArray.Length; i++)
+            {
+                markedMaterialsArray[i] = markedMaterial;
+            }
+            enemyRenderer.materials = markedMaterialsArray;
+
             isMarked = true;
-            Debug.Log($"<color=green>SUCESSO:</color> Inimigo {gameObject.name} marcado! Multiplicador de dano: {multiplier}.");
+            Debug.Log($"<color=green>MARCADO VISUALMENTE:</color> {gameObject.name} agora com material de marcação em todas as {markedMaterialsArray.Length} slots.");
         }
         else if (isMarked)
         {
-            // Se já estiver marcado, apenas atualiza o multiplicador e o tempo de marcação
-            Debug.Log($"<color=yellow>ATENÇÃO:</color> Inimigo {gameObject.name} já estava marcado. Multiplicador atualizado para {multiplier}.");
+            // Apenas atualiza a lógica
+            Debug.Log($"<color=yellow>JÁ MARCADO:</color> {gameObject.name} já estava marcado. Multiplicador atualizado para {multiplier}.");
         }
         else
         {
-            // Log para depurar a falha na alteração visual
-            Debug.Log($"<color=red>FALHA VISUAL:</color> Inimigo {gameObject.name} marcado, mas material não foi alterado. Renderer Nulo? {enemyRenderer == null}, MarkedMaterial Nulo? {markedMaterial == null}");
+            Debug.LogError($"<color=red>FALHA VISUAL DE MARCAÇÃO:</color> {gameObject.name} marcado logicamente, mas material NÃO ALTERADO. MarkedMaterial Nulo? {markedMaterial == null}. Renderer Nulo? {enemyRenderer == null}");
         }
     }
 
     public void RemoveMarkedStatus()
     {
         markedDamageMultiplier = 1f;
-        if (enemyRenderer != null && originalMaterial != null && isMarked)
+
+        if (enemyRenderer != null && originalMaterials != null && isMarked)
         {
-            enemyRenderer.material = originalMaterial;
+            // --- MUDANÇA PRINCIPAL: Restaura o array de materiais original ---
+            enemyRenderer.materials = originalMaterials;
+
             isMarked = false;
+            Debug.Log($"<color=blue>MARCAÇÃO REMOVIDA VISUALMENTE:</color> {gameObject.name} voltou ao material original.");
         }
-        Debug.Log("Inimigo " + gameObject.name + " não está mais marcado.");
+        else if (!isMarked)
+        {
+            Debug.Log($"<color=gray>MARCAÇÃO JÁ REMOVIDA:</color> {gameObject.name} não estava marcado.");
+        }
+        else
+        {
+            Debug.LogError($"<color=red>FALHA VISUAL AO REMOVER MARCAÇÃO:</color> {gameObject.name} desmarcado logicamente, mas material NÃO RESTAURADO. OriginalMaterials Nulo? {originalMaterials == null}.");
+        }
     }
 
     private void Die()
@@ -134,7 +171,7 @@ public class EnemyHealthSystem : MonoBehaviour
             {
                 CurrencyManager.Instance.AddCurrency(geoditesAmount, CurrencyType.Geodites);
             }
-            if (Random.value <= enemyData.etherDropChance)
+            if (UnityEngine.Random.value <= enemyData.etherDropChance)
             {
                 CurrencyManager.Instance.AddCurrency(1, CurrencyType.DarkEther);
             }
@@ -145,7 +182,8 @@ public class EnemyHealthSystem : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            Debug.LogError("Inimigo morreu sem um EnemyController! Desativando em vez de destruir.");
+            gameObject.SetActive(false);
         }
     }
 }

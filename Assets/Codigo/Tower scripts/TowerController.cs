@@ -18,7 +18,7 @@ public class TowerController : MonoBehaviour
     public event Action<EnemyHealthSystem> OnTargetDamaged;
     public event Func<EnemyHealthSystem, float, float> OnCalculateDamage;
     public event Action<EnemyHealthSystem> OnCriticalHit;
-    public event Action<EnemyHealthSystem> OnEnemyKilled; // NOVO EVENTO ADICIONADO AQUI
+    public event Action<EnemyHealthSystem> OnEnemyKilled;
 
     // --- Propriedade Pública de Estado ---
     public bool IsDestroyed { get; private set; }
@@ -138,20 +138,32 @@ public class TowerController : MonoBehaviour
         }
     }
 
-    // ===== ÁREA DE TESTE COM LOGS DE DANO =====
+    // ===== ÁREA DE DANO CORRIGIDA E DIAGNOSTICADA =====
     void Shoot()
     {
         if (targetEnemy == null)
             return;
+
         EnemyHealthSystem healthSystem = targetEnemy.GetComponent<EnemyHealthSystem>();
-        Debug.Log("0");
+
         if (healthSystem != null)
         {
             float damageToDeal = currentDamage;
             bool isCritical = UnityEngine.Random.value <= currentCritChance;
 
+            // --- NOVO LOG DE DIAGNÓSTICO PARA CRÍTICO ---
+            if (isCritical)
+            {
+                Debug.Log($"<color=red>CRÍTICO SUCESSO!</color> Acerto crítico detectado! O evento OnCriticalHit será invocado.");
+            }
+            else if (currentCritChance > 0)
+            {
+                Debug.Log($"<color=gray>Crítico Falhou.</color> Chance Atual: {currentCritChance:P1}.");
+            }
+            // ---------------------------------------------
+
             string logMessage = $"<color=white>{gameObject.name} atacou {targetEnemy.name}.</color> ";
-            Debug.Log("1");
+
             if (isCritical)
             {
                 float criticalDamage = damageToDeal * currentCritDamage;
@@ -162,7 +174,7 @@ public class TowerController : MonoBehaviour
             {
                 logMessage += $"<color=green>Dano normal: {damageToDeal.ToString("F1")}</color>";
             }
-            Debug.Log("2");
+
             // Permite que outros scripts (habilidades) modifiquem o dano antes de ser aplicado
             if (OnCalculateDamage != null)
             {
@@ -175,29 +187,29 @@ public class TowerController : MonoBehaviour
                 {
                     logMessage += $" | <color=lightblue>Dano modificado por habilidade para: {damageToDeal.ToString("F1")}</color>";
                 }
-                Debug.Log("3");
             }
 
 
-            // NOVO LOG DE DANO!
+            // LOG FINAL DE DANO
             Debug.Log(logMessage);
 
             bool enemyDied = healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
 
-            // Verifica se o inimigo morreu para invocar o novo evento
+            // Invoca eventos
             if (enemyDied)
             {
                 OnEnemyKilled?.Invoke(healthSystem);
             }
 
             OnTargetDamaged?.Invoke(healthSystem);
+
+            // Invoca o evento de Acerto Crítico para os Behaviors (como Sangramento/Marcação)
             if (isCritical)
             {
                 OnCriticalHit?.Invoke(healthSystem);
             }
 
         }
-        Debug.Log("4");
     }
 
     public void TakeDamage(float amount)
@@ -227,6 +239,9 @@ public class TowerController : MonoBehaviour
         IsDestroyed = true;
         targetEnemy = null;
         Debug.Log($"Torre {gameObject.name} foi destruída!");
+        // Em um sistema de Pooling, você adicionaria aqui a lógica para devolver o objeto ao pool
+        // Exemplo: TowerPoolManager.Instance.ReturnTower(gameObject);
+        gameObject.SetActive(false); // Substituição temporária de Destroy
     }
 
     public void Revive(float healthPercentage)

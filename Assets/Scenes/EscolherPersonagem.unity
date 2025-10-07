@@ -451,7 +451,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -15, y: 10}
+  m_AnchoredPosition: {x: -85.35, y: 9.3}
   m_SizeDelta: {x: 501, y: 145.7847}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114905192
@@ -507,7 +507,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: CenaMapaTeste
+          m_StringArgument: MenuScene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &114905193
@@ -2659,7 +2659,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 15, y: 10}
+  m_AnchoredPosition: {x: 84.9, y: 10}
   m_SizeDelta: {x: 501, y: 145.7847}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1990063980

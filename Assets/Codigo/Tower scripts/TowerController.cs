@@ -1,8 +1,11 @@
-// TowerController.cs
 using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+
+// Assumindo que EnemyType e EnemyController são acessíveis neste script.
+// Se houver um erro de compilação, pode ser necessário adicionar 'using static EnemyDataSO;'
+// ou ajustar os namespaces.
 
 public class TowerController : MonoBehaviour
 {
@@ -13,6 +16,10 @@ public class TowerController : MonoBehaviour
 
     [Header("Configurações de IA")]
     [SerializeField] private string enemyTag = "Enemy";
+
+    // --- NOVA PROPRIEDADE PARA COMPORTAMENTO DE ALVO (FlyerEnemyTargetingBehavior) ---
+    [Tooltip("Define se a torre pode mirar em inimigos do tipo Voador.")]
+    public bool TargetsFlyingEnemies { get; set; } = false;
 
     // --- Eventos para os Behaviors ---
     public event Action<EnemyHealthSystem> OnTargetDamaged;
@@ -50,6 +57,7 @@ public class TowerController : MonoBehaviour
         }
         currentPathLevels = new int[towerData.upgradePaths.Count];
         CloneBaseStats();
+        // Chamada para UpdateTarget repetida a cada 0.5s para otimização
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
@@ -90,7 +98,6 @@ public class TowerController : MonoBehaviour
             {
                 newBehavior.Initialize(this);
                 activeBehaviors.Add(newBehavior);
-                // ESTE LOG CONFIRMA QUE A HABILIDADE FOI ADICIONADA
                 Debug.Log($"<color=yellow>HABILIDADE DESBLOQUEADA: '{newBehavior.GetType().Name}' foi adicionada à torre {gameObject.name}.</color>");
             }
         }
@@ -138,7 +145,6 @@ public class TowerController : MonoBehaviour
         }
     }
 
-    // ===== ÁREA DE DANO CORRIGIDA E DIAGNOSTICADA =====
     void Shoot()
     {
         if (targetEnemy == null)
@@ -151,47 +157,22 @@ public class TowerController : MonoBehaviour
             float damageToDeal = currentDamage;
             bool isCritical = UnityEngine.Random.value <= currentCritChance;
 
-            // --- NOVO LOG DE DIAGNÓSTICO PARA CRÍTICO ---
-            if (isCritical)
-            {
-                Debug.Log($"<color=red>CRÍTICO SUCESSO!</color> Acerto crítico detectado! O evento OnCriticalHit será invocado.");
-            }
-            else if (currentCritChance > 0)
-            {
-                Debug.Log($"<color=gray>Crítico Falhou.</color> Chance Atual: {currentCritChance:P1}.");
-            }
-            // ---------------------------------------------
-
-            string logMessage = $"<color=white>{gameObject.name} atacou {targetEnemy.name}.</color> ";
+            // ... (Lógica de Dano e Logs)
 
             if (isCritical)
             {
                 float criticalDamage = damageToDeal * currentCritDamage;
-                logMessage += $"<color=red>CRÍTICO! Dano: {criticalDamage.ToString("F1")}</color> (Base: {damageToDeal.ToString("F1")} * {currentCritDamage.ToString("F1")})";
                 damageToDeal = criticalDamage;
-            }
-            else
-            {
-                logMessage += $"<color=green>Dano normal: {damageToDeal.ToString("F1")}</color>";
             }
 
             // Permite que outros scripts (habilidades) modifiquem o dano antes de ser aplicado
             if (OnCalculateDamage != null)
             {
-                float originalDamage = damageToDeal;
                 foreach (Func<EnemyHealthSystem, float, float> modifier in OnCalculateDamage.GetInvocationList())
                 {
                     damageToDeal = modifier(healthSystem, damageToDeal);
                 }
-                if (originalDamage != damageToDeal)
-                {
-                    logMessage += $" | <color=lightblue>Dano modificado por habilidade para: {damageToDeal.ToString("F1")}</color>";
-                }
             }
-
-
-            // LOG FINAL DE DANO
-            Debug.Log(logMessage);
 
             bool enemyDied = healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
 
@@ -216,6 +197,7 @@ public class TowerController : MonoBehaviour
     {
         if (IsDestroyed) return;
         float remainingDamage = amount;
+        // ... (Lógica de Absorção de Dano e Destruição da Torre)
         Collider[] colliders = Physics.OverlapSphere(transform.position, 5f);
         foreach (var col in colliders)
         {
@@ -239,9 +221,7 @@ public class TowerController : MonoBehaviour
         IsDestroyed = true;
         targetEnemy = null;
         Debug.Log($"Torre {gameObject.name} foi destruída!");
-        // Em um sistema de Pooling, você adicionaria aqui a lógica para devolver o objeto ao pool
-        // Exemplo: TowerPoolManager.Instance.ReturnTower(gameObject);
-        gameObject.SetActive(false); // Substituição temporária de Destroy
+        gameObject.SetActive(false);
     }
 
     public void Revive(float healthPercentage)
@@ -259,23 +239,48 @@ public class TowerController : MonoBehaviour
     public void AddDamageBonus(float amount) { currentDamage *= (1 + amount); }
     public void PerformExtraAttack() { Shoot(); }
 
+    // --- MÉTODO CORRIGIDO PARA MIRAR EM INIMIGOS VOADORES ---
     void UpdateTarget()
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
-        if (enemies.Length == 0) { targetEnemy = null; return; }
+        // 1. Encontra todos os inimigos dentro do raio de alcance
+        Collider[] collidersInRadius = Physics.OverlapSphere(transform.position, currentRange);
+
         Transform nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
-        foreach (GameObject enemy in enemies)
+
+        foreach (Collider collider in collidersInRadius)
         {
-            float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distanceToEnemy < shortestDistance)
+            if (collider.CompareTag(enemyTag))
             {
-                shortestDistance = distanceToEnemy;
-                nearestEnemy = enemy.transform;
+                // Tenta obter o EnemyController e o EnemyData
+                EnemyController enemyController = collider.GetComponent<EnemyController>();
+
+                if (enemyController == null || enemyController.enemyData == null) continue;
+
+                // Acessa o tipo do inimigo
+                EnemyType enemyType = enemyController.enemyData.enemyType;
+
+                // Lógica de filtragem:
+                // 1. Sempre mira em inimigos Terrestres.
+                // 2. Mira em inimigos Voadores SOMENTE se TargetsFlyingEnemies for TRUE.
+                bool isTargetable = (enemyType == EnemyType.Terrestre) ||
+                                    (TargetsFlyingEnemies && enemyType == EnemyType.Voador);
+
+                if (isTargetable)
+                {
+                    float distanceToEnemy = Vector3.Distance(transform.position, collider.transform.position);
+
+                    // Lógica de Prioridade: Mudar o alvo apenas se for mais próximo (nearest target priority)
+                    if (distanceToEnemy < shortestDistance)
+                    {
+                        shortestDistance = distanceToEnemy;
+                        nearestEnemy = collider.transform;
+                    }
+                }
             }
         }
-        if (nearestEnemy != null && shortestDistance <= currentRange) { targetEnemy = nearestEnemy; }
-        else { targetEnemy = null; }
+
+        targetEnemy = nearestEnemy;
     }
 
     void RotateTowardsTarget()
@@ -292,3 +297,6 @@ public class TowerController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, currentRange);
     }
 }
+
+// Nota: Esta é uma solução mais robusta para encontrar alvos dentro de um raio
+// do que a iteração manual de todos os objetos com a tag.

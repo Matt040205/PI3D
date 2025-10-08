@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// --- MODIFICAÇÃO AQUI ---
 public enum StatType { Damage, AttackSpeed, Range, Armor, CritChance, CritDamage, ArmorPenetration }
 public enum ModificationType { Additive, Multiplicative }
 
@@ -20,7 +19,7 @@ public class Upgrade : ScriptableObject
     [Header("Informações do Upgrade")]
     public string upgradeName;
     [TextArea] public string description;
-    public Sprite icon;
+    // public Sprite icon; // <-- LINHA REMOVIDA
 
     [Header("Custos")]
     public int geoditeCost;
@@ -30,6 +29,6 @@ public class Upgrade : ScriptableObject
     public List<StatModifier> modifiers;
 
     [Header("Comportamento Especial Desbloqueado")]
-    [Tooltip("Arraste o PREFAB do comportamento que este upgrade desbloqueia (Ex: DoubleAttackBehavior).")]
+    [Tooltip("Arraste o PREFAB do comportamento que este upgrade desbloqueia.")]
     public TowerBehavior behaviorToUnlock;
 }

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: NV4
   m_EditorClassIdentifier: 
   upgradeName: "F\xFAria Acumulada"
-  description: 
-  icon: {fileID: 0}
+  description: "Aumenta o dano em 8% a cada ataque consecutivo no mesmo alvo, acumulando
+    em at\xE9 6 vezes"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

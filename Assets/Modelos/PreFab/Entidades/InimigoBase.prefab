@@ -192,10 +192,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackRange: 2
+  timeToDamage: 2
+  towerAuraRadius: 10
+  towerAuraDamage: 14
+  towerAuraInterval: 3
   attackPoint: {fileID: 8969110193453866434}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  towerLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &7998508265921882966
 GameObject:
   m_ObjectHideFlags: 0

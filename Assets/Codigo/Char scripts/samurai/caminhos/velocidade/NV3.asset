@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: NV3
   m_EditorClassIdentifier: 
-  upgradeName: assalto
-  description: 
-  icon: {fileID: 0}
+  upgradeName: Assalto
+  description: "Aumenta a velAtq em 10% em at\xE9 5 segundos a cada acerto cr\xEDtico,
+    acumulando em at\xE9 3 vezes"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

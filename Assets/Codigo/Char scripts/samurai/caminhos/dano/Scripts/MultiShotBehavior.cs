@@ -1,4 +1,5 @@
 // MultiShotBehavior.cs
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -20,17 +21,34 @@ public class MultiShotBehavior : TowerBehavior
         }
     }
 
+    // Exemplo de como implementar MultiShotBehavior.cs/FireExtraProjectiles
     private void FireExtraProjectiles(EnemyHealthSystem mainTarget)
     {
         Debug.Log($"DANÇA DAS CAUDAS! Disparando {extraProjectiles} projéteis extras.");
 
-        // --- NOTA IMPORTANTE ---
-        // A lógica aqui depende de como seu jogo dispara projéteis.
-        // Você precisará de uma função no seu TowerController ou em um sistema de projéteis
-        // para criar e disparar esses tiros extras.
+        // Obter alvos próximos (excluindo o alvo principal)
+        Collider[] colliders = Physics.OverlapSphere(towerController.transform.position, towerController.CurrentRange);
 
-        // Exemplo de como poderia ser:
-        // FindNearbyTargetsAndFire(mainTarget, extraProjectiles, towerController.currentDamage * damageMultiplier);
+        // Lista de alvos válidos (com EnemyController e vivos)
+        List<EnemyHealthSystem> validTargets = new List<EnemyHealthSystem>();
+        foreach (var col in colliders)
+        {
+            EnemyHealthSystem target = col.GetComponent<EnemyHealthSystem>();
+            if (target != null && target != mainTarget && !target.isDead) // Assumindo isDead existe
+            {
+                validTargets.Add(target);
+            }
+        }
+
+        // Disparar o número de projéteis extras para alvos aleatórios
+        for (int i = 0; i < extraProjectiles && validTargets.Count > 0; i++)
+        {
+            // Escolhe um alvo aleatório entre os válidos
+            EnemyHealthSystem randomTarget = validTargets[Random.Range(0, validTargets.Count)];
+
+            // Dispara o projétil (Esta função de disparo deve existir no seu TowerController ou em um Projétil Manager)
+            // towerController.FireProjectileAt(randomTarget.transform, towerController.CurrentDamage * damageMultiplier);
+        }
     }
 
     private void OnDestroy()

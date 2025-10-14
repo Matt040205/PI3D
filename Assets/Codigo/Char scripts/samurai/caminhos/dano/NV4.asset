@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV4
   m_EditorClassIdentifier: 
   upgradeName: Corte Duplo
-  description: 
-  icon: {fileID: 0}
+  description: 25% de chance de atacar duas flechas
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

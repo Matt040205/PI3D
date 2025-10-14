@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV5
   m_EditorClassIdentifier: 
   upgradeName: Legado das Nove Caudas
-  description: 
-  icon: {fileID: 0}
+  description: "Em uma \xE1rea de 8m, aumenta em 15% o velAtq e 25% do dano"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

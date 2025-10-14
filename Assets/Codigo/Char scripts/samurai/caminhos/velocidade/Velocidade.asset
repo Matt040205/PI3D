@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
-  m_Name: a3
+  m_Name: Velocidade
   m_EditorClassIdentifier: 
   upgradesInPath:
-  - {fileID: 11400000, guid: b3e14de7f66057e42b8aa7f2cf224a6d, type: 2}
-  - {fileID: 11400000, guid: 4626458b8a3253b4a87e7638895c5df7, type: 2}
-  - {fileID: 11400000, guid: ddf001443bbfb364d8b609b9d686d065, type: 2}
-  - {fileID: 11400000, guid: 3f1b0c97843c0a24d95abfb624c57b55, type: 2}
-  - {fileID: 11400000, guid: a381f88fc80c5de47a7905737e607335, type: 2}
+  - {fileID: 11400000, guid: 755eb4a699a01b94ba63ec6594a91687, type: 2}
+  - {fileID: 11400000, guid: 3653726814746654fa6aa4e65f40fc25, type: 2}
+  - {fileID: 11400000, guid: d5450caa4af770044a52415f0c6fabd6, type: 2}
+  - {fileID: 11400000, guid: e161ba0718864fe4883ed3d03fe7e252, type: 2}
+  - {fileID: 11400000, guid: 641a452b187532844ab57a21fef4c60b, type: 2}

@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: InimigoBase Voador
       objectReference: {fileID: 0}
+    - target: {fileID: 5471413282963989799, guid: 02fd847ebc4db2b4f933ceece3a2079e, type: 3}
+      propertyPath: towerLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 5552915401148249409, guid: 02fd847ebc4db2b4f933ceece3a2079e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

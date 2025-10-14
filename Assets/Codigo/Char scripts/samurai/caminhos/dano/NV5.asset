@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV5
   m_EditorClassIdentifier: 
   upgradeName: "Dan\xE7a das Caudas"
-  description: 
-  icon: {fileID: 0}
+  description: Ataca 3 flechas que tem 50% do dano base
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

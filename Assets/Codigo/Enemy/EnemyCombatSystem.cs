@@ -1,121 +1,213 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyCombatSystem : MonoBehaviour
 {
-    [Header("Configurações de Combate")]
+    [Header("Configurações de Combate (Player)")]
+    [Tooltip("Raio para detecção do jogador e aplicação de dano.")]
     public float attackRange = 2f;
-    // MODIFICADO: A linha abaixo foi removida, pois agora o cooldown vem do Scriptable Object.
-    // public float attackCooldown = 1f;
+    [Tooltip("Tempo (em segundos) que o jogador precisa ficar na área para receber dano (Dano Inicial).")]
+    public float timeToDamage = 2f;
+
+    [Header("Aura de Dano em Torres")] // <<< NOVA SEÇÃO ADICIONADA AQUI
+    [Tooltip("Raio da aura que causa dano em torres.")]
+    public float towerAuraRadius = 10f;
+    [Tooltip("Dano base que a aura causa em cada ciclo.")]
+    public float towerAuraDamage = 14f;
+    [Tooltip("Intervalo (em segundos) entre cada aplicação de dano da aura.")]
+    public float towerAuraInterval = 3f;
 
     [Header("Referências")]
     public Transform attackPoint;
     public LayerMask playerLayer;
+    public LayerMask towerLayer; // <<< NOVA VARIÁVEL DE LAYER
 
     // Componentes
     private EnemyController enemyController;
     private EnemyDataSO enemyData;
-    private Transform player;
+    private float currentDamage;
 
-    // Estado
-    private bool canAttack = true;
-    private bool isAttacking = false;
-    private float currentAttackCooldown;
+    // Estado de ataque baseado em área (Player)
+    private bool playerIsInside = false;
+    private Coroutine attackCoroutine;
+
+    // Estado da Aura (Torres)
+    private Coroutine towerAuraCoroutine; // <<< NOVA COROUTINE
 
     void Awake()
     {
         enemyController = GetComponent<EnemyController>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        // Debugs de inicialização removidos para manter o código limpo, mas a lógica de Awake está OK.
     }
 
     void Start()
     {
-        if (enemyController != null)
-        {
-            enemyData = enemyController.enemyData;
-        }
+        // Debug de Start removido.
     }
 
-    void Update()
+    // --- MÉTODO DE INICIALIZAÇÃO CHAMADO PELO ENEMYCONTROLLER ---
+    public void InitializeCombat(EnemyDataSO data, int nivel)
     {
-        if (enemyController == null || enemyController.IsDead) return;
+        this.enemyData = data;
 
-        if (!canAttack)
+        if (enemyData != null)
         {
-            currentAttackCooldown -= Time.deltaTime;
-            if (currentAttackCooldown <= 0)
+            currentDamage = enemyData.GetDamage(nivel);
+
+            // Tenta obter/adicionar/configurar o colisor para a detecção do Player (Trigger)
+            SphereCollider sphereCollider = (attackPoint != null && attackPoint.GetComponent<SphereCollider>() != null)
+                                            ? attackPoint.GetComponent<SphereCollider>()
+                                            : GetComponent<SphereCollider>();
+
+            if (sphereCollider == null)
             {
-                canAttack = true;
+                sphereCollider = gameObject.AddComponent<SphereCollider>();
             }
-        }
-    }
 
-    public void TryAttack()
-    {
-        if (canAttack && IsPlayerInAttackRange())
-        {
-            StartAttack();
-        }
-    }
+            if (sphereCollider != null)
+            {
+                sphereCollider.isTrigger = true;
+                sphereCollider.radius = attackRange;
+            }
 
-    bool IsPlayerInAttackRange()
-    {
-        if (player == null) return false;
-
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        return distanceToPlayer <= attackRange;
-    }
-
-    void StartAttack()
-    {
-        isAttacking = true;
-        canAttack = false;
-
-        // MODIFICADO: O cooldown agora é calculado com base no 'attackSpeed' do EnemyDataSO.
-        if (enemyData != null && enemyData.attackSpeed > 0)
-        {
-            // A fórmula é 1 / ataques_por_segundo. Ex: 2 de attackSpeed = 0.5s de cooldown.
-            currentAttackCooldown = 1f / enemyData.attackSpeed;
+            // NOVO: Inicia a Coroutine de Dano da Aura
+            if (towerAuraCoroutine != null) StopCoroutine(towerAuraCoroutine);
+            towerAuraCoroutine = StartCoroutine(TowerAuraCycle());
         }
         else
         {
-            // Valor padrão para evitar divisão por zero caso o valor não esteja configurado.
-            currentAttackCooldown = 1f;
+            Debug.LogError("EnemyCombatSystem: InitializeCombat FALHOU. EnemyData está faltando.");
         }
-
-        // Inicia a animação de ataque (se tiver)
-        // animator.SetTrigger("Attack");
-
-        // Aplica o dano (ajuste o timing conforme sua animação)
-        Invoke("ApplyDamage", 0.5f); // Ajuste este tempo para coincidir com a animação
     }
 
-    void ApplyDamage()
+    // --- LÓGICA DO PLAYER (OnTriggerEnter/Exit e AttackCycle) ---
+
+    void OnTriggerEnter(Collider other)
     {
-        if (!isAttacking) return;
+        if (((1 << other.gameObject.layer) & playerLayer) != 0)
+        {
+            if (!playerIsInside)
+            {
+                playerIsInside = true;
+                if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+                attackCoroutine = StartCoroutine(PlayerAttackCycle());
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (((1 << other.gameObject.layer) & playerLayer) != 0)
+        {
+            if (playerIsInside)
+            {
+                playerIsInside = false;
+                if (attackCoroutine != null)
+                {
+                    StopCoroutine(attackCoroutine);
+                    attackCoroutine = null;
+                }
+            }
+        }
+    }
+
+    // Coroutine renomeada de AttackCycle para PlayerAttackCycle
+    private IEnumerator PlayerAttackCycle()
+    {
+        yield return new WaitForSeconds(timeToDamage);
+
+        while (playerIsInside && enemyController != null && !enemyController.IsDead)
+        {
+            ApplyDamageInArea();
+
+            float cooldown = (enemyData != null && enemyData.attackSpeed > 0) ? (1f / enemyData.attackSpeed) : 1f;
+            yield return new WaitForSeconds(cooldown);
+        }
+        attackCoroutine = null;
+    }
+
+
+    void ApplyDamageInArea()
+    {
+        if (enemyData == null) return;
 
         Collider[] hitPlayers = Physics.OverlapSphere(attackPoint.position, attackRange, playerLayer);
 
-        foreach (Collider playerCollider in hitPlayers)
+        if (hitPlayers.Length > 0)
         {
-            PlayerHealthSystem playerHealth = playerCollider.GetComponent<PlayerHealthSystem>();
+            PlayerHealthSystem playerHealth = hitPlayers[0].GetComponent<PlayerHealthSystem>();
             if (playerHealth != null)
             {
-                // Este cálculo já estava correto, usando o Scriptable Object.
-                float finalDamage = enemyData.baseATQ + (enemyController.nivel * enemyData.atqPerLevel);
-
-                playerHealth.TakeDamage(finalDamage);
-                Debug.Log("Inimigo causou " + finalDamage + " de dano ao jogador");
+                // Removendo logs de debug que não são mais necessários para o ataque do player
+                playerHealth.TakeDamage(currentDamage);
             }
         }
-
-        isAttacking = false;
+        else
+        {
+            playerIsInside = false;
+        }
     }
+
+    // --- NOVA LÓGICA: AURA DE DANO EM TORRES ---
+
+    private IEnumerator TowerAuraCycle()
+    {
+        // Garante que o loop só começa depois da inicialização completa (que acontece no FixedUpdate)
+        // e que não tente rodar no primeiro frame.
+        yield return null;
+
+        // Roda continuamente enquanto o inimigo estiver vivo
+        while (enemyController != null && !enemyController.IsDead)
+        {
+            ApplyAuraDamageToTowers();
+
+            // Espera pelo intervalo configurado (3s por padrão)
+            yield return new WaitForSeconds(towerAuraInterval);
+        }
+    }
+
+    private void ApplyAuraDamageToTowers()
+    {
+        // 1. Usa OverlapSphere para encontrar todos os objetos na camada "Towers"
+        Collider[] hitTowers = Physics.OverlapSphere(transform.position, towerAuraRadius, towerLayer);
+
+        if (hitTowers.Length > 0)
+        {
+            Debug.Log($"<color=magenta>AURA DE DANO:</color> Detectadas {hitTowers.Length} torres no raio de {towerAuraRadius}m. Aplicando {towerAuraDamage} de dano.");
+        }
+        else
+        {
+            Debug.Log($"<color=magenta>AURA DE DANO:</color> Nenhuma torre no raio de {towerAuraRadius}m.");
+            return;
+        }
+
+        // 2. Itera sobre todas as torres encontradas
+        foreach (Collider towerCollider in hitTowers)
+        {
+            TowerController tower = towerCollider.GetComponent<TowerController>();
+
+            // 3. Aplica dano na torre
+            if (tower != null)
+            {
+                // Usa o método TakeDamage da Torre
+                tower.TakeDamage(towerAuraDamage);
+            }
+        }
+    }
+
 
     void OnDrawGizmosSelected()
     {
-        if (attackPoint == null) return;
+        if (attackPoint != null)
+        {
+            // Gizmo para o ataque de Player (vermelho)
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        }
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        // NOVO GIZMO: Aura de Dano em Torres (roxo)
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, towerAuraRadius);
     }
 }

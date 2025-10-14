@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV3
   m_EditorClassIdentifier: 
   upgradeName: Barreira Espiritual
-  description: 
-  icon: {fileID: 0}
+  description: Cria uma barreira de 5m que protege em 15% o dano recebido
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

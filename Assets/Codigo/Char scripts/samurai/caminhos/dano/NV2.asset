@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV2
   m_EditorClassIdentifier: 
   upgradeName: Ataques reduzem armadura
-  description: 
-  icon: {fileID: 0}
+  description: "Ataques reduzem a armadura em 5% (acumula em at\xE9 3 vezes)"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

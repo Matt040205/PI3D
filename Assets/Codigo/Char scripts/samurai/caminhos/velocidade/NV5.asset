@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: NV5
   m_EditorClassIdentifier: 
   upgradeName: "Esp\xEDrito do Vento"
-  description: 
-  icon: {fileID: 0}
+  description: "Aumenta a perfura\xE7\xE3o de armadura em 50%"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers:

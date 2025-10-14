@@ -28,7 +28,7 @@ public class EnemyController : MonoBehaviour
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
     private Rigidbody rb;
-    private PlayerHealthSystem playerHealthSystem;
+    // REMOVIDO: private PlayerHealthSystem playerHealthSystem; (Não é mais necessário)
 
     // Status calculados
     private float currentDamage;
@@ -45,9 +45,7 @@ public class EnemyController : MonoBehaviour
     // Referência para o jogador (agora privada e preenchida externamente)
     private Transform playerTransform;
 
-    // Variaveis para o ataque no player
-    private bool isAttackingPlayer = false;
-    private float timeSinceLastAttack = 0f;
+    // REMOVIDO: Variaveis para o ataque no player (isAttackingPlayer, timeSinceLastAttack)
 
     // Propriedades
     public bool IsDead { get { return healthSystem.isDead; } }
@@ -92,6 +90,12 @@ public class EnemyController : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
+
+        // NOVO: Inicializa o Combat System com os dados
+        if (combatSystem != null)
+        {
+            combatSystem.InitializeCombat(enemyData, nivel);
+        }
     }
 
     void FixedUpdate()
@@ -109,19 +113,7 @@ public class EnemyController : MonoBehaviour
             Patrol();
         }
 
-        if (isAttackingPlayer)
-        {
-            timeSinceLastAttack += Time.fixedDeltaTime;
-            if (timeSinceLastAttack >= enemyData.attackSpeed)
-            {
-                AttackPlayer();
-                timeSinceLastAttack = 0f;
-            }
-        }
-        else
-        {
-            timeSinceLastAttack = 0f;
-        }
+        // REMOVIDO: A lógica de ataque isAttackingPlayer/timeSinceLastAttack foi removida daqui.
     }
 
     private void DecideTarget()
@@ -170,45 +162,9 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // USANDO OnCollisionStay para o dano no player
-    void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            if (playerHealthSystem == null)
-            {
-                playerHealthSystem = collision.gameObject.GetComponent<PlayerHealthSystem>();
-                if (playerHealthSystem != null)
-                {
-                    Debug.Log("Inimigo encontrou o player. Ataque será ativado.");
-                }
-                else
-                {
-                    Debug.LogError("PlayerHealthSystem não encontrado no GameObject do player!");
-                }
-            }
-            isAttackingPlayer = true;
-        }
-    }
-
-    // USANDO OnCollisionExit para parar o ataque.
-    void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            isAttackingPlayer = false;
-            Debug.Log("Inimigo parou de colidir com o player.");
-        }
-    }
-
-    private void AttackPlayer()
-    {
-        if (playerHealthSystem != null)
-        {
-            Debug.Log("Inimigo atacando o jogador! Dano: " + currentDamage);
-            playerHealthSystem.TakeDamage(currentDamage);
-        }
-    }
+    // REMOVIDO: OnCollisionStay(Collision collision) (Ataque anterior removido)
+    // REMOVIDO: OnCollisionExit(Collision collision) (Ataque anterior removido)
+    // REMOVIDO: private void AttackPlayer() (Ataque anterior removido)
 
     private void AttackObjectiveAndDie()
     {
@@ -227,6 +183,13 @@ public class EnemyController : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         if (distanceToTarget <= attackDistance)
         {
+            // Inimigo para de se mover quando entra no alcance de ataque
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+            }
+
+            // Rotaciona para o alvo
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if (direction != Vector3.zero)
@@ -234,10 +197,8 @@ public class EnemyController : MonoBehaviour
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
             }
-            if (combatSystem != null)
-            {
-                combatSystem.TryAttack();
-            }
+
+            // REMOVIDO: Não há mais chamada direta ao combatSystem. O ataque é automático por área no CombatSystem.
         }
         else
         {

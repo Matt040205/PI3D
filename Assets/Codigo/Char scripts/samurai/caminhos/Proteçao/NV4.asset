@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: NV4
   m_EditorClassIdentifier: 
   upgradeName: Renascimento
-  description: 
-  icon: {fileID: 0}
+  description: "Em um raio de 10m , h\xE1 20% de chance de reviver uma torre caso
+    ela seja destruida, tendo um cooldown de 90s"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

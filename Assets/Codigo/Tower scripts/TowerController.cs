@@ -1,23 +1,23 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 
-// Assumindo que EnemyType e EnemyController s„o acessÌveis neste script.
-// Se houver um erro de compilaÁ„o, pode ser necess·rio adicionar 'using static EnemyDataSO;'
+// Assumindo que EnemyType e EnemyController s√£o acess√≠veis neste script.
+// Se houver um erro de compila√ß√£o, pode ser necess√°rio adicionar 'using static EnemyDataSO;'
 // ou ajustar os namespaces.
 
 public class TowerController : MonoBehaviour
 {
-    [Header("ReferÍncias")]
+    [Header("Refer√™ncias")]
     public CharacterBase towerData;
     public Transform partToRotate;
     public Transform firePoint;
 
-    [Header("ConfiguraÁıes de IA")]
+    [Header("Configura√ß√µes de IA")]
     [SerializeField] private string enemyTag = "Enemy";
 
-    // --- NOVA PROPRIEDADE PARA COMPORTAMENTO DE ALVO (FlyerEnemyTargetingBehavior) ---
+    // --- PROPRIEDADE PARA COMPORTAMENTO DE ALVO (FlyerEnemyTargetingBehavior) ---
     [Tooltip("Define se a torre pode mirar em inimigos do tipo Voador.")]
     public bool TargetsFlyingEnemies { get; set; } = false;
 
@@ -27,21 +27,25 @@ public class TowerController : MonoBehaviour
     public event Action<EnemyHealthSystem> OnCriticalHit;
     public event Action<EnemyHealthSystem> OnEnemyKilled;
 
-    // --- Propriedade P˙blica de Estado ---
+    // --- Propriedade P√∫blica de Estado ---
     public bool IsDestroyed { get; private set; }
 
-    // --- Status Atuais da Inst‚ncia da Torre ---
+    // --- Status Atuais da Inst√¢ncia da Torre ---
     private float currentHealth;
-    private float maxHealth;
+    // CORRIGIDO: maxHealth e currentRange substitu√≠dos por propriedades p√∫blicas para acesso externo.
     private float currentArmor;
     private float currentDamage;
     private float currentAttackSpeed;
     private float currentCritChance;
     private float currentCritDamage;
     private float currentArmorPenetration;
-    private float currentRange;
 
-    // --- Vari·veis de Controle Interno ---
+    // --- PROPRIEDADES DE STATUS ---
+    public float MaxHealth { get; private set; }
+    public float CurrentRange { get; private set; }
+
+
+    // --- Vari√°veis de Controle Interno ---
     private List<TowerBehavior> activeBehaviors = new List<TowerBehavior>();
     public int[] currentPathLevels;
     private Transform targetEnemy;
@@ -51,28 +55,34 @@ public class TowerController : MonoBehaviour
     {
         if (towerData == null)
         {
-            Debug.LogError("FALHA: TowerData est· NULO na torre '" + gameObject.name + "'!", this.gameObject);
+            Debug.LogError("FALHA: TowerData est√° NULO na torre '" + gameObject.name + "'!", this.gameObject);
             this.enabled = false;
             return;
         }
         currentPathLevels = new int[towerData.upgradePaths.Count];
         CloneBaseStats();
-        // Chamada para UpdateTarget repetida a cada 0.5s para otimizaÁ„o
+        // Chamada para UpdateTarget repetida a cada 0.5s para otimiza√ß√£o
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
     void CloneBaseStats()
     {
-        maxHealth = towerData.maxHealth;
-        currentHealth = maxHealth;
+        // üåü Herda a vida m√°xima do CharacterBase
+        MaxHealth = towerData.maxHealth;
+        currentHealth = MaxHealth;
+
         currentArmor = towerData.armor;
         currentDamage = towerData.damage;
         currentAttackSpeed = towerData.attackSpeed;
         currentCritChance = towerData.critChance;
         currentCritDamage = towerData.critDamage;
         currentArmorPenetration = towerData.armorPenetration;
-        currentRange = towerData.meleeRange;
+
+        CurrentRange = towerData.meleeRange;
+
         IsDestroyed = false;
+
+        Debug.Log($"<color=green>TORRE INICIALIZADA:</color> {gameObject.name} (Vida M√°xima: {MaxHealth}, Dano: {currentDamage})");
     }
 
     public void ApplyUpgrade(Upgrade upgradeToApply)
@@ -98,7 +108,7 @@ public class TowerController : MonoBehaviour
             {
                 newBehavior.Initialize(this);
                 activeBehaviors.Add(newBehavior);
-                Debug.Log($"<color=yellow>HABILIDADE DESBLOQUEADA: '{newBehavior.GetType().Name}' foi adicionada ‡ torre {gameObject.name}.</color>");
+                Debug.Log($"<color=yellow>HABILIDADE DESBLOQUEADA: '{newBehavior.GetType().Name}' foi adicionada √† torre {gameObject.name}.</color>");
             }
         }
     }
@@ -115,7 +125,7 @@ public class TowerController : MonoBehaviour
                 currentAttackSpeed = (modifier.modType == ModificationType.Additive) ? currentAttackSpeed + value : currentAttackSpeed * (1 + value);
                 break;
             case StatType.Range:
-                currentRange = (modifier.modType == ModificationType.Additive) ? currentRange + value : currentRange * (1 + value);
+                CurrentRange = (modifier.modType == ModificationType.Additive) ? CurrentRange + value : CurrentRange * (1 + value);
                 break;
             case StatType.Armor:
                 currentArmor = Mathf.Clamp01(currentArmor + value);
@@ -157,7 +167,7 @@ public class TowerController : MonoBehaviour
             float damageToDeal = currentDamage;
             bool isCritical = UnityEngine.Random.value <= currentCritChance;
 
-            // ... (LÛgica de Dano e Logs)
+            // ... (L√≥gica de Dano)
 
             if (isCritical)
             {
@@ -184,7 +194,7 @@ public class TowerController : MonoBehaviour
 
             OnTargetDamaged?.Invoke(healthSystem);
 
-            // Invoca o evento de Acerto CrÌtico para os Behaviors (como Sangramento/MarcaÁ„o)
+            // Invoca o evento de Acerto Cr√≠tico para os Behaviors (como Sangramento/Marca√ß√£o)
             if (isCritical)
             {
                 OnCriticalHit?.Invoke(healthSystem);
@@ -197,18 +207,26 @@ public class TowerController : MonoBehaviour
     {
         if (IsDestroyed) return;
         float remainingDamage = amount;
-        // ... (LÛgica de AbsorÁ„o de Dano e DestruiÁ„o da Torre)
+
+        // Aplica l√≥gica de barreira / absor√ß√£o de dano (se houver)
         Collider[] colliders = Physics.OverlapSphere(transform.position, 5f);
         foreach (var col in colliders)
         {
             SpiritualBarrierBehavior barrier = col.GetComponent<SpiritualBarrierBehavior>();
+            // Nota: Este SpiritualBarrierBehavior precisa ser um script seu
             if (barrier != null && barrier.towerController != this)
             {
                 remainingDamage = barrier.AbsorbDamage(remainingDamage);
             }
         }
+
+        // Aplica armadura e calcula o dano final
         float finalDamage = remainingDamage * (1 - currentArmor);
         currentHealth -= finalDamage;
+
+        // üåü NOVO LOG PARA CONFIRMAR O DANO DA AURA
+        Debug.Log($"<color=red>DANO RECEBIDO:</color> {gameObject.name} sofreu {finalDamage:F1} de dano. Vida Restante: {currentHealth:F1} / {MaxHealth:F1}.");
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -220,7 +238,7 @@ public class TowerController : MonoBehaviour
     {
         IsDestroyed = true;
         targetEnemy = null;
-        Debug.Log($"Torre {gameObject.name} foi destruÌda!");
+        Debug.Log($"<color=red>TORRE DESTRU√çDA!</color> Torre {gameObject.name} foi destru√≠da!");
         gameObject.SetActive(false);
     }
 
@@ -228,22 +246,24 @@ public class TowerController : MonoBehaviour
     {
         if (!IsDestroyed) return;
         IsDestroyed = false;
-        currentHealth = maxHealth * healthPercentage;
+        // Usando a nova propriedade
+        currentHealth = MaxHealth * healthPercentage;
         Debug.Log($"Torre {gameObject.name} foi revivida!");
     }
 
-    // M…TODOS P⁄BLICOS E DE CONTROLE (Sem alteraÁıes)
-    public void Heal(float amount) { currentHealth = Mathf.Min(currentHealth + amount, maxHealth); }
+    // M√âTODOS P√öBLICOS E DE CONTROLE
+    // CORRIGIDO: O m√©todo Heal usa a nova propriedade MaxHealth
+    public void Heal(float amount) { currentHealth = Mathf.Min(currentHealth + amount, MaxHealth); }
     public void AddArmorBonus(float amount) { currentArmor += amount; }
     public void AddAttackSpeedBonus(float amount) { currentAttackSpeed *= (1 + amount); }
     public void AddDamageBonus(float amount) { currentDamage *= (1 + amount); }
     public void PerformExtraAttack() { Shoot(); }
 
-    // --- M…TODO CORRIGIDO PARA MIRAR EM INIMIGOS VOADORES ---
+    // --- M√âTODO CORRIGIDO PARA MIRAR EM INIMIGOS VOADORES ---
     void UpdateTarget()
     {
         // 1. Encontra todos os inimigos dentro do raio de alcance
-        Collider[] collidersInRadius = Physics.OverlapSphere(transform.position, currentRange);
+        Collider[] collidersInRadius = Physics.OverlapSphere(transform.position, CurrentRange);
 
         Transform nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
@@ -257,12 +277,9 @@ public class TowerController : MonoBehaviour
 
                 if (enemyController == null || enemyController.enemyData == null) continue;
 
-                // Acessa o tipo do inimigo
                 EnemyType enemyType = enemyController.enemyData.enemyType;
 
-                // LÛgica de filtragem:
-                // 1. Sempre mira em inimigos Terrestres.
-                // 2. Mira em inimigos Voadores SOMENTE se TargetsFlyingEnemies for TRUE.
+                // L√≥gica de filtragem:
                 bool isTargetable = (enemyType == EnemyType.Terrestre) ||
                                     (TargetsFlyingEnemies && enemyType == EnemyType.Voador);
 
@@ -270,7 +287,7 @@ public class TowerController : MonoBehaviour
                 {
                     float distanceToEnemy = Vector3.Distance(transform.position, collider.transform.position);
 
-                    // LÛgica de Prioridade: Mudar o alvo apenas se for mais prÛximo (nearest target priority)
+                    // L√≥gica de Prioridade: Mudar o alvo apenas se for mais pr√≥ximo (nearest target priority)
                     if (distanceToEnemy < shortestDistance)
                     {
                         shortestDistance = distanceToEnemy;
@@ -294,9 +311,6 @@ public class TowerController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, currentRange);
+        Gizmos.DrawWireSphere(transform.position, CurrentRange);
     }
 }
-
-// Nota: Esta È uma soluÁ„o mais robusta para encontrar alvos dentro de um raio
-// do que a iteraÁ„o manual de todos os objetos com a tag.

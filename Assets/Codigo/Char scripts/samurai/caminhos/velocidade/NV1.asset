@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: NV1
   m_EditorClassIdentifier: 
-  upgradeName: +20% Vel. Ataque
-  description: 
-  icon: {fileID: 0}
+  upgradeName: "R\xE1pido no Gatilho"
+  description: +20% velAtq
   geoditeCost: 0
   darkEtherCost: 0
   modifiers:

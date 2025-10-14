@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: NV2
   m_EditorClassIdentifier: 
-  upgradeName: +10% Armadura para torres em 5m
-  description: 
-  icon: {fileID: 0}
+  upgradeName: Protetora
+  description: +10% de armadura para torres a 5m
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

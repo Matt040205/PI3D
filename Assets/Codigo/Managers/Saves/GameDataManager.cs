@@ -6,6 +6,7 @@ public class GameDataManager : MonoBehaviour
 
     // Array para os 8 slots: [0] = Comandante, [1-7] = Torres
     public CharacterBase[] equipeSelecionada = new CharacterBase[8];
+    public CharacterBase personagemParaRastros;
 
     private void Awake()
     {

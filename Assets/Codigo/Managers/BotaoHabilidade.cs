@@ -1,55 +1,64 @@
-// Crie um novo arquivo: BotaoHabilidade.cs
-// Esta script deve ser colocada em CADA botão da sua árvore.
+// Arquivo: BotaoHabilidade.cs (Substitua o seu por este)
 
 using UnityEngine;
-using UnityEngine.UI; // Necessário para Button e Image
+using UnityEngine.UI;
+using System.Collections.Generic; // Necessário para List
 
-[RequireComponent(typeof(Button))] // Garante que o GameObject tenha um componente Button
+/// <summary>
+/// Define um par: um ScriptableObject de Personagem e o
+/// ScriptableObject de Upgrade correspondente a ele.
+/// </summary>
+[System.Serializable]
+public struct MapeamentoUpgradePersonagem
+{
+    [Tooltip("Arraste o SO do Personagem (ex: Arqueira.asset)")]
+    public CharacterBase personagemSO;
+    [Tooltip("Arraste o SO do Upgrade (ex: Arqueira_Rastro_1.asset)")]
+    public RastroUpgrade upgradeSO;
+}
+
+
+[RequireComponent(typeof(Button))]
 public class BotaoHabilidade : MonoBehaviour
 {
     [Header("Identificação da Habilidade")]
-    public string idHabilidade; // ID único, ex: "Central", "Caminho1_Nivel1"
-    public string idCaminho;      // ID do caminho, ex: "Central", "Caminho1"
+    public string idHabilidade;
+    public string idCaminho;
 
     [Header("Requisitos para Desbloquear")]
-    public int custo = 1; // Custo em pontos de habilidade
-
-    // O ID da habilidade ANTERIOR necessária (deixe em branco se for o central)
+    public int custo = 1;
     public string preRequisitoHabilidade;
-
-    // Quantos pontos GLOBAIS gastos são necessários (o "valor 1" para os T1)
     public int pontosGlobaisNecessarios = 0;
-
-    // Quantos pontos já gastos NESTE CAMINHO são necessários
     public int pontosNoCaminhoNecessarios = 0;
 
+    // --- NOVA VARIÁVEL ---
+    [Header("Mapeamento de Upgrades")]
+    [Tooltip("Adicione um item a esta lista para CADA personagem que usar esta árvore.")]
+    public List<MapeamentoUpgradePersonagem> upgradesPorPersonagem;
+    // ---------------------
+
     [Header("Referências")]
-    // Arraste o GameObject que tem a script "Rastros.cs" aqui
     public Rastros managerRastros;
     private Button meuBotao;
-
-    // (Opcional) Arraste a imagem do botão para mudar a cor
     public Image iconeHabilidade;
 
     [Header("Cores de Estado")]
-    public Color corBloqueado = new Color(0.5f, 0.5f, 0.5f, 0.5f); // Cinza
-    public Color corDisponivel = Color.white; // Branco
-    public Color corDesbloqueado = Color.green; // Verde
+    public Color corBloqueado = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    public Color corDisponivel = Color.white;
+    public Color corDesbloqueado = Color.green;
+
 
     void Start()
     {
         meuBotao = GetComponent<Button>();
-
-        // Adiciona um "listener" ao botão para chamar nossa função quando clicado
+        meuBotao.onClick.RemoveAllListeners();
         meuBotao.onClick.AddListener(OnBotaoClicado);
 
         if (managerRastros == null)
         {
-            // Tenta encontrar o manager na cena se não foi arrastado
             managerRastros = FindObjectOfType<Rastros>();
         }
 
-        // Adiciona este botão à lista do manager (se ainda não estiver)
         if (managerRastros != null && !managerRastros.todosBotoesDaArvore.Contains(this))
         {
             managerRastros.todosBotoesDaArvore.Add(this);
@@ -58,7 +67,6 @@ public class BotaoHabilidade : MonoBehaviour
 
     void OnEnable()
     {
-        // Garante que o botão atualize quando o painel for ativado
         if (managerRastros != null)
         {
             VerificarEstado(managerRastros);
@@ -68,32 +76,45 @@ public class BotaoHabilidade : MonoBehaviour
     // Chamado quando o botão da UI é clicado
     void OnBotaoClicado()
     {
-        // Tenta desbloquear a habilidade através do manager
-        managerRastros.TentarDesbloquear(this);
-
-        // O managerRastros.TentarDesbloquear já vai chamar a atualização
-        // de todos os botões (incluindo este) se for bem-sucedido.
+        managerRastros.SelecionarHabilidade(this);
     }
+
+    // --- ESTA É A FUNÇÃO QUE ESTÁ FALTANDO ---
+    /// <summary>
+    /// Procura na lista 'upgradesPorPersonagem' e retorna o 
+    /// RastroUpgrade correto para o personagem ativo.
+    /// </summary>
+    public RastroUpgrade GetUpgradeParaPersonagem(CharacterBase personagemAtivo)
+    {
+        if (personagemAtivo == null) return null;
+
+        foreach (var map in upgradesPorPersonagem)
+        {
+            if (map.personagemSO == personagemAtivo)
+            {
+                return map.upgradeSO;
+            }
+        }
+
+        // Se não encontrar um mapeamento específico, retorna nulo
+        return null;
+    }
+    // ------------------------------------
 
     /// <summary>
     /// Verifica e atualiza a aparência do botão com base no estado da árvore.
-    /// Esta função é chamada pelo manager (Rastros.cs).
+    /// (Função sem mudanças)
     /// </summary>
     public void VerificarEstado(Rastros manager)
     {
         if (manager.habilidadesDesbloqueadas.Contains(idHabilidade))
         {
-            // --- 1. HABILIDADE JÁ DESBLOQUEADA ---
             if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
-            meuBotao.interactable = false; // Já comprou, não pode clicar de novo
+            meuBotao.interactable = false;
         }
         else
         {
-            // --- 2. HABILIDADE BLOQUEADA ---
-            // Verifica se PODE ser comprada (está disponível)
             bool disponivel = true;
-
-            // Checa todas as condições
             if (manager.pontosDisponiveis < custo)
                 disponivel = false;
 
@@ -110,13 +131,11 @@ public class BotaoHabilidade : MonoBehaviour
 
             if (disponivel)
             {
-                // --- 3. DISPONÍVEL PARA COMPRA ---
                 if (iconeHabilidade != null) iconeHabilidade.color = corDisponivel;
                 meuBotao.interactable = true;
             }
             else
             {
-                // --- 4. BLOQUEADA (AINDA NÃO DISPONÍVEL) ---
                 if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
                 meuBotao.interactable = false;
             }

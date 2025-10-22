@@ -1,4 +1,4 @@
-// SelecaoManager.cs (Versão Final com Feedback Visual nos Botões)
+// SelecaoManager.cs (Com botão Rastros)
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,11 +45,15 @@ public class SelecaoManager : MonoBehaviour
     public TextMeshProUGUI textoCaminho2;
     public TextMeshProUGUI textoCaminho3;
 
-    // --- NOVAS VARIÁVEIS PARA OS BOTÕES ---
     [Header("Botões de Navegação dos Detalhes")]
     public Button botaoAbaHabilidades;
     public Button botaoAbaTorre;
     public List<Button> botoesCaminhoTorre; // Lista para os 3 botões dos caminhos
+
+    // --- NOVAS VARIÁVEIS PARA OS RASTROS ---
+    [Header("Elementos da UI - Rastros")]
+    public Button botaoRastros; // Arraste seu novo botão "Rastros" aqui
+    public string nomeDaCenaRastros = "Rastros"; // Nome da cena da árvore
     // ------------------------------------
 
     private List<Button> slotsEquipe = new List<Button>();
@@ -61,8 +65,8 @@ public class SelecaoManager : MonoBehaviour
 
     IEnumerator SetupScene()
     {
-        // ... (código do SetupScene continua igual)
-        LimparGrid(gridEquipeContainer);
+        // ... (código do SetupScene continua igual)
+        LimparGrid(gridEquipeContainer);
         LimparGrid(gridEscolhaContainer);
         slotsEquipe.Clear();
         botoesDeEscolha.Clear();
@@ -70,7 +74,11 @@ public class SelecaoManager : MonoBehaviour
         painelEscolhaPersonagem.SetActive(false);
         painelDetalhes.SetActive(false);
         yield return new WaitForEndOfFrame();
-        if (GameDataManager.Instance != null) { GameDataManager.Instance.LimparSelecao(); }
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.LimparSelecao();
+            GameDataManager.Instance.personagemParaRastros = null; // Limpa ao iniciar
+        }
         ConfigurarBotoesPrincipais();
         CriarGridEquipe();
         PopularGridDeEscolha();
@@ -103,6 +111,14 @@ public class SelecaoManager : MonoBehaviour
 
         botaoConfirmarEscolha.onClick.RemoveAllListeners();
         botaoConfirmarEscolha.onClick.AddListener(ConfirmarEscolha);
+
+        // --- ADICIONA O LISTENER PARA O BOTÃO RASTROS ---
+        if (botaoRastros != null)
+        {
+            botaoRastros.onClick.RemoveAllListeners();
+            botaoRastros.onClick.AddListener(AbrirCenaRastros);
+        }
+        // -------------------------------------------------
     }
 
     void PreencherTextosDeUpgrade(CharacterBase personagem)
@@ -161,9 +177,39 @@ public class SelecaoManager : MonoBehaviour
         }
     }
 
+    // --- NOVA FUNÇÃO PARA O BOTÃO RASTROS ---
+    public void AbrirCenaRastros()
+    {
+        if (personagemEmVisualizacao == null)
+        {
+            Debug.LogError("Nenhum personagem selecionado para ver os Rastros.");
+            return;
+        }
+
+        if (GameDataManager.Instance == null)
+        {
+            Debug.LogError("GameDataManager não encontrado!");
+            return;
+        }
+
+        // 1. Armazena o personagem selecionado no GameDataManager
+        GameDataManager.Instance.personagemParaRastros = personagemEmVisualizacao;
+
+        // 2. Carrega a cena "Rastros"
+        if (!string.IsNullOrEmpty(nomeDaCenaRastros))
+        {
+            SceneManager.LoadScene(nomeDaCenaRastros);
+        }
+        else
+        {
+            Debug.LogError("O nome da cena 'Rastros' não foi definido no Inspector!");
+        }
+    }
+    // ----------------------------------------
+
     #region Funções de Navegação e Setup (Sem Alterações)
-    // ... (todas as outras funções como LimparGrid, ConfirmarEscolha, etc. continuam aqui, sem alterações)
-    void LimparGrid(Transform grid) { if (grid == null) return; foreach (Transform child in grid) { if (child != null) Destroy(child.gameObject); } }
+    // ... (todas as outras funções como LimparGrid, ConfirmarEscolha, etc. continuam aqui, sem alterações)
+    void LimparGrid(Transform grid) { if (grid == null) return; foreach (Transform child in grid) { if (child != null) Destroy(child.gameObject); } }
     void ConfigurarBotoesPrincipais() { if (botaoJogar != null) { botaoJogar.onClick.RemoveAllListeners(); botaoJogar.interactable = false; botaoJogar.onClick.AddListener(IniciarJogo); } if (botaoVoltarDaEscolha != null) { botaoVoltarDaEscolha.onClick.RemoveAllListeners(); botaoVoltarDaEscolha.onClick.AddListener(VoltarParaPainelEquipe); } if (botaoVoltarDosDetalhes != null) { botaoVoltarDosDetalhes.onClick.RemoveAllListeners(); botaoVoltarDosDetalhes.onClick.AddListener(VoltarParaPainelEscolha); } }
     void CriarGridEquipe() { for (int i = 0; i < 8; i++) { GameObject slotObj = Instantiate(slotEquipePrefab, gridEquipeContainer); Button slotButton = slotObj.GetComponent<Button>(); int index = i; slotButton.onClick.AddListener(() => AbrirPainelEscolha(index)); slotsEquipe.Add(slotButton); } }
     void PopularGridDeEscolha() { foreach (var personagem in todosOsPersonagens) { GameObject slotObj = Instantiate(slotEscolhaPrefab, gridEscolhaContainer); slotObj.GetComponent<Image>().sprite = personagem.characterIcon; Button slotButton = slotObj.GetComponent<Button>(); slotButton.onClick.AddListener(() => AbrirPainelDetalhes(personagem)); botoesDeEscolha.Add(personagem, slotButton); } }

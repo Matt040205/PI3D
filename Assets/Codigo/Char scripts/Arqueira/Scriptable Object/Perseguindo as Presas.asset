@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Perseguindo as Presas
   m_EditorClassIdentifier: 
   abilityName: Perseguindo as Presas
+  description: "Marca o inimigo, podendo ver ele atrav\xE9s da parede, al\xE9m disso,aumenta
+    o dano recebido por ele em 15%.\n"
   icon: {fileID: 0}
   cooldown: 1
   markDuration: 5

@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd73301d6f3fb0478c4e4acc03d069b, type: 3}
   m_Name: Legado das Nove Caudas
   m_EditorClassIdentifier: 
-  abilityName: 
-  description: 
+  abilityName: Legado das Nove Caudas
+  description: 'Abad
+
+
+'
   icon: {fileID: 0}
   attackSpeedBonus: 0.15

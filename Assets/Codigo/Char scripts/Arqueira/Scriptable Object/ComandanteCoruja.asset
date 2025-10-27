@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: ComandanteCoruja
   m_EditorClassIdentifier: 
   abilityName: Coruja inspiradora
-  description: "Aumenta 20% o dano de todas as torres e tamb\xE9m tem pulo duplo"
+  description: "Aumenta 20% o dano de todas as torres e tamb\xE9m tem pulo duplo."
   icon: {fileID: 0}
   bonusDamagePercent: 0.2
   canDoubleJump: 1
+  buildManager: {fileID: 0}

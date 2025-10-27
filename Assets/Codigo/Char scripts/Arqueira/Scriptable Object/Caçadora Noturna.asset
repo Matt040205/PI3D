@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: "Ca\xE7adora Noturna"
   m_EditorClassIdentifier: 
   abilityName: "Ca\xE7adora Noturna"
+  description: 'Da um grande tiro pra frente, acertando o mapa todo.
+
+'
   icon: {fileID: 0}
   cooldown: 1
   damage: 500

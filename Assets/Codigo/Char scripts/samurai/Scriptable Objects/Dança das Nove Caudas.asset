@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 124110800f9eaa341a8b2b4c82bf8c30, type: 3}
   m_Name: "Dan\xE7a das Nove Caudas"
   m_EditorClassIdentifier: 
-  abilityName: Nova Habilidade
+  abilityName: "Dan\xE7a das Nove Caudas"
+  description: Abad
   icon: {fileID: 0}
   cooldown: 1
   duration: 8

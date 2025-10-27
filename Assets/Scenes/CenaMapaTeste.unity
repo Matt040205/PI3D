@@ -12068,7 +12068,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8012821877452405672, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8311503271506415613, guid: d3e71203092a72b49beb3c9049ef00bf, type: 3}
       propertyPath: m_HorizontalAlignment
@@ -17119,7 +17119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1375737361
 RectTransform:
   m_ObjectHideFlags: 0

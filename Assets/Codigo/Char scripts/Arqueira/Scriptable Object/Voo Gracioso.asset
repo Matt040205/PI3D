@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Voo Gracioso
   m_EditorClassIdentifier: 
   abilityName: Voo Gracioso
+  description: "Fica parado no ar e da mais dano enquanto est\xE1 no ar.\n"
   icon: {fileID: 0}
   cooldown: 1
   jumpHeightModifier: 1.5

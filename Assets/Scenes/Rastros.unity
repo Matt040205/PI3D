@@ -494,8 +494,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 5e2860b467f0e36469cc18987fccdfae, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -536,7 +536,7 @@ MonoBehaviour:
   - personagemSO: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
     upgradeSO: {fileID: 11400000, guid: 3559113c01bbfb64f854d48c5c373e29, type: 2}
   managerRastros: {fileID: 828075556}
-  iconeHabilidade: {fileID: 0}
+  iconeHabilidade: {fileID: 1472004234}
   corBloqueado: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
   corDisponivel: {r: 1, g: 1, b: 1, a: 1}
   corDesbloqueado: {r: 0, g: 1, b: 0, a: 1}
@@ -1964,7 +1964,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 5e2860b467f0e36469cc18987fccdfae, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

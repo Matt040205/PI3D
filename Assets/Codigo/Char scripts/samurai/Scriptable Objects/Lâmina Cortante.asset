@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621dd09022bb3264ea4c635981274e40, type: 3}
   m_Name: "L\xE2mina Cortante"
   m_EditorClassIdentifier: 
-  abilityName: Nova Habilidade
-  icon: {fileID: 0}
+  abilityName: "L\xE2mina Cortante"
+  description: 'Abad
+
+'
+  icon: {fileID: 21300000, guid: 87815dc1a2aaab24c9f4b2fcd396e045, type: 3}
   cooldown: 1
   dashDistance: 7
   damage: 60

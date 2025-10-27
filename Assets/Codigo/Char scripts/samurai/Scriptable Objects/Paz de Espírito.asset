@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe925a919f12e0d41945708ce4ed6fc9, type: 3}
   m_Name: "Paz de Esp\xEDrito"
   m_EditorClassIdentifier: 
-  abilityName: Nova Habilidade
+  abilityName: "Paz de Esp\xEDrito"
+  description: 'Abad
+
+
+'
   icon: {fileID: 0}
   cooldown: 1
   totalHeal: 80

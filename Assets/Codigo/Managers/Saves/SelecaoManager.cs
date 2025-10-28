@@ -8,52 +8,43 @@ using UnityEngine.UI;
 
 public class SelecaoManager : MonoBehaviour
 {
-    [Header("Configuração dos Personagens")]
     public List<CharacterBase> todosOsPersonagens;
 
-    [Header("Painéis Gerais da UI")]
     public GameObject painelEquipe;
     public GameObject painelEscolhaPersonagem;
     public GameObject painelDetalhes;
 
-    [Header("Elementos da UI - Equipe")]
     public GameObject slotEquipePrefab;
     public Transform gridEquipeContainer;
     public Button botaoJogar;
     public string nomeDaCenaDoJogo;
 
-    [Header("Elementos da UI - Escolha")]
     public GameObject slotEscolhaPrefab;
     public Transform gridEscolhaContainer;
     public Button botaoVoltarDaEscolha;
 
-    [Header("Elementos da UI - Detalhes Estáticos")]
     public Image imagemDetalhes;
     public TextMeshProUGUI nomeDetalhes;
     public TextMeshProUGUI textoStatusPadrao;
     public Button botaoConfirmarEscolha;
     public Button botaoVoltarDosDetalhes;
 
-    [Header("Elementos da UI - Detalhes Interativos")]
     public GameObject painelHabilidades;
     public GameObject painelUpgradesTorre;
     public TextMeshProUGUI textoHabilidadesComandante;
 
-    [Header("Textos dos Upgrades da Torre")]
     public TextMeshProUGUI textoCaminho1;
     public TextMeshProUGUI textoCaminho2;
     public TextMeshProUGUI textoCaminho3;
 
-    [Header("Botões de Navegação dos Detalhes")]
     public Button botaoAbaHabilidades;
     public Button botaoAbaTorre;
     public List<Button> botoesCaminhoTorre;
 
-    [Header("Elementos da UI - Rastros")]
     public Button botaoRastros;
     public string nomeDaCenaRastros = "Rastros";
 
-    private List<Button> slotsEquipe = new List<Button>();
+    private List<SlotEquipeUI> slotsEquipe = new List<SlotEquipeUI>();
     private Dictionary<CharacterBase, Button> botoesDeEscolha = new Dictionary<CharacterBase, Button>();
     private int slotSendoEditado = -1;
     private CharacterBase personagemEmVisualizacao;
@@ -102,6 +93,7 @@ public class SelecaoManager : MonoBehaviour
         textoHabilidadesComandante.text = textoHabilidades;
 
         PreencherTextosDeUpgrade(personagem);
+        AtualizarTextoBotoesCaminho(personagem);
 
         MostrarPainelHabilidades();
 
@@ -115,6 +107,33 @@ public class SelecaoManager : MonoBehaviour
         }
     }
 
+    void AtualizarTextoBotoesCaminho(CharacterBase personagem)
+    {
+        if (botoesCaminhoTorre == null || personagem == null || personagem.upgradePaths == null) return;
+
+        for (int i = 0; i < botoesCaminhoTorre.Count; i++)
+        {
+            Button botao = botoesCaminhoTorre[i];
+            if (botao != null)
+            {
+                TextMeshProUGUI textoBotao = botao.GetComponentInChildren<TextMeshProUGUI>();
+                if (textoBotao != null)
+                {
+                    if (i < personagem.upgradePaths.Count && personagem.upgradePaths[i] != null)
+                    {
+                        textoBotao.text = personagem.upgradePaths[i].pathName;
+                        botao.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        textoBotao.text = "-";
+                        botao.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+    }
+
     void PreencherTextosDeUpgrade(CharacterBase personagem)
     {
         var textosCaminhos = new[] { textoCaminho1, textoCaminho2, textoCaminho3 };
@@ -122,8 +141,9 @@ public class SelecaoManager : MonoBehaviour
         {
             if (personagem.upgradePaths != null && i < personagem.upgradePaths.Count)
             {
-                string textoFinalCaminho = "";
                 var path = personagem.upgradePaths[i];
+                string textoFinalCaminho = $"<b>{path.pathName}</b>\n\n";
+
                 foreach (var upgrade in path.upgradesInPath)
                 {
                     var costs = new List<string>();
@@ -170,14 +190,21 @@ public class SelecaoManager : MonoBehaviour
     {
         if (botoesCaminhoTorre == null) return;
 
-        foreach (Button botao in botoesCaminhoTorre)
+        for (int i = 0; i < botoesCaminhoTorre.Count; i++)
         {
+            Button botao = botoesCaminhoTorre[i];
             if (botao != null)
             {
-                botao.gameObject.SetActive(visivel);
+                bool hasPath = personagemEmVisualizacao != null &&
+                               personagemEmVisualizacao.upgradePaths != null &&
+                               i < personagemEmVisualizacao.upgradePaths.Count &&
+                               personagemEmVisualizacao.upgradePaths[i] != null;
+
+                botao.gameObject.SetActive(visivel && hasPath);
             }
         }
     }
+
 
     public void MostrarCaminhoDeUpgrade(int numeroDoCaminho)
     {
@@ -220,18 +247,46 @@ public class SelecaoManager : MonoBehaviour
         }
     }
 
-    #region Funções de Navegação e Setup (Sem Alterações)
     void LimparGrid(Transform grid) { if (grid == null) return; foreach (Transform child in grid) { if (child != null) Destroy(child.gameObject); } }
     void ConfigurarBotoesPrincipais() { if (botaoJogar != null) { botaoJogar.onClick.RemoveAllListeners(); botaoJogar.interactable = false; botaoJogar.onClick.AddListener(IniciarJogo); } if (botaoVoltarDaEscolha != null) { botaoVoltarDaEscolha.onClick.RemoveAllListeners(); botaoVoltarDaEscolha.onClick.AddListener(VoltarParaPainelEquipe); } if (botaoVoltarDosDetalhes != null) { botaoVoltarDosDetalhes.onClick.RemoveAllListeners(); botaoVoltarDosDetalhes.onClick.AddListener(VoltarParaPainelEscolha); } }
-    void CriarGridEquipe() { for (int i = 0; i < 8; i++) { GameObject slotObj = Instantiate(slotEquipePrefab, gridEquipeContainer); Button slotButton = slotObj.GetComponent<Button>(); int index = i; slotButton.onClick.AddListener(() => AbrirPainelEscolha(index)); slotsEquipe.Add(slotButton); } }
+
+    void CriarGridEquipe()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            GameObject slotObj = Instantiate(slotEquipePrefab, gridEquipeContainer);
+            Button slotButton = slotObj.GetComponent<Button>();
+            SlotEquipeUI slotUI = slotObj.GetComponent<SlotEquipeUI>();
+
+            int index = i;
+            slotButton.onClick.AddListener(() => AbrirPainelEscolha(index));
+
+            slotUI.LimparSlot();
+            slotsEquipe.Add(slotUI);
+        }
+    }
+
     void PopularGridDeEscolha() { foreach (var personagem in todosOsPersonagens) { GameObject slotObj = Instantiate(slotEscolhaPrefab, gridEscolhaContainer); slotObj.GetComponent<Image>().sprite = personagem.characterIcon; Button slotButton = slotObj.GetComponent<Button>(); slotButton.onClick.AddListener(() => AbrirPainelDetalhes(personagem)); botoesDeEscolha.Add(personagem, slotButton); } }
     public void AbrirPainelEscolha(int slotIndex) { slotSendoEditado = slotIndex; painelEquipe.SetActive(false); painelEscolhaPersonagem.SetActive(true); painelDetalhes.SetActive(false); if (GameDataManager.Instance == null) return; CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada; foreach (var par in botoesDeEscolha) { bool jaEscolhido = equipeAtual.Contains(par.Key); bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key; par.Value.interactable = !jaEscolhido || noSlotAtual; } }
-    void ConfirmarEscolha() { if (GameDataManager.Instance != null && slotSendoEditado != -1) { GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao; slotsEquipe[slotSendoEditado].GetComponent<Image>().sprite = personagemEmVisualizacao.characterIcon; if (GameDataManager.Instance.equipeSelecionada[0] != null) { botaoJogar.interactable = true; } } VoltarParaPainelEquipe(); }
+
+    void ConfirmarEscolha()
+    {
+        if (GameDataManager.Instance != null && slotSendoEditado != -1)
+        {
+            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
+            slotsEquipe[slotSendoEditado].SetPersonagem(personagemEmVisualizacao);
+            if (GameDataManager.Instance.equipeSelecionada[0] != null)
+            {
+                botaoJogar.interactable = true;
+            }
+        }
+        VoltarParaPainelEquipe();
+    }
+
     public void VoltarParaPainelEquipe()
     {
         painelEscolhaPersonagem.SetActive(false); painelDetalhes.SetActive(false); painelEquipe.SetActive(true); slotSendoEditado = -1; personagemEmVisualizacao = null;
     }
     public void VoltarParaPainelEscolha() { painelDetalhes.SetActive(false); painelEscolhaPersonagem.SetActive(true); personagemEmVisualizacao = null; }
     public void IniciarJogo() { if (!string.IsNullOrEmpty(nomeDaCenaDoJogo)) { SceneManager.LoadScene(nomeDaCenaDoJogo); } else { Debug.LogError("O nome da cena do jogo não foi definido no Inspector!"); } }
-    #endregion
 }

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Olho da Coruja
   description: HeadShots revelam inimigos por 5s
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 130
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 5329883789062397147, guid: de33219b463f6474e94c32b0f9048ee1, type: 3}

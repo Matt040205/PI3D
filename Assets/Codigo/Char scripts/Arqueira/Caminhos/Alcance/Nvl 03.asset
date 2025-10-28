@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "B\xF4nus de Taxa Cr\xEDtica"
   description: "+25% de Taxa Cr\xEDtica"
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 110
   darkEtherCost: 0
   modifiers:
   - statToModify: 4

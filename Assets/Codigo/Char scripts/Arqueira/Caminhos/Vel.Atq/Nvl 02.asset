@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Flechas Duplas
   description: 15% de Chance de disparar 2 flechas
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 80
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: -5098617207003580803, guid: 479d8e3ef9780cf4fb0199e9989c19cb, type: 3}

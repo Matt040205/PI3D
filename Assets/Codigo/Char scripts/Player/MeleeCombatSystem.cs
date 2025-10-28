@@ -13,11 +13,14 @@ public class MeleeCombatSystem : MonoBehaviour
     public bool isAttacking;
     public float attackCooldown;
 
+    [Header("Overrides da Ultimate (Não mexer)")]
+    public float? overrideAttackSpeed = null;
+    public float? overrideAttackAngle = null;
+
     private float nextAttackTime;
 
     void Update()
     {
-        // Atualiza cooldown
         if (isAttacking)
         {
             attackCooldown -= Time.deltaTime;
@@ -27,7 +30,6 @@ public class MeleeCombatSystem : MonoBehaviour
             }
         }
 
-        // Controle de ataque
         if (Input.GetButtonDown("Fire1") && Time.time >= nextAttackTime)
         {
             PerformMeleeAttack();
@@ -36,45 +38,43 @@ public class MeleeCombatSystem : MonoBehaviour
 
     void PerformMeleeAttack()
     {
+        float currentSpeed = overrideAttackSpeed ?? characterData.attackSpeed;
+        float currentAngle = overrideAttackAngle ?? this.attackAngle;
+
         isAttacking = true;
-        attackCooldown = 1f / characterData.attackSpeed;
+        attackCooldown = 1f / currentSpeed;
         nextAttackTime = Time.time + attackCooldown;
 
-        // Detecta alvos no arco de ataque
         Collider[] hitTargets = Physics.OverlapSphere(attackPoint.position, attackRange, hitLayers);
 
         foreach (Collider target in hitTargets)
         {
-            // Verifica se está dentro do ângulo de ataque
             Vector3 directionToTarget = (target.transform.position - attackPoint.position).normalized;
             float angleToTarget = Vector3.Angle(attackPoint.forward, directionToTarget);
 
-            if (angleToTarget < attackAngle / 2)
+            if (angleToTarget < currentAngle / 2)
             {
-                // Aplica dano
                 EnemyHealthSystem enHealth = target.GetComponent<EnemyHealthSystem>();
                 if (enHealth != null)
                 {
                     enHealth.TakeDamage(characterData.damage);
+                    Debug.Log($"<color=cyan>ATAQUE MELEE:</color> Causou {characterData.damage} de dano em {target.name}");
                 }
             }
-
         }
-
-        // Animação/efeitos visuais aqui
     }
 
-    // Visualização do Gizmo para debug
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
 
+        float currentAngle = overrideAttackAngle ?? this.attackAngle;
+
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
 
-        // Desenha o arco de ataque
-        Vector3 leftBound = Quaternion.Euler(0, -attackAngle / 2, 0) * attackPoint.forward * attackRange;
-        Vector3 rightBound = Quaternion.Euler(0, attackAngle / 2, 0) * attackPoint.forward * attackRange;
+        Vector3 leftBound = Quaternion.Euler(0, -currentAngle / 2, 0) * attackPoint.forward * attackRange;
+        Vector3 rightBound = Quaternion.Euler(0, currentAngle / 2, 0) * attackPoint.forward * attackRange;
 
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + leftBound);
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + rightBound);

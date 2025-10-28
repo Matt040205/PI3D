@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Mais Dano
   description: +20% Dano
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 50
   darkEtherCost: 0
   modifiers:
   - statToModify: 0

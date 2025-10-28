@@ -1,9 +1,9 @@
-// UpgradePanelUI.cs
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections; // PRECISAMOS DESTA LINHA PARA USAR CORROTINAS
+using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class UpgradePanelUI : MonoBehaviour
 {
@@ -27,9 +27,18 @@ public class UpgradePanelUI : MonoBehaviour
     public TextMeshProUGUI levelText3;
 
     private TowerController currentTower;
-    private const int BASE_COST = 50;
+    private CanvasGroup panelCanvasGroup;
+    private const int MAX_TOTAL_POINTS = 6;
 
-    // --- Nenhuma mudança de Start() até abaixo de IsPanelVisible() ---
+    void Awake()
+    {
+        panelCanvasGroup = uiPanel.GetComponent<CanvasGroup>();
+        if (panelCanvasGroup == null)
+        {
+            Debug.LogError("CanvasGroup não encontrado no uiPanel! Adicione um componente CanvasGroup.", uiPanel);
+            panelCanvasGroup = uiPanel.AddComponent<CanvasGroup>();
+        }
+    }
 
     void Start()
     {
@@ -44,6 +53,7 @@ public class UpgradePanelUI : MonoBehaviour
         if (towerImage != null && currentTower.towerData.characterIcon != null)
         {
             towerImage.sprite = currentTower.towerData.characterIcon;
+            ResetTowerImageAlpha(); // Garante alpha no início
         }
 
         UpdatePanelInfo();
@@ -60,22 +70,48 @@ public class UpgradePanelUI : MonoBehaviour
         return uiPanel.activeSelf;
     }
 
-    // --- A função UpdatePanelInfo() e UpdatePathButton() permanecem iguais à versão anterior ---
-
     void UpdatePanelInfo()
     {
-        if (currentTower == null) return;
+        if (currentTower == null || panelCanvasGroup == null) return;
 
-        UpdatePathButton(0, upgradeButton1, costText1, levelText1);
-        UpdatePathButton(1, upgradeButton2, costText2, levelText2);
-        UpdatePathButton(2, upgradeButton3, costText3, levelText3);
+        int totalPointsSpent = currentTower.currentPathLevels.Sum();
+        bool isFullyUpgraded = totalPointsSpent >= MAX_TOTAL_POINTS;
+
+        // Atualiza cada caminho, passando o status de upgrade total
+        UpdatePathButton(0, upgradeButton1, costText1, levelText1, isFullyUpgraded, totalPointsSpent);
+        UpdatePathButton(1, upgradeButton2, costText2, levelText2, isFullyUpgraded, totalPointsSpent);
+        UpdatePathButton(2, upgradeButton3, costText3, levelText3, isFullyUpgraded, totalPointsSpent);
+
+        // Define a interatividade e alpha GLOBAIS do painel
+        panelCanvasGroup.interactable = !isFullyUpgraded;
+        panelCanvasGroup.alpha = isFullyUpgraded ? 0.5f : 1f;
+
+        // Reseta o alpha da imagem da torre DEPOIS de ajustar o CanvasGroup
+        ResetTowerImageAlpha();
     }
 
-    void UpdatePathButton(int pathIndex, Button button, TextMeshProUGUI costText, TextMeshProUGUI levelText)
+    // Método modificado para receber 'isFullyUpgraded' e 'totalPointsSpent'
+    void UpdatePathButton(int pathIndex, Button button, TextMeshProUGUI costText, TextMeshProUGUI levelText, bool isFullyUpgraded, int totalPointsSpent)
     {
         UpgradeTooltip tooltip = button.GetComponent<UpgradeTooltip>();
+
+        if (pathIndex >= currentTower.towerData.upgradePaths.Count || currentTower.towerData.upgradePaths[pathIndex] == null)
+        {
+            button.gameObject.SetActive(false);
+            if (costText) costText.gameObject.SetActive(false);
+            if (levelText) levelText.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            button.gameObject.SetActive(true);
+            if (costText) costText.gameObject.SetActive(true);
+            if (levelText) levelText.gameObject.SetActive(true);
+        }
+
         int currentLevel = currentTower.currentPathLevels[pathIndex];
         UpgradePath path = currentTower.towerData.upgradePaths[pathIndex];
+        int maxLevelThisPath = path.upgradesInPath.Count;
 
         int pathsChosenCount = currentTower.currentPathLevels.Count(level => level > 0);
 
@@ -89,96 +125,158 @@ public class UpgradePanelUI : MonoBehaviour
             }
         }
 
-        bool isLocked = false;
+        bool isLockedByChoice = false;
         string lockReason = "";
 
-        if (pathsChosenCount >= 2 && currentTower.currentPathLevels[pathIndex] == 0)
+        if (pathsChosenCount >= 2 && currentLevel == 0)
         {
-            isLocked = true;
-            lockReason = "Você só pode escolher dois caminhos de upgrade por torre.";
+            isLockedByChoice = true;
+            lockReason = "Só é possível escolher dois caminhos por torre.";
         }
         else if (currentLevel >= 2 && anotherPathIsTier3Plus)
         {
-            isLocked = true;
-            lockReason = "Outro caminho já foi escolhido como principal (Nível 3+).";
+            isLockedByChoice = true;
+            lockReason = "Outro caminho já é Nível 3+.";
         }
 
-        if (isLocked)
+        levelText.text = $"Nível {currentLevel}/{maxLevelThisPath}";
+        string tooltipTitleBase = path.pathName ?? "Caminho Desconhecido";
+        string tooltipDescription = "";
+
+        // Garante alpha normal para elementos individuais por padrão
+        // (O CanvasGroup cuida do alpha global se isFullyUpgraded for true)
+        SetElementAlpha(button.GetComponent<Image>(), 1f);
+        if (costText) costText.color = new Color(costText.color.r, costText.color.g, costText.color.b, 1f);
+        if (levelText) levelText.color = new Color(levelText.color.r, levelText.color.g, levelText.color.b, 1f);
+
+        if (isLockedByChoice)
         {
             button.interactable = false;
             costText.text = "";
             levelText.text = "Bloqueado";
-            if (tooltip != null) tooltip.SetTooltipInfo("BLOQUEADO", lockReason);
+            tooltipDescription = lockReason;
+            if (tooltip != null) tooltip.SetTooltipInfo($"{tooltipTitleBase} (BLOQUEADO)", tooltipDescription);
+            // Aplica alpha baixo apenas se NÃO estiver totalmente upado (senão o CanvasGroup faz)
+            if (!isFullyUpgraded)
+            {
+                SetElementAlpha(button.GetComponent<Image>(), 0.5f);
+                if (costText) costText.color = new Color(costText.color.r, costText.color.g, costText.color.b, 0.5f);
+                if (levelText) levelText.color = new Color(levelText.color.r, levelText.color.g, levelText.color.b, 0.5f);
+            }
             return;
         }
 
-        levelText.text = $"Nível {currentLevel}/{path.upgradesInPath.Count}";
+        bool isMaxLevelForPath = currentLevel >= maxLevelThisPath;
 
-        if (currentLevel < path.upgradesInPath.Count)
+        if (!isMaxLevelForPath) // Se AINDA não atingiu o nível máximo DESTE caminho
         {
             Upgrade nextUpgrade = path.upgradesInPath[currentLevel];
-            int upgradeCost = Mathf.FloorToInt(BASE_COST * Mathf.Pow(1.5f, currentLevel));
-            bool canAfford = CurrencyManager.Instance.HasEnoughCurrency(upgradeCost, CurrencyType.Geodites);
+            int geoditeCost = nextUpgrade.geoditeCost;
+            int darkEtherCost = nextUpgrade.darkEtherCost;
 
-            button.interactable = canAfford;
-            costText.text = $"{upgradeCost} Geoditas";
-            costText.color = canAfford ? Color.green : Color.red;
+            string costString = "";
+            List<string> costs = new List<string>();
+            if (geoditeCost > 0) costs.Add($"<color=#76D7C4>{geoditeCost}G</color>");
+            if (darkEtherCost > 0) costs.Add($"<color=#C39BD3>{darkEtherCost}E</color>");
+            costString = costs.Count > 0 ? string.Join(" / ", costs) : "Grátis";
 
-            if (tooltip != null) tooltip.SetTooltipInfo(nextUpgrade.upgradeName, nextUpgrade.description);
+
+            bool canAfford = CurrencyManager.Instance.HasEnoughCurrency(geoditeCost, CurrencyType.Geodites) &&
+                             CurrencyManager.Instance.HasEnoughCurrency(darkEtherCost, CurrencyType.DarkEther);
+
+            // --- CORREÇÃO INTERATIVIDADE e CUSTO no 6º PONTO ---
+            // O botão SÓ é interativo se puder pagar E se a torre NÃO estiver totalmente upada
+            button.interactable = canAfford && !isFullyUpgraded;
+            // Mostra o custo APENAS se a torre NÃO estiver totalmente upada
+            costText.text = !isFullyUpgraded ? costString : "";
+            // --- FIM DA CORREÇÃO ---
+
+
+            tooltipDescription = $"<b>Próximo Nível ({currentLevel + 1}): {nextUpgrade.upgradeName}</b>\n{nextUpgrade.description}";
+            if (tooltip != null) tooltip.SetTooltipInfo(tooltipTitleBase, tooltipDescription);
+
         }
-        else
+        else // Nível Máximo neste caminho
         {
-            button.interactable = false;
-            costText.text = "";
+            button.interactable = false; // Botão sempre inativo no max
+            costText.text = ""; // Custo sempre vazio no max
             levelText.text = "Nível MAX";
-            if (tooltip != null) tooltip.SetTooltipInfo("NÍVEL MÁXIMO", "Este caminho de upgrade já está no máximo.");
+            tooltipDescription = "Este caminho já está no nível máximo.";
+            if (tooltip != null) tooltip.SetTooltipInfo($"{tooltipTitleBase} (NÍVEL MÁXIMO)", tooltipDescription);
         }
     }
 
-    // --- MUDANÇA PRINCIPAL AQUI ---
+    void SetElementAlpha(Graphic element, float alpha)
+    {
+        if (element != null)
+        {
+            Color color = element.color;
+            color.a = alpha;
+            element.color = color;
+        }
+    }
+
+    // Nova função para resetar o alpha da imagem da torre
+    void ResetTowerImageAlpha()
+    {
+        if (towerImage != null)
+        {
+            Color imgColor = towerImage.color;
+            imgColor.a = 1f; // Força alpha 1 (opaco)
+            towerImage.color = imgColor;
+        }
+    }
+
+
     public void UpgradePath(int pathIndex)
     {
         if (currentTower == null) return;
 
-        int currentLevel = currentTower.currentPathLevels[pathIndex];
+        if (pathIndex >= currentTower.towerData.upgradePaths.Count || currentTower.towerData.upgradePaths[pathIndex] == null) return;
         UpgradePath path = currentTower.towerData.upgradePaths[pathIndex];
+        int currentLevel = currentTower.currentPathLevels[pathIndex];
+        if (currentLevel >= path.upgradesInPath.Count) return;
 
-        if (currentLevel < path.upgradesInPath.Count)
+        int totalPointsSpent = currentTower.currentPathLevels.Sum();
+        if (totalPointsSpent >= MAX_TOTAL_POINTS)
         {
-            Upgrade nextUpgrade = path.upgradesInPath[currentLevel];
-            int upgradeCost = Mathf.FloorToInt(BASE_COST * Mathf.Pow(1.5f, currentLevel));
+            Debug.Log("Limite total de upgrades (6) atingido para esta torre!");
+            return; // Já retorna aqui se o limite foi atingido
+        }
 
-            if (CurrencyManager.Instance.HasEnoughCurrency(upgradeCost, CurrencyType.Geodites))
-            {
-                CurrencyManager.Instance.SpendCurrency(upgradeCost, CurrencyType.Geodites);
-                currentTower.ApplyUpgrade(nextUpgrade);
-                currentTower.currentPathLevels[pathIndex]++;
+        Upgrade nextUpgrade = path.upgradesInPath[currentLevel];
+        int geoditeCost = nextUpgrade.geoditeCost;
+        int darkEtherCost = nextUpgrade.darkEtherCost;
 
-                // Em vez de chamar UpdatePanelInfo() diretamente, iniciamos a corrotina.
-                StartCoroutine(RefreshUIAfterFrame());
-            }
-            else
-            {
-                Debug.Log("Você não tem Geoditas suficientes para este upgrade!");
-            }
+        if (CurrencyManager.Instance.HasEnoughCurrency(geoditeCost, CurrencyType.Geodites) &&
+            CurrencyManager.Instance.HasEnoughCurrency(darkEtherCost, CurrencyType.DarkEther))
+        {
+            CurrencyManager.Instance.SpendCurrency(geoditeCost, CurrencyType.Geodites);
+            CurrencyManager.Instance.SpendCurrency(darkEtherCost, CurrencyType.DarkEther);
+
+            currentTower.ApplyUpgrade(nextUpgrade);
+            currentTower.currentPathLevels[pathIndex]++;
+
+            // A Corrotina já cuida da atualização da UI
+            StartCoroutine(RefreshUIAfterFrame());
+        }
+        else
+        {
+            Debug.Log("Recursos insuficientes para este upgrade!");
         }
     }
 
-    // --- NOVA FUNÇÃO DE CORROTINA ---
     private IEnumerator RefreshUIAfterFrame()
     {
-        // 1. Espera até o final do frame atual. Neste ponto, todas as lógicas do jogo já rodaram.
         yield return new WaitForEndOfFrame();
-
-        // 2. Agora, com os dados 100% atualizados, mandamos a UI recalcular tudo.
-        UpdatePanelInfo();
-
-        // 3. (Opcional, mas muito poderoso) Força o Canvas a reconstruir o layout dos elementos filhos deste painel.
-        // Isso resolve problemas com Layout Groups que não se atualizam.
-        // O "uiPanel" deve ter um componente RectTransform, que é o padrão.
-        if (uiPanel != null)
+        // Verifica se a torre ainda está selecionada ANTES de atualizar
+        if (currentTower != null && uiPanel.activeInHierarchy)
         {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(uiPanel.GetComponent<RectTransform>());
+            UpdatePanelInfo(); // Reexecuta toda a lógica de atualização da UI
+            if (uiPanel != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(uiPanel.GetComponent<RectTransform>());
+            }
         }
     }
 }

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "+Vel. Atq ap\xF3s abate"
   description: "+30% de Vel. de Recarga por 4s ap\xF3s um cr\xEDtico"
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 130
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: -8309104600027323729, guid: 3cca2b5a97d961244a72d59bf0abeadd, type: 3}

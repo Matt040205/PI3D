@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
   m_Name: Protection
   m_EditorClassIdentifier: 
+  pathName: "Prote\xE7\xE3o"
   upgradesInPath:
   - {fileID: 11400000, guid: b3e14de7f66057e42b8aa7f2cf224a6d, type: 2}
   - {fileID: 11400000, guid: 4626458b8a3253b4a87e7638895c5df7, type: 2}

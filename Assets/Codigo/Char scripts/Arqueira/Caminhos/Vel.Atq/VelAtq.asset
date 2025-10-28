@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
   m_Name: VelAtq
   m_EditorClassIdentifier: 
+  pathName: Vel. de Ataque
   upgradesInPath:
   - {fileID: 11400000, guid: de01ee77d232b7744bdaffc6a759e781, type: 2}
   - {fileID: 11400000, guid: d837ad9aa76571d4fbf83876ad84a75a, type: 2}

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
   m_Name: Precisao
   m_EditorClassIdentifier: 
+  pathName: "Precis\xE3o"
   upgradesInPath:
   - {fileID: 11400000, guid: c0d29ba7ba6f37d4ca5803bfe41e7b39, type: 2}
   - {fileID: 11400000, guid: b937771a260159f4d853c7876c9387cd, type: 2}

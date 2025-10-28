@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 
@@ -13,7 +14,11 @@ public class UIManager : MonoBehaviour
     [Header("Elementos de HUD")]
     public TextMeshProUGUI timerText;
 
-    // Adicione esta variável para controlar o tempo.
+    [Header("HUD da Base")]
+    public ObjectiveHealthSystem objectiveHealthSystem;
+    public TextMeshProUGUI objectiveHealthText;
+    public Image objectiveHealthBar;
+
     private float gameTime = 0f;
 
     private void Awake()
@@ -25,13 +30,55 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         ShowHUD();
+
+        if (objectiveHealthSystem != null)
+        {
+            objectiveHealthSystem.OnHealthChanged += UpdateObjectiveHealthUI;
+            UpdateObjectiveHealthUI();
+        }
+        else
+        {
+            Debug.LogError("UIManager: A referência do ObjectiveHealthSystem não foi definida no Inspector!");
+        }
     }
 
-    // Adicione a função Update() para atualizar o temporizador a cada frame.
     void Update()
     {
         gameTime += Time.deltaTime;
         UpdateTimerDisplay(gameTime);
+    }
+
+    private void OnDestroy()
+    {
+        if (objectiveHealthSystem != null)
+        {
+            objectiveHealthSystem.OnHealthChanged -= UpdateObjectiveHealthUI;
+        }
+    }
+
+    public void UpdateObjectiveHealthUI()
+    {
+        if (objectiveHealthSystem == null) return;
+
+        float currentHealth = objectiveHealthSystem.currentHealth;
+        float maxHealth = objectiveHealthSystem.maxHealth;
+
+        if (objectiveHealthText != null)
+        {
+            objectiveHealthText.text = $"{currentHealth:F0} / {maxHealth:F0}";
+        }
+
+        if (objectiveHealthBar != null)
+        {
+            if (maxHealth > 0)
+            {
+                objectiveHealthBar.fillAmount = currentHealth / maxHealth;
+            }
+            else
+            {
+                objectiveHealthBar.fillAmount = 0;
+            }
+        }
     }
 
     public void UpdateBuildUI(List<CharacterBase> availableTowers)
@@ -59,7 +106,6 @@ public class UIManager : MonoBehaviour
         if (show)
         {
             if (hudPanel != null) hudPanel.SetActive(false);
-            // Ao pausar, defina a escala de tempo para 0.
             Time.timeScale = 0f;
         }
         else
@@ -72,7 +118,6 @@ public class UIManager : MonoBehaviour
             {
                 ShowHUD();
             }
-            // Ao despausar, retorne a escala de tempo para 1.
             Time.timeScale = 1f;
         }
     }

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
   m_Name: Velocidade
   m_EditorClassIdentifier: 
+  pathName: Velocidade
   upgradesInPath:
   - {fileID: 11400000, guid: 755eb4a699a01b94ba63ec6594a91687, type: 2}
   - {fileID: 11400000, guid: 3653726814746654fa6aa4e65f40fc25, type: 2}

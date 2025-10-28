@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
   m_Name: Dano
   m_EditorClassIdentifier: 
+  pathName: Dano
   upgradesInPath:
   - {fileID: 11400000, guid: 14339421642b9044790d3e1056ef75a2, type: 2}
   - {fileID: 11400000, guid: 8b972f2c3390e8e449078b1b7912eb24, type: 2}

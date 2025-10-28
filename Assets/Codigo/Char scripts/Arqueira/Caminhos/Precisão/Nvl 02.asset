@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "Mais Vel. Proj\xE9til"
   description: "+20% de Vel. Proj\xE9til"
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 80
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: -2684576746222436529, guid: aa9524304dc794d4e8d1d459ff4d294f, type: 3}

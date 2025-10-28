@@ -15,7 +15,7 @@ MonoBehaviour:
   abilityName: Perseguindo as Presas
   description: "Marca o inimigo, podendo ver ele atrav\xE9s da parede, al\xE9m disso,aumenta
     o dano recebido por ele em 15%.\n"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: f48a7515d4307494fa4b4d012d4ce765, type: 3}
   cooldown: 1
   markDuration: 5
   bonusDamageMultiplier: 1.25

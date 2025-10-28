@@ -2,14 +2,11 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-// AGORA ESTE SCRIPT É GENÉRICO. Ele funcionará para QUALQUER personagem
-// sem precisar de modificações para novas habilidades.
 public class CommanderAbilityController : MonoBehaviour
 {
     [Header("Dados do Personagem")]
     public CharacterBase characterData;
 
-    // --- ADICIONADO: Lógica de Carregamento da Ultimate ---
     [Header("Ultimate Charge")]
     [Tooltip("A taxa de carregamento passivo da Ultimate por segundo (ex: 0.01f = 1% por segundo).")]
     public float ultimateChargeRatePerSecond = 0.01f;
@@ -17,12 +14,8 @@ public class CommanderAbilityController : MonoBehaviour
     [Tooltip("O carregamento atual da Ultimate (0.0f = 0% a 1.0f = 100%).")]
     private float currentUltimateCharge = 0f;
 
-    // Propriedade pública para acessar o carregamento atual (PARA A HUD)
     public float CurrentUltimateCharge { get { return currentUltimateCharge; } }
-
-    // Propriedade para verificar se a Ultimate está pronta (PARA A HUD)
     public bool IsUltimateReady { get { return currentUltimateCharge >= 1f; } }
-    // --------------------------------------------------------
 
     private Dictionary<Ability, float> abilityCooldowns = new Dictionary<Ability, float>();
 
@@ -31,15 +24,12 @@ public class CommanderAbilityController : MonoBehaviour
         if (characterData.ability1 != null) abilityCooldowns[characterData.ability1] = 0f;
         if (characterData.ability2 != null) abilityCooldowns[characterData.ability2] = 0f;
 
-        // A ultimate agora começa em 0% de carga.
         if (characterData.ultimate != null)
         {
-            // Inicializa cooldowns das habilidades normais
             if (!abilityCooldowns.ContainsKey(characterData.ultimate))
             {
                 abilityCooldowns[characterData.ultimate] = 0f;
             }
-            // Garante que a carga comece em 0
             currentUltimateCharge = 0f;
         }
     }
@@ -48,13 +38,11 @@ public class CommanderAbilityController : MonoBehaviour
     {
         HandleAbilityInputs();
 
-        // --- ADICIONADO: Carregamento Passivo da Ultimate ---
         if (characterData.ultimate != null && currentUltimateCharge < 1f)
         {
             currentUltimateCharge += ultimateChargeRatePerSecond * Time.deltaTime;
             currentUltimateCharge = Mathf.Clamp01(currentUltimateCharge);
         }
-        // --------------------------------------------------------
     }
 
     private void HandleAbilityInputs()
@@ -77,7 +65,6 @@ public class CommanderAbilityController : MonoBehaviour
 
     private void TryActivateAbility(Ability ability)
     {
-        // --- MODIFICADO: Lógica de Ativação da Ultimate ---
         if (ability == characterData.ultimate)
         {
             if (IsUltimateReady)
@@ -85,7 +72,6 @@ public class CommanderAbilityController : MonoBehaviour
                 bool shouldGoOnCooldown = ability.Activate(this.gameObject);
                 if (shouldGoOnCooldown)
                 {
-                    // Reinicia a carga após o uso bem-sucedido
                     currentUltimateCharge = 0f;
                     Debug.Log("Ultimate ativada com sucesso! Carga reiniciada.");
                 }
@@ -94,11 +80,9 @@ public class CommanderAbilityController : MonoBehaviour
             {
                 Debug.Log($"Ultimate {ability.name} carregando: {CurrentUltimateCharge:P2}");
             }
-            return; // Sai da função após lidar com a Ultimate
+            return;
         }
-        // --------------------------------------------------------
 
-        // Lógica de Cooldown para Habilidades Normais (Q e E)
         if (abilityCooldowns.ContainsKey(ability) && Time.time >= abilityCooldowns[ability])
         {
             bool shouldGoOnCooldown = ability.Activate(this.gameObject);
@@ -114,16 +98,24 @@ public class CommanderAbilityController : MonoBehaviour
         }
     }
 
-    // --- ADICIONADO: Método público para carregar a Ultimate baseado em eventos (dano, kill, etc.) ---
     public void AddUltimateCharge(float amount)
     {
         if (characterData.ultimate == null) return;
         currentUltimateCharge += amount;
-        currentUltimateCharge = Mathf.Clamp01(currentUltimateCharge); // Garante que a carga não ultrapasse 1.0f (100%)
-        // Opcional: Logar o progresso
-        // Debug.Log($"Ultimate carregada em: {CurrentUltimateCharge:P2}");
+        currentUltimateCharge = Mathf.Clamp01(currentUltimateCharge);
     }
-    // ------------------------------------------------------------------------------------------
+
+    public float GetRemainingCooldownPercent(Ability ability)
+    {
+        if (ability == null || ability == characterData.ultimate || ability.cooldown <= 0) return 0f;
+
+        if (abilityCooldowns.ContainsKey(ability))
+        {
+            float remainingTime = abilityCooldowns[ability] - Time.time;
+            return Mathf.Clamp01(remainingTime / ability.cooldown);
+        }
+        return 0f;
+    }
 
     public void ReduceAllAbilityCooldowns(float percent)
     {
@@ -131,7 +123,6 @@ public class CommanderAbilityController : MonoBehaviour
 
         foreach (var ability in abilitiesOnCooldown)
         {
-            // Pula a Ultimate no sistema de cooldown de tempo
             if (ability == characterData.ultimate) continue;
 
             float remainingTime = abilityCooldowns[ability] - Time.time;

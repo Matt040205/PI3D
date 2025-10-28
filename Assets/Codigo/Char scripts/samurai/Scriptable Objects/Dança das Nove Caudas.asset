@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityName: "Dan\xE7a das Nove Caudas"
   description: Abad
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 971132fec26b925499aa6d3c3865859c, type: 3}
   cooldown: 1
   duration: 8
   cooldownReductionPercent: 0.4

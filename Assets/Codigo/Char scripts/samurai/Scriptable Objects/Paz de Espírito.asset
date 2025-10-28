@@ -17,7 +17,7 @@ MonoBehaviour:
 
 
 '
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: e4be4b99b1f4336408ac4896b70767eb, type: 3}
   cooldown: 1
   totalHeal: 80
   duration: 3

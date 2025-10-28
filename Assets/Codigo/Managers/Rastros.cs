@@ -1,5 +1,3 @@
-// Arquivo: Rastros.cs (Atualizado para usar Mapeamento)
-
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
@@ -23,12 +21,15 @@ public class Rastros : MonoBehaviour
     public Button botaoConfirmarCompra;
     public GameObject painelDescricao;
 
+    [Header("Mapeamento de Ícones")]
+    [Tooltip("Arraste o ScriptableObject 'Banco de Icones de Status' aqui.")]
+    public StatIconDatabase iconDatabase;
+
     private CharacterBase personagemSendoUprado;
     private BotaoHabilidade habilidadeSelecionada;
 
     void Start()
     {
-        // --- LÓGICA DE CARREGAMENTO DO PERSONAGEM (sem mudanças) ---
         if (GameDataManager.Instance != null && GameDataManager.Instance.personagemParaRastros != null)
         {
             personagemSendoUprado = GameDataManager.Instance.personagemParaRastros;
@@ -50,11 +51,10 @@ public class Rastros : MonoBehaviour
 
         InicializarCaminhos();
 
-        // --- LÓGICA DE SAVE/LOAD (sem mudanças) ---
-        // TODO: Carregar 'habilidadesDesbloqueadas'
-        ReaplicarUpgradesSalvos(); // <-- Esta função foi atualizada abaixo
+        AtualizarIconesBotoes();
 
-        // --- Configura o painel de descrição (sem mudanças) ---
+        ReaplicarUpgradesSalvos();
+
         if (painelDescricao != null)
         {
             painelDescricao.SetActive(false);
@@ -78,9 +78,41 @@ public class Rastros : MonoBehaviour
         if (!pontosPorCaminho.ContainsKey("Caminho4")) pontosPorCaminho.Add("Caminho4", 0);
     }
 
-    /// <summary>
-    /// Chamado pelo BotaoHabilidade.cs quando um botão é clicado.
-    /// </summary>
+    void AtualizarIconesBotoes()
+    {
+        if (iconDatabase == null)
+        {
+            Debug.LogWarning("Nenhum Banco de Ícones (StatIconDatabase) foi assignado no script Rastros.");
+            return;
+        }
+
+        foreach (var botao in todosBotoesDaArvore)
+        {
+            if (botao == null || botao.iconeHabilidade == null) continue;
+
+            RastroUpgrade upgrade = botao.GetUpgradeParaPersonagem(personagemSendoUprado);
+
+            if (upgrade != null && upgrade.modifiers.Count > 0)
+            {
+                CharacterStatType statPrincipal = upgrade.modifiers[0].statToModify;
+                Sprite icon = iconDatabase.GetIconForStat(statPrincipal);
+
+                if (icon != null)
+                {
+                    botao.iconeHabilidade.sprite = icon;
+                }
+                else
+                {
+                    Debug.LogWarning($"Ícone para o status {statPrincipal} não encontrado no Database (Botão: {botao.idHabilidade}).");
+                }
+            }
+            else
+            {
+                botao.iconeHabilidade.enabled = false;
+            }
+        }
+    }
+
     public void SelecionarHabilidade(BotaoHabilidade botao)
     {
         habilidadeSelecionada = botao;
@@ -94,8 +126,6 @@ public class Rastros : MonoBehaviour
 
         if (painelDescricao != null) painelDescricao.SetActive(true);
 
-        // --- MUDANÇA AQUI ---
-        // Pega o upgrade CORRETO para o personagem ATIVO
         RastroUpgrade upgradeCorreto = habilidadeSelecionada.GetUpgradeParaPersonagem(personagemSendoUprado);
 
         if (upgradeCorreto != null)
@@ -104,36 +134,24 @@ public class Rastros : MonoBehaviour
         }
         else
         {
-            // Caso o botão não tenha um upgrade configurado para este personagem
             textoDescricaoHabilidade.text = $"Habilidade não configurada para {personagemSendoUprado.name}.";
         }
-        // -----------------
 
         bool podeComprar = ChecarCondicoes(habilidadeSelecionada);
 
-        // Só pode confirmar se puder comprar E se o upgrade estiver configurado
         botaoConfirmarCompra.interactable = podeComprar && (upgradeCorreto != null);
     }
 
-    /// <summary>
-    /// Chamado pelo 'botaoConfirmarCompra' da UI.
-    /// (Sem mudanças)
-    /// </summary>
     public void ConfirmarCompraHabilidade()
     {
         if (habilidadeSelecionada == null) return;
 
-        bool sucesso = TentarDesbloquear(habilidadeSelecionada); // <-- Esta função foi atualizada abaixo
+        bool sucesso = TentarDesbloquear(habilidadeSelecionada);
 
         if (painelDescricao != null) painelDescricao.SetActive(false);
         habilidadeSelecionada = null;
     }
 
-
-    /// <summary>
-    /// Função separada que APENAS checa se o upgrade pode ser comprado.
-    /// (Sem mudanças)
-    /// </summary>
     private bool ChecarCondicoes(BotaoHabilidade botao)
     {
         if (botao == null) return false;
@@ -147,9 +165,6 @@ public class Rastros : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// Função principal que executa a lógica de compra.
-    /// </summary>
     private bool TentarDesbloquear(BotaoHabilidade botao)
     {
         if (!ChecarCondicoes(botao))
@@ -157,8 +172,6 @@ public class Rastros : MonoBehaviour
             return false;
         }
 
-        // --- MUDANÇA AQUI ---
-        // Pega o upgrade correto ANTES de aplicar
         RastroUpgrade upgradeCorreto = botao.GetUpgradeParaPersonagem(personagemSendoUprado);
 
         if (upgradeCorreto == null)
@@ -166,29 +179,20 @@ public class Rastros : MonoBehaviour
             Debug.LogError($"Tentativa de comprar {botao.idHabilidade} falhou: Upgrade não mapeado para {personagemSendoUprado.name}!");
             return false;
         }
-        // -----------------
 
-        // --- SUCESSO! (Lógica de pontos igual a antes) ---
         pontosDisponiveis -= botao.custo;
         pontosGastosGlobal += 1;
         pontosPorCaminho[botao.idCaminho] = pontosPorCaminho[botao.idCaminho] + 1;
         habilidadesDesbloqueadas.Add(botao.idHabilidade);
 
-        // --- APLICA O UPGRADE CORRETO ---
         AplicarUpgrade(upgradeCorreto);
         Debug.Log("Upgrade " + upgradeCorreto.upgradeName + " aplicado!");
-
-        // TODO: Salvar o 'habilidadesDesbloqueadas'
 
         AtualizarUI();
         AtualizarEstadoBotoes();
         return true;
     }
 
-    /// <summary>
-    /// Modifica o ScriptableObject 'personagemSendoUprado' com os status do upgrade.
-    /// (Sem mudanças)
-    /// </summary>
     private void AplicarUpgrade(RastroUpgrade upgrade)
     {
         if (personagemSendoUprado == null || upgrade == null) return;
@@ -217,15 +221,10 @@ public class Rastros : MonoBehaviour
                     else
                         personagemSendoUprado.moveSpeed *= (1 + modifier.value);
                     break;
-
-                    // (Adicione os outros 'case' para os stats restantes...)
             }
         }
     }
 
-    /// <summary>
-    /// Reaplica upgrades salvos ao carregar a cena.
-    /// </summary>
     private void ReaplicarUpgradesSalvos()
     {
         Debug.Log("Reaplicando " + habilidadesDesbloqueadas.Count + " upgrades salvos...");
@@ -233,21 +232,15 @@ public class Rastros : MonoBehaviour
         {
             if (botao != null && habilidadesDesbloqueadas.Contains(botao.idHabilidade))
             {
-                // --- MUDANÇA AQUI ---
-                // Pega o upgrade correto para o personagem atual
                 RastroUpgrade upgradeCorreto = botao.GetUpgradeParaPersonagem(personagemSendoUprado);
 
                 if (upgradeCorreto != null)
                 {
                     AplicarUpgrade(upgradeCorreto);
                 }
-                // -----------------
             }
         }
     }
-
-
-    // --- Funções Auxiliares (sem mudanças) ---
 
     public void AtualizarUI()
     {

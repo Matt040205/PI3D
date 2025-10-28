@@ -1,4 +1,3 @@
-// SelecaoManager.cs (Com botão Rastros)
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,13 +47,11 @@ public class SelecaoManager : MonoBehaviour
     [Header("Botões de Navegação dos Detalhes")]
     public Button botaoAbaHabilidades;
     public Button botaoAbaTorre;
-    public List<Button> botoesCaminhoTorre; // Lista para os 3 botões dos caminhos
+    public List<Button> botoesCaminhoTorre;
 
-    // --- NOVAS VARIÁVEIS PARA OS RASTROS ---
     [Header("Elementos da UI - Rastros")]
-    public Button botaoRastros; // Arraste seu novo botão "Rastros" aqui
-    public string nomeDaCenaRastros = "Rastros"; // Nome da cena da árvore
-    // ------------------------------------
+    public Button botaoRastros;
+    public string nomeDaCenaRastros = "Rastros";
 
     private List<Button> slotsEquipe = new List<Button>();
     private Dictionary<CharacterBase, Button> botoesDeEscolha = new Dictionary<CharacterBase, Button>();
@@ -65,8 +62,7 @@ public class SelecaoManager : MonoBehaviour
 
     IEnumerator SetupScene()
     {
-        // ... (código do SetupScene continua igual)
-        LimparGrid(gridEquipeContainer);
+        LimparGrid(gridEquipeContainer);
         LimparGrid(gridEscolhaContainer);
         slotsEquipe.Clear();
         botoesDeEscolha.Clear();
@@ -77,7 +73,7 @@ public class SelecaoManager : MonoBehaviour
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.LimparSelecao();
-            GameDataManager.Instance.personagemParaRastros = null; // Limpa ao iniciar
+            GameDataManager.Instance.personagemParaRastros = null;
         }
         ConfigurarBotoesPrincipais();
         CriarGridEquipe();
@@ -112,13 +108,11 @@ public class SelecaoManager : MonoBehaviour
         botaoConfirmarEscolha.onClick.RemoveAllListeners();
         botaoConfirmarEscolha.onClick.AddListener(ConfirmarEscolha);
 
-        // --- ADICIONA O LISTENER PARA O BOTÃO RASTROS ---
         if (botaoRastros != null)
         {
             botaoRastros.onClick.RemoveAllListeners();
             botaoRastros.onClick.AddListener(AbrirCenaRastros);
         }
-        // -------------------------------------------------
     }
 
     void PreencherTextosDeUpgrade(CharacterBase personagem)
@@ -144,7 +138,6 @@ public class SelecaoManager : MonoBehaviour
         }
     }
 
-    // --- FUNÇÕES DE CONTROLE DA UI ATUALIZADAS ---
     public void MostrarPainelHabilidades()
     {
         if (painelHabilidades != null) painelHabilidades.SetActive(true);
@@ -152,6 +145,12 @@ public class SelecaoManager : MonoBehaviour
 
         if (botaoAbaHabilidades != null) botaoAbaHabilidades.interactable = false;
         if (botaoAbaTorre != null) botaoAbaTorre.interactable = true;
+
+        SetBotoesCaminhoVisiveis(false);
+
+        if (textoCaminho1 != null) textoCaminho1.gameObject.SetActive(false);
+        if (textoCaminho2 != null) textoCaminho2.gameObject.SetActive(false);
+        if (textoCaminho3 != null) textoCaminho3.gameObject.SetActive(false);
     }
 
     public void MostrarPainelUpgradesTorre()
@@ -162,7 +161,22 @@ public class SelecaoManager : MonoBehaviour
         if (botaoAbaHabilidades != null) botaoAbaHabilidades.interactable = true;
         if (botaoAbaTorre != null) botaoAbaTorre.interactable = false;
 
+        SetBotoesCaminhoVisiveis(true);
+
         MostrarCaminhoDeUpgrade(1);
+    }
+
+    private void SetBotoesCaminhoVisiveis(bool visivel)
+    {
+        if (botoesCaminhoTorre == null) return;
+
+        foreach (Button botao in botoesCaminhoTorre)
+        {
+            if (botao != null)
+            {
+                botao.gameObject.SetActive(visivel);
+            }
+        }
     }
 
     public void MostrarCaminhoDeUpgrade(int numeroDoCaminho)
@@ -173,11 +187,13 @@ public class SelecaoManager : MonoBehaviour
 
         for (int i = 0; i < botoesCaminhoTorre.Count; i++)
         {
-            botoesCaminhoTorre[i].interactable = (i != numeroDoCaminho - 1);
+            if (botoesCaminhoTorre[i] != null)
+            {
+                botoesCaminhoTorre[i].interactable = (i != numeroDoCaminho - 1);
+            }
         }
     }
 
-    // --- NOVA FUNÇÃO PARA O BOTÃO RASTROS ---
     public void AbrirCenaRastros()
     {
         if (personagemEmVisualizacao == null)
@@ -192,10 +208,8 @@ public class SelecaoManager : MonoBehaviour
             return;
         }
 
-        // 1. Armazena o personagem selecionado no GameDataManager
         GameDataManager.Instance.personagemParaRastros = personagemEmVisualizacao;
 
-        // 2. Carrega a cena "Rastros"
         if (!string.IsNullOrEmpty(nomeDaCenaRastros))
         {
             SceneManager.LoadScene(nomeDaCenaRastros);
@@ -205,17 +219,18 @@ public class SelecaoManager : MonoBehaviour
             Debug.LogError("O nome da cena 'Rastros' não foi definido no Inspector!");
         }
     }
-    // ----------------------------------------
 
     #region Funções de Navegação e Setup (Sem Alterações)
-    // ... (todas as outras funções como LimparGrid, ConfirmarEscolha, etc. continuam aqui, sem alterações)
-    void LimparGrid(Transform grid) { if (grid == null) return; foreach (Transform child in grid) { if (child != null) Destroy(child.gameObject); } }
+    void LimparGrid(Transform grid) { if (grid == null) return; foreach (Transform child in grid) { if (child != null) Destroy(child.gameObject); } }
     void ConfigurarBotoesPrincipais() { if (botaoJogar != null) { botaoJogar.onClick.RemoveAllListeners(); botaoJogar.interactable = false; botaoJogar.onClick.AddListener(IniciarJogo); } if (botaoVoltarDaEscolha != null) { botaoVoltarDaEscolha.onClick.RemoveAllListeners(); botaoVoltarDaEscolha.onClick.AddListener(VoltarParaPainelEquipe); } if (botaoVoltarDosDetalhes != null) { botaoVoltarDosDetalhes.onClick.RemoveAllListeners(); botaoVoltarDosDetalhes.onClick.AddListener(VoltarParaPainelEscolha); } }
     void CriarGridEquipe() { for (int i = 0; i < 8; i++) { GameObject slotObj = Instantiate(slotEquipePrefab, gridEquipeContainer); Button slotButton = slotObj.GetComponent<Button>(); int index = i; slotButton.onClick.AddListener(() => AbrirPainelEscolha(index)); slotsEquipe.Add(slotButton); } }
     void PopularGridDeEscolha() { foreach (var personagem in todosOsPersonagens) { GameObject slotObj = Instantiate(slotEscolhaPrefab, gridEscolhaContainer); slotObj.GetComponent<Image>().sprite = personagem.characterIcon; Button slotButton = slotObj.GetComponent<Button>(); slotButton.onClick.AddListener(() => AbrirPainelDetalhes(personagem)); botoesDeEscolha.Add(personagem, slotButton); } }
     public void AbrirPainelEscolha(int slotIndex) { slotSendoEditado = slotIndex; painelEquipe.SetActive(false); painelEscolhaPersonagem.SetActive(true); painelDetalhes.SetActive(false); if (GameDataManager.Instance == null) return; CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada; foreach (var par in botoesDeEscolha) { bool jaEscolhido = equipeAtual.Contains(par.Key); bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key; par.Value.interactable = !jaEscolhido || noSlotAtual; } }
     void ConfirmarEscolha() { if (GameDataManager.Instance != null && slotSendoEditado != -1) { GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao; slotsEquipe[slotSendoEditado].GetComponent<Image>().sprite = personagemEmVisualizacao.characterIcon; if (GameDataManager.Instance.equipeSelecionada[0] != null) { botaoJogar.interactable = true; } } VoltarParaPainelEquipe(); }
-    public void VoltarParaPainelEquipe() { painelEscolhaPersonagem.SetActive(false); painelDetalhes.SetActive(false); painelEquipe.SetActive(true); slotSendoEditado = -1; personagemEmVisualizacao = null; }
+    public void VoltarParaPainelEquipe()
+    {
+        painelEscolhaPersonagem.SetActive(false); painelDetalhes.SetActive(false); painelEquipe.SetActive(true); slotSendoEditado = -1; personagemEmVisualizacao = null;
+    }
     public void VoltarParaPainelEscolha() { painelDetalhes.SetActive(false); painelEscolhaPersonagem.SetActive(true); personagemEmVisualizacao = null; }
     public void IniciarJogo() { if (!string.IsNullOrEmpty(nomeDaCenaDoJogo)) { SceneManager.LoadScene(nomeDaCenaDoJogo); } else { Debug.LogError("O nome da cena do jogo não foi definido no Inspector!"); } }
     #endregion

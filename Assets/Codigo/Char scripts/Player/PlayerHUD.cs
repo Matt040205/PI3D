@@ -27,6 +27,14 @@ public class PlayerHUD : MonoBehaviour
     public TMP_Text geoditesText;
     public TMP_Text darkEtherText;
 
+    [Header("Referências de Habilidades")]
+    public Image ability1_Icon;
+    public Image ability2_Icon;
+    public Image ultimate_Icon;
+    public Image ability1_CooldownFill;
+    public Image ability2_CooldownFill;
+    public Image ultimate_ChargeFill;
+
     [Header("Configurações Visuais")]
     public float healthLerpSpeed = 5f;
     public Color fullHealthColor = Color.green;
@@ -35,32 +43,28 @@ public class PlayerHUD : MonoBehaviour
     public Color ammoLowColor = Color.yellow;
     public Color reloadColor = new Color(1, 0.5f, 0);
 
-    // Referências aos sistemas do Jogador
     private PlayerHealthSystem playerHealth;
     private PlayerShooting playerShooting;
     private float targetHealthPercent = 1f;
     private bool isRegenerating;
 
-    // Referências para o sistema do Objetivo
     private ObjectiveHealthSystem objectiveHealth;
     private float targetObjectiveHealthPercent = 1f;
 
-    // Flag para garantir que a assinatura do evento seja feita apenas uma vez
+    private CommanderAbilityController abilityController;
+
     private bool isSubscribed = false;
 
 
     void Start()
     {
-        // A lógica de busca do objetivo e munição pode ser mantida
         FindObjectiveAndShootingSystems();
     }
 
     void Update()
     {
-        // Adicionando um sistema de verificação e reconexão robusto
         if (playerHealth == null)
         {
-            // Tenta encontrar o jogador a cada frame até que a referência seja encontrada
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
@@ -68,13 +72,21 @@ public class PlayerHUD : MonoBehaviour
             }
         }
 
-        // Verifica se a referência foi encontrada e ainda não foi inscrita
         if (playerHealth != null && !isSubscribed)
         {
             playerHealth.OnHealthChanged += OnHealthChanged;
-            OnHealthChanged(); // Atualiza a HUD com a vida inicial
+            OnHealthChanged();
             isSubscribed = true;
             Debug.Log("PlayerHealthSystem encontrado e evento OnHealthChanged assinado.");
+        }
+
+        if (abilityController == null && playerHealth != null)
+        {
+            abilityController = playerHealth.GetComponent<CommanderAbilityController>();
+            if (abilityController != null && abilityController.characterData != null)
+            {
+                AtualizarIconesHabilidades(abilityController.characterData);
+            }
         }
 
         if (playerHealth != null)
@@ -88,6 +100,10 @@ public class PlayerHUD : MonoBehaviour
         if (objectiveHealth != null)
         {
             UpdateObjectiveHealthDisplay();
+        }
+        if (abilityController != null)
+        {
+            AtualizarUICooldowns();
         }
         UpdateCurrencyDisplay();
     }
@@ -152,13 +168,11 @@ public class PlayerHUD : MonoBehaviour
 
     void UpdateObjectiveHealthDisplay()
     {
-        // Ambos os elementos de UI são ativados para que fiquem visíveis o tempo todo.
         if (objectiveHealthBarFill != null) objectiveHealthBarFill.gameObject.SetActive(true);
         if (objectiveHealthText != null) objectiveHealthText.gameObject.SetActive(true);
         if (BuildModeObjectiveHealthBarFill != null) BuildModeObjectiveHealthBarFill.gameObject.SetActive(true);
         if (BuildModeObjectiveHealthText != null) BuildModeObjectiveHealthText.gameObject.SetActive(true);
 
-        // Atualiza a barra de vida normal
         if (objectiveHealthBarFill != null)
         {
             objectiveHealthBarFill.fillAmount = Mathf.Lerp(objectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
@@ -168,7 +182,6 @@ public class PlayerHUD : MonoBehaviour
             objectiveHealthText.text = $"{Mathf.CeilToInt(objectiveHealth.currentHealth)}/{objectiveHealth.maxHealth}";
         }
 
-        // Atualiza a barra de vida do modo de construção
         if (BuildModeObjectiveHealthBarFill != null)
         {
             BuildModeObjectiveHealthBarFill.fillAmount = Mathf.Lerp(BuildModeObjectiveHealthBarFill.fillAmount, targetObjectiveHealthPercent, healthLerpSpeed * Time.deltaTime);
@@ -213,6 +226,73 @@ public class PlayerHUD : MonoBehaviour
                     );
                 }
             }
+        }
+    }
+
+    void AtualizarIconesHabilidades(CharacterBase data)
+    {
+        if (data == null) return;
+
+        if (ability1_Icon != null)
+        {
+            if (data.ability1 != null && data.ability1.icon != null)
+            {
+                ability1_Icon.sprite = data.ability1.icon;
+                ability1_Icon.enabled = true;
+            }
+            else
+            {
+                ability1_Icon.enabled = false;
+            }
+        }
+
+        if (ability2_Icon != null)
+        {
+            if (data.ability2 != null && data.ability2.icon != null)
+            {
+                ability2_Icon.sprite = data.ability2.icon;
+                ability2_Icon.enabled = true;
+            }
+            else
+            {
+                ability2_Icon.enabled = false;
+            }
+        }
+
+        if (ultimate_Icon != null)
+        {
+            if (data.ultimate != null && data.ultimate.icon != null)
+            {
+                ultimate_Icon.sprite = data.ultimate.icon;
+                ultimate_Icon.enabled = true;
+            }
+            else
+            {
+                ultimate_Icon.enabled = false;
+            }
+        }
+    }
+
+    void AtualizarUICooldowns()
+    {
+        if (abilityController == null) return;
+
+        if (ability1_CooldownFill != null && abilityController.characterData != null)
+        {
+            ability1_CooldownFill.fillAmount = abilityController.GetRemainingCooldownPercent(abilityController.characterData.ability1);
+        }
+
+        if (ability2_CooldownFill != null && abilityController.characterData != null)
+        {
+            ability2_CooldownFill.fillAmount = abilityController.GetRemainingCooldownPercent(abilityController.characterData.ability2);
+        }
+
+        if (ultimate_ChargeFill != null)
+        {
+            // --- ESTA É A LINHA QUE MUDOU ---
+            // Invertemos a lógica: 1.0 (cheio) - 0.0 (carregando) = 1.0 (máscara cheia)
+            // 1.0 (cheio) - 1.0 (carregado) = 0.0 (máscara vazia)
+            ultimate_ChargeFill.fillAmount = 1f - abilityController.CurrentUltimateCharge;
         }
     }
 

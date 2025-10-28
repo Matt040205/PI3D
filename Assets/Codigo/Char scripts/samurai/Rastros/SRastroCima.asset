@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: SRastroCima
   m_EditorClassIdentifier: 
   upgradeName: 
-  description: 
-  modifiers: []
+  description: Aumenta a armadura em 5%
+  modifiers:
+  - statToModify: 5
+    modType: 1
+    value: 0.5

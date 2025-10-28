@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SRastroEsquerda
   m_EditorClassIdentifier: 
   upgradeName: 
-  description: Aumenta a velocidade em 10%
+  description: "Aumenta a taxa cr\xEDtica em 10%"
   modifiers:
-  - statToModify: 2
+  - statToModify: 6
     modType: 1
     value: 0.1

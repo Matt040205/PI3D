@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: InimigoVoador
   m_EditorClassIdentifier: 
   enemyType: 1
-  baseHP: 100
+  baseHP: 70
   baseATQ: 10
   moveSpeed: 3
   attackSpeed: 1
@@ -22,5 +22,5 @@ MonoBehaviour:
   atqPerLevel: 2
   speedPerLevel: 0.5
   armorPerLevel: 0.01
-  geoditasOnDeath: 1
+  geoditasOnDeath: 50
   etherDropChance: 0.1

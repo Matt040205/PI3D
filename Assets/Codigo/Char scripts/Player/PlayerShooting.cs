@@ -24,7 +24,6 @@ public class PlayerShooting : MonoBehaviour
     private ProjectilePool projectilePool;
     private Camera mainCamera;
 
-    // Variáveis para o bônus de habilidade
     private bool hasNextShotBonus = false;
     private float nextShotDamageBonus = 1f;
     private float nextShotAreaBonus = 1f;
@@ -55,8 +54,6 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
-        // --- ADIÇÃO AQUI ---
-        // Se o jogo está pausado ou no modo de construção, a lógica de tiro é ignorada
         if (PauseControl.isPaused || BuildManager.isBuildingMode)
         {
             return;
@@ -155,7 +152,6 @@ public class PlayerShooting : MonoBehaviour
         }
         else
         {
-            //  Debug.Log("Tiro disparado mas não acertou nada");
         }
 
         if (projectilePool != null && projectileVisualPrefab != null)
@@ -174,6 +170,11 @@ public class PlayerShooting : MonoBehaviour
 
         nextShotTime = Time.time + (1f / characterData.attackSpeed);
         currentAmmo--;
+
+        if (currentAmmo <= 0)
+        {
+            StartReload();
+        }
     }
 
     Vector3 GetShotDirection()
@@ -202,6 +203,8 @@ public class PlayerShooting : MonoBehaviour
 
     void StartReload()
     {
+        if (isReloading) return;
+
         isReloading = true;
         reloadStartTime = Time.time;
         Invoke("FinishReload", characterData.reloadSpeed);

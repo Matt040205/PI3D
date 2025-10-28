@@ -13,7 +13,7 @@ public class Rastros : MonoBehaviour
 
     [Header("Referências da UI (Árvore)")]
     public List<BotaoHabilidade> todosBotoesDaArvore;
-    public Text textoPontosDisponiveis;
+    public TextMeshProUGUI textoPontosDisponiveis;
 
     [Header("Painel de Detalhes da Habilidade")]
     public TextMeshProUGUI textoNomePersonagem;

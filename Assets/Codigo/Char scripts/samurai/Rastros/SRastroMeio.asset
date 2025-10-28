@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SRastroMeio
   m_EditorClassIdentifier: 
   upgradeName: 
-  description: "Aumenta a Taxa Cr\xEDtica em 5%"
+  description: "Aumenta a vida m\xE1xima em 30"
   modifiers:
-  - statToModify: 6
-    modType: 1
-    value: 0.5
+  - statToModify: 0
+    modType: 0
+    value: 30

@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b99c2fcabcc0ff9418ea43cf94220c11, type: 3}
   m_Name: InimigoBase
   m_EditorClassIdentifier: 
-  baseHealth: 100
-  baseDamage: 10
-  moveSpeed: 3
+  enemyType: 0
+  baseHP: 100
+  baseATQ: 10
+  moveSpeed: 5
   attackSpeed: 1
-  healthPerLevel: 10
-  damagePerLevel: 2
+  baseArmor: 0
+  hpPerLevel: 10
+  atqPerLevel: 2
   speedPerLevel: 0.5
-  geoditasOnDeath: 1
+  armorPerLevel: 0.01
+  geoditasOnDeath: 35
   etherDropChance: 0.1

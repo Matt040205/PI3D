@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Legado das Nove Caudas
   m_EditorClassIdentifier: 
   abilityName: Legado das Nove Caudas
-  description: 'Abad
-
+  description: 'Torres ganham +15% de velocidade de ataque.
 
 '
   icon: {fileID: 0}

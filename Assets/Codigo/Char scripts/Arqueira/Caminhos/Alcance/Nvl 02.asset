@@ -13,10 +13,7 @@ MonoBehaviour:
   m_Name: Nvl 02
   m_EditorClassIdentifier: 
   upgradeName: Flechas Perfurantes
-  description: 'Flechas perfuram 1 Inimigo
-
-'
-  icon: {fileID: 0}
+  description: Flechas perfuram 1 Inimigo
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Nvl 03
   m_EditorClassIdentifier: 
   upgradeName: Chuva de Flechas
-  description: "Ao matar inimigo, dispara 3 flechas gr\xE1tis\n"
-  icon: {fileID: 0}
+  description: "Ao matar inimigo, dispara 3 flechas gr\xE1tis"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

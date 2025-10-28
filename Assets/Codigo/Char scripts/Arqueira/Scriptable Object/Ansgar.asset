@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
-  m_Name: CorujaArqueira
+  m_Name: Ansgar
   m_EditorClassIdentifier: 
   maxHealth: 100
-  damage: 10
+  damage: 35
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 1

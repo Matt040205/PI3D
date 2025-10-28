@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ARastroEsquerda
   m_EditorClassIdentifier: 
   upgradeName: 
-  description: "Faz a Gun \n(aumenta o dano em 5%)"
+  description: Aumenta o dano em 5%
   modifiers:
   - statToModify: 1
     modType: 1

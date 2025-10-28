@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
-  m_Name: samurai
+  m_Name: Naoyoshi
   m_EditorClassIdentifier: 
   maxHealth: 100
-  damage: 10
+  damage: 5
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 10
@@ -22,6 +22,7 @@ MonoBehaviour:
   critChance: 0.05
   critDamage: 1.5
   armorPenetration: 0
+  ultimateChargePerDamage: 0.001
   combatType: 0
   fireMode: 1
   meleeAngle: 90

@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: "Dan\xE7a das Nove Caudas"
   m_EditorClassIdentifier: 
   abilityName: "Dan\xE7a das Nove Caudas"
-  description: Abad
+  description: "Ela abandona sua arma, puxa a katana e entra em estado de f\xFAria
+    por 8s. Cortes r\xE1pidos causam dano em \xE1rea, reduzem 40% do tempo de recarga
+    das outras habilidades e concedem imunidade a controles."
   icon: {fileID: 21300000, guid: 971132fec26b925499aa6d3c3865859c, type: 3}
   cooldown: 1
   duration: 8

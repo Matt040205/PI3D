@@ -8,6 +8,7 @@ TagManager:
   - Objective
   - Local
   - Patrol
+  - RespawnPoint
   layers:
   - Default
   - TransparentFX

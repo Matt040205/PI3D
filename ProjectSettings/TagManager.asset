@@ -9,6 +9,7 @@ TagManager:
   - Local
   - Patrol
   - RespawnPoint
+  - Path
   layers:
   - Default
   - TransparentFX

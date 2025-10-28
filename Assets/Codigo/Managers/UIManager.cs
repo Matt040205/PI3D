@@ -19,6 +19,12 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI objectiveHealthText;
     public Image objectiveHealthBar;
 
+    [Header("Abas de Construção")]
+    public Button towerShopButton;
+    public Button trapShopButton;
+    public GameObject towerShopPanel;
+    public GameObject trapShopPanel;
+
     private float gameTime = 0f;
 
     private void Awake()
@@ -39,6 +45,17 @@ public class UIManager : MonoBehaviour
         else
         {
             Debug.LogError("UIManager: A referência do ObjectiveHealthSystem não foi definida no Inspector!");
+        }
+
+        if (towerShopButton != null)
+            towerShopButton.onClick.AddListener(ShowTowerShop);
+
+        if (trapShopButton != null)
+            trapShopButton.onClick.AddListener(ShowTrapShop);
+
+        if (buildPanel != null && buildPanel.activeInHierarchy)
+        {
+            ShowTowerShop();
         }
     }
 
@@ -81,11 +98,16 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateBuildUI(List<CharacterBase> availableTowers)
+    // Esta função recebe a lista de TORRES já filtrada (sem o jogador) do BuildManager
+    public void UpdateBuildUI(List<CharacterBase> towers, List<TrapDataSO> traps)
     {
         if (buildButtonUI != null)
         {
-            buildButtonUI.CreateBuildButtons(availableTowers);
+            buildButtonUI.ClearTowerButtons();
+            buildButtonUI.CreateTowerBuildButtons(towers); // Cria botões só para a lista de torres
+
+            buildButtonUI.ClearTrapButtons();
+            buildButtonUI.CreateTrapBuildButtons(traps); // Cria botões só para a lista de armadilhas
         }
         else
         {
@@ -128,11 +150,30 @@ public class UIManager : MonoBehaviour
         if (show)
         {
             if (hudPanel != null) hudPanel.SetActive(false);
+            ShowTowerShop();
         }
         else
         {
             ShowHUD();
         }
+    }
+
+    public void ShowTowerShop()
+    {
+        if (towerShopPanel != null) towerShopPanel.SetActive(true);
+        if (trapShopPanel != null) trapShopPanel.SetActive(false);
+
+        if (towerShopButton != null) towerShopButton.interactable = false;
+        if (trapShopButton != null) trapShopButton.interactable = true;
+    }
+
+    public void ShowTrapShop()
+    {
+        if (towerShopPanel != null) towerShopPanel.SetActive(false);
+        if (trapShopPanel != null) trapShopPanel.SetActive(true);
+
+        if (towerShopButton != null) towerShopButton.interactable = true;
+        if (trapShopButton != null) trapShopButton.interactable = false;
     }
 
     public void UpdateTimerDisplay(float timeInSeconds)

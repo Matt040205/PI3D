@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using static TrapDataSO;
 
 public class BuildManager : MonoBehaviour
 {
@@ -8,10 +9,15 @@ public class BuildManager : MonoBehaviour
 
     [Header("Câmeras")]
     public CinemachineCamera buildCamera;
-    public GameObject upgradePanel; // NOVO: Objeto de UpgradeBar
+    public GameObject upgradePanel;
 
+    [Header("Listas de Construíveis")]
     private List<CharacterBase> availableTowers = new List<CharacterBase>();
-    private CharacterBase selectedTowerData;
+    public List<TrapDataSO> availableTraps = new List<TrapDataSO>();
+
+    private GameObject selectedBuildablePrefab;
+    private int selectedBuildableCost;
+    private object selectedBuildableData;
 
     [Header("Visual do Ghost")]
     private GameObject currentBuildGhost;
@@ -40,6 +46,8 @@ public class BuildManager : MonoBehaviour
         Cursor.visible = false;
     }
 
+    // ESTA É A CORREÇÃO CRUCIAL (PROBLEMA 1)
+    // O loop 'for (int i = 1; ...)' começa em 1, ignorando o índice 0 (o jogador).
     public void SetAvailableTowers(CharacterBase[] selectedTeam)
     {
         availableTowers.Clear();
@@ -50,17 +58,33 @@ public class BuildManager : MonoBehaviour
                 availableTowers.Add(selectedTeam[i]);
             }
         }
+        UpdateBuildUI();
+    }
+
+    public void UpdateBuildUI()
+    {
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.UpdateBuildUI(availableTowers);
+            UIManager.Instance.UpdateBuildUI(availableTowers, availableTraps);
         }
     }
 
     public void SelectTowerToBuild(CharacterBase towerData)
     {
         ClearSelection();
-        selectedTowerData = towerData;
+        selectedBuildablePrefab = towerData.towerPrefab;
+        selectedBuildableCost = towerData.cost;
+        selectedBuildableData = towerData;
     }
+
+    public void SelectTrapToBuild(TrapDataSO trapData)
+    {
+        ClearSelection();
+        selectedBuildablePrefab = trapData.prefab;
+        selectedBuildableCost = trapData.geoditeCost;
+        selectedBuildableData = trapData;
+    }
+
 
     void Update()
     {
@@ -99,13 +123,13 @@ public class BuildManager : MonoBehaviour
 
     void HandleBuildGhost()
     {
-        if (selectedTowerData == null)
+        if (selectedBuildablePrefab == null)
         {
             if (currentBuildGhost != null) Destroy(currentBuildGhost);
             return;
         }
 
-        GameObject selectedPrefab = selectedTowerData.towerPrefab;
+        GameObject selectedPrefab = selectedBuildablePrefab;
         if (selectedPrefab == null)
         {
             if (currentBuildGhost != null) Destroy(currentBuildGhost);
@@ -115,6 +139,7 @@ public class BuildManager : MonoBehaviour
         if (currentBuildGhost == null)
         {
             currentBuildGhost = Instantiate(selectedPrefab);
+
             var towerController = currentBuildGhost.GetComponentInChildren<TowerController>();
             if (towerController) towerController.enabled = false;
 
@@ -125,19 +150,43 @@ public class BuildManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        bool isOverValidSurface = Physics.Raycast(ray, out hit) && hit.transform.CompareTag("Local");
+        bool isOverValidSurface = false;
 
-        if (isOverValidSurface)
+        if (Physics.Raycast(ray, out hit))
         {
-            float calculatedHeight = CalculateRequiredHeight(hit.point, selectedTowerData.towerPrefab);
-            currentBuildGhost.transform.position = new Vector3(hit.point.x, hit.point.y + calculatedHeight, hit.point.z);
+            if (selectedBuildableData is TrapDataSO trapData)
+            {
+                if (trapData.placementType == TrapPlacementType.OnPath)
+                {
+                    isOverValidSurface = hit.transform.CompareTag("Path");
+                }
+                else
+                {
+                    isOverValidSurface = hit.transform.CompareTag("Local");
+                }
+            }
+            else if (selectedBuildableData is CharacterBase)
+            {
+                isOverValidSurface = hit.transform.CompareTag("Local");
+            }
+
+            if (isOverValidSurface)
+            {
+                float calculatedHeight = CalculateRequiredHeight(hit.point, selectedBuildablePrefab);
+                currentBuildGhost.transform.position = new Vector3(hit.point.x, hit.point.y + calculatedHeight, hit.point.z);
+            }
+            else
+            {
+                currentBuildGhost.transform.position = hit.point + Vector3.up * globalHeightOffset;
+            }
         }
-        else if (Physics.Raycast(ray, out hit))
+        else
         {
-            currentBuildGhost.transform.position = hit.point + Vector3.up * globalHeightOffset;
+            if (currentBuildGhost != null)
+                currentBuildGhost.transform.position = ray.GetPoint(20f);
         }
 
-        int buildingCost = selectedTowerData.cost;
+        int buildingCost = selectedBuildableCost;
         bool hasEnoughCurrency = CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites);
 
         var ghostRenderer = currentBuildGhost.GetComponentInChildren<MeshRenderer>();
@@ -153,7 +202,6 @@ public class BuildManager : MonoBehaviour
         if (col != null)
         {
             float bottomDistance = col.bounds.extents.y;
-
             Ray downRay = new Ray(hitPoint + Vector3.up * 10f, Vector3.down);
             RaycastHit downHit;
 
@@ -162,19 +210,19 @@ public class BuildManager : MonoBehaviour
                 return downHit.point.y - hitPoint.y + bottomDistance + globalHeightOffset;
             }
         }
-
         return globalHeightOffset;
     }
 
     void PlaceBuilding()
     {
-        if (selectedTowerData == null || currentBuildGhost == null) return;
+        if (selectedBuildablePrefab == null || currentBuildGhost == null) return;
 
         var ghostRenderer = currentBuildGhost.GetComponentInChildren<MeshRenderer>();
-        if (ghostRenderer != null && ghostRenderer.material.name.Contains(validPlacementMaterial.name))
+
+        if (ghostRenderer != null && ghostRenderer.material.name.StartsWith(validPlacementMaterial.name))
         {
-            GameObject prefabToBuild = selectedTowerData.towerPrefab;
-            int buildingCost = selectedTowerData.cost;
+            GameObject prefabToBuild = selectedBuildablePrefab;
+            int buildingCost = selectedBuildableCost;
 
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
             {
@@ -197,8 +245,10 @@ public class BuildManager : MonoBehaviour
             Destroy(currentBuildGhost);
         }
         currentBuildGhost = null;
-        selectedTowerData = null;
-        // NOVO: Quando a seleção é limpa, a barra de upgrade também deve ser escondida.
+        selectedBuildablePrefab = null;
+        selectedBuildableCost = 0;
+        selectedBuildableData = null;
+
         TowerSelectionManager.Instance.DeselectTower();
     }
 }

@@ -59,5 +59,58 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 258e8b444f0f8fa42b5098f2b79d18e7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2069723098078814112}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 258e8b444f0f8fa42b5098f2b79d18e7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7214261607959118285}
   m_SourcePrefab: {fileID: 100100000, guid: 258e8b444f0f8fa42b5098f2b79d18e7, type: 3}
+--- !u!1 &6396429960741401630 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 258e8b444f0f8fa42b5098f2b79d18e7, type: 3}
+  m_PrefabInstance: {fileID: 6054464047836105039}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &2069723098078814112
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6396429960741401630}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.015159664, y: 0.021414254, z: 0}
+  m_Center: {x: 4.288166e-17, y: 0.0000000063699073, z: 0.018936988}
+--- !u!65 &7214261607959118285
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6396429960741401630}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.01204229, y: 0.018300034, z: 0.021227138}
+  m_Center: {x: 0.00003760823, y: 0.0000030978792, z: 0.010613564}

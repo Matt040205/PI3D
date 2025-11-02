@@ -20,6 +20,11 @@ public class PlayerMovement : MonoBehaviour
     private float currentSpeed;
     private float rotationVelocity;
 
+    // --- MUDANÇA 1: Variáveis para compartilhar dados entre Update e LateUpdate ---
+    private Vector3 direction;
+    private float targetAngle;
+    // -------------------------------------------------------------------------
+
     // Variáveis da passiva do comandante
     public bool canDoubleJump = false;
     private bool hasDoubleJumped = false;
@@ -41,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // --- ADIÇÃO AQUI ---
         // Se o jogo está pausado ou no modo de construção, a lógica de movimento é ignorada
         if (PauseControl.isPaused || BuildManager.isBuildingMode)
         {
@@ -51,13 +55,7 @@ public class PlayerMovement : MonoBehaviour
         // Lógica de flutuação
         if (isFloating)
         {
-            // Impede a gravidade e o movimento
-            velocity.y = 0;
-            floatDuration -= Time.deltaTime;
-            if (floatDuration <= 0)
-            {
-                isFloating = false;
-            }
+            // ... (código de flutuação) ...
         }
         else
         {
@@ -67,22 +65,45 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // --- MUDANÇA 2: Adicionamos a função LateUpdate() ---
+    private void LateUpdate()
+    {
+        // Não rotacionar se pausado, flutuando, etc.
+        if (PauseControl.isPaused || BuildManager.isBuildingMode || isFloating)
+        {
+            return;
+        }
+
+        // A lógica de rotação foi MOVIDA para cá
+        if (direction.magnitude >= 0.1f)
+        {
+            // Isso roda DEPOIS do Animator, forçando a rotação correta
+            float angle = Mathf.SmoothDampAngle(modelPivot.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
+            modelPivot.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+    }
+    // -----------------------------------------------------------------
+
     private void HandleMovement()
     {
         isGrounded = controller.isGrounded;
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+
+        // --- MUDANÇA 3: Usando a variável de classe (removido "Vector3") ---
+        direction = new Vector3(horizontal, 0f, vertical).normalized;
 
         currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
         if (direction.magnitude >= 0.1f)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraController.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(modelPivot.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
+            // --- MUDANÇA 4: Usando a variável de classe (removido "float") ---
+            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraController.eulerAngles.y;
 
-            modelPivot.rotation = Quaternion.Euler(0f, angle, 0f);
+            // --- MUDANÇA 5: O CÓDIGO DE ROTAÇÃO FOI REMOVIDO DAQUI ---
+            // float angle = ... (REMOVIDO)
+            // modelPivot.rotation = ... (REMOVIDO)
 
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);

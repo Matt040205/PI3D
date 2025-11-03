@@ -24,6 +24,9 @@ public class PlayerShooting : MonoBehaviour
     private ProjectilePool projectilePool;
     private Camera mainCamera;
 
+    // --- ADIÇÃO 1: Referência para o Animator ---
+    private Animator animator;
+
     private bool hasNextShotBonus = false;
     private float nextShotDamageBonus = 1f;
     private float nextShotAreaBonus = 1f;
@@ -38,6 +41,13 @@ public class PlayerShooting : MonoBehaviour
         if (playerMovement != null)
         {
             modelPivot = playerMovement.GetModelPivot();
+
+            // --- ADIÇÃO 2: Pegar o Animator que está no modelo ---
+            if (modelPivot != null)
+            {
+                // Assumindo que o Animator está no "samurai", que é filho do "modelPivot"
+                animator = modelPivot.GetComponentInChildren<Animator>();
+            }
         }
 
         projectilePool = ProjectilePool.Instance;
@@ -106,6 +116,14 @@ public class PlayerShooting : MonoBehaviour
 
     void Shoot()
     {
+        // --- ADIÇÃO 3: Disparar o Trigger "Shoot" ---
+        if (animator != null)
+        {
+            // Isso vai disparar a animação na sua "Shooting Layer"
+            animator.SetTrigger("Shoot");
+        }
+
+        // Você pode deletar isso se o seu firePoint já estiver posicionado
         if (modelPivot != null)
         {
             firePoint.position = modelPivot.position + modelPivot.forward * 0.5f;
@@ -205,9 +223,27 @@ public class PlayerShooting : MonoBehaviour
     {
         if (isReloading) return;
 
+        // --- LÓGICA DO MÉTODO B ---
+
+        // 1. Você precisa saber o tempo original da sua animação
+        // (Infelizmente, você tem que "escrever" ele aqui)
+        float originalAnimationLength = 3.0f; // Ex: sua animação tem 3 segundos
+
+        // 2. Calcule o multiplicador
+        // Se seu script quer 1.5s, o multiplicador é 3.0 / 1.5 = 2 (tocar 2x mais rápido)
+        float multiplier = originalAnimationLength / characterData.reloadSpeed;
+
+        // 3. Envie para o Animator
+        if (animator != null)
+        {
+            animator.SetFloat("ReloadSpeedMultiplier", multiplier);
+            animator.SetTrigger("Reload");
+        }
+        // ----------------------------
+
         isReloading = true;
         reloadStartTime = Time.time;
-        Invoke("FinishReload", characterData.reloadSpeed);
+        Invoke("FinishReload", characterData.reloadSpeed); // O Invoke ainda é necessário aqui
     }
 
     void FinishReload()

@@ -1,13 +1,7 @@
-// Arquivo: BotaoHabilidade.cs (Substitua o seu por este)
-
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic; // Necessário para List
+using System.Collections.Generic;
 
-/// <summary>
-/// Define um par: um ScriptableObject de Personagem e o
-/// ScriptableObject de Upgrade correspondente a ele.
-/// </summary>
 [System.Serializable]
 public struct MapeamentoUpgradePersonagem
 {
@@ -31,11 +25,9 @@ public class BotaoHabilidade : MonoBehaviour
     public int pontosGlobaisNecessarios = 0;
     public int pontosNoCaminhoNecessarios = 0;
 
-    // --- NOVA VARIÁVEL ---
     [Header("Mapeamento de Upgrades")]
     [Tooltip("Adicione um item a esta lista para CADA personagem que usar esta árvore.")]
     public List<MapeamentoUpgradePersonagem> upgradesPorPersonagem;
-    // ---------------------
 
     [Header("Referências")]
     public Rastros managerRastros;
@@ -43,7 +35,7 @@ public class BotaoHabilidade : MonoBehaviour
     public Image iconeHabilidade;
 
     [Header("Cores de Estado")]
-    public Color corBloqueado = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    public Color corBloqueado = new Color(0.5f, 0.5f, 0.5f, 1f);
     public Color corDisponivel = Color.white;
     public Color corDesbloqueado = Color.green;
 
@@ -65,25 +57,16 @@ public class BotaoHabilidade : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    // OnEnable foi removido para impedir que corra antes do Rastros.Awake()
+
+    void OnBotaoClicado()
     {
         if (managerRastros != null)
         {
-            VerificarEstado(managerRastros);
+            managerRastros.SelecionarHabilidade(this);
         }
     }
 
-    // Chamado quando o botão da UI é clicado
-    void OnBotaoClicado()
-    {
-        managerRastros.SelecionarHabilidade(this);
-    }
-
-    // --- ESTA É A FUNÇÃO QUE ESTÁ FALTANDO ---
-    /// <summary>
-    /// Procura na lista 'upgradesPorPersonagem' e retorna o 
-    /// RastroUpgrade correto para o personagem ativo.
-    /// </summary>
     public RastroUpgrade GetUpgradeParaPersonagem(CharacterBase personagemAtivo)
     {
         if (personagemAtivo == null) return null;
@@ -95,21 +78,37 @@ public class BotaoHabilidade : MonoBehaviour
                 return map.upgradeSO;
             }
         }
-
-        // Se não encontrar um mapeamento específico, retorna nulo
         return null;
     }
-    // ------------------------------------
 
-    /// <summary>
-    /// Verifica e atualiza a aparência do botão com base no estado da árvore.
-    /// (Função sem mudanças)
-    /// </summary>
     public void VerificarEstado(Rastros manager)
     {
+        if (meuBotao == null) meuBotao = GetComponent<Button>();
+
+        // --- PROTEÇÃO ADICIONADA ---
+        if (manager == null || manager.habilidadesDesbloqueadas == null || manager.pontosPorCaminho == null)
+        {
+            // Tenta apanhar o manager se a referência se perdeu
+            if (managerRastros == null)
+                managerRastros = FindObjectOfType<Rastros>();
+
+            // Se ainda assim for nulo, sai
+            if (managerRastros == null || managerRastros.habilidadesDesbloqueadas == null)
+            {
+                if (meuBotao != null) meuBotao.interactable = false;
+                return;
+            }
+
+            manager = managerRastros;
+        }
+
+        ColorBlock colors = meuBotao.colors;
+
         if (manager.habilidadesDesbloqueadas.Contains(idHabilidade))
         {
-            if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
+            // --- 1. COMPRADO (Claro / Verde) ---
+            if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
+            colors.disabledColor = corDesbloqueado;
             meuBotao.interactable = false;
         }
         else
@@ -124,21 +123,37 @@ public class BotaoHabilidade : MonoBehaviour
             if (manager.pontosGastosGlobal < pontosGlobaisNecessarios)
                 disponivel = false;
 
-            int pontosAtuaisCaminho = manager.pontosPorCaminho.ContainsKey(idCaminho) ? manager.pontosPorCaminho[idCaminho] : 0;
+            // --- LÓGICA ATUALIZADA ---
+            int pontosAtuaisCaminho = 0;
+            foreach (var caminho in manager.pontosPorCaminho)
+            {
+                if (caminho.idCaminho == idCaminho)
+                {
+                    pontosAtuaisCaminho = caminho.pontosGastos;
+                    break;
+                }
+            }
             if (pontosAtuaisCaminho < pontosNoCaminhoNecessarios)
                 disponivel = false;
 
-
             if (disponivel)
             {
-                if (iconeHabilidade != null) iconeHabilidade.color = corDisponivel;
+                // --- 2. DISPONÍVEL (Escuro, mas clicável e claro no hover) ---
+                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
+                colors.normalColor = corBloqueado;
+                colors.highlightedColor = corDisponivel;
+                colors.pressedColor = new Color(0.9f, 0.9f, 0.9f);
+                colors.selectedColor = corBloqueado;
                 meuBotao.interactable = true;
             }
             else
             {
-                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
+                // --- 3. BLOQUEADO (Escuro) ---
+                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
+                colors.disabledColor = corBloqueado;
                 meuBotao.interactable = false;
             }
         }
+        meuBotao.colors = colors;
     }
 }

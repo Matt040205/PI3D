@@ -12,7 +12,7 @@ public class BuildButtonUI : MonoBehaviour
 
     [Header("Configuração do Prefab")]
     [Tooltip("O nome EXATO do GameObject 'Filho' que contém a imagem do ícone")]
-    public string iconChildObjectName = "Icon"; // Coloque o nome do seu objeto filho aqui
+    public string iconChildObjectName = "Icon";
 
     public void ClearTowerButtons()
     {
@@ -47,11 +47,15 @@ public class BuildButtonUI : MonoBehaviour
             Button button = buttonGO.GetComponent<Button>();
 
             Image iconImage = null;
-            Transform iconTransform = buttonGO.transform.Find(iconChildObjectName);
+            Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
 
-            if (iconTransform != null)
+            foreach (Image img in allImages)
             {
-                iconImage = iconTransform.GetComponent<Image>();
+                if (img.gameObject.name == iconChildObjectName)
+                {
+                    iconImage = img;
+                    break;
+                }
             }
 
             if (iconImage != null && towerData.characterIcon != null)
@@ -86,11 +90,15 @@ public class BuildButtonUI : MonoBehaviour
             Button button = buttonGO.GetComponent<Button>();
 
             Image iconImage = null;
-            Transform iconTransform = buttonGO.transform.Find(iconChildObjectName);
+            Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
 
-            if (iconTransform != null)
+            foreach (Image img in allImages)
             {
-                iconImage = iconTransform.GetComponent<Image>();
+                if (img.gameObject.name == iconChildObjectName)
+                {
+                    iconImage = img;
+                    break;
+                }
             }
 
             if (iconImage != null && trapData.icon != null)

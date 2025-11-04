@@ -196,9 +196,9 @@ public class SelecaoManager : MonoBehaviour
             if (botao != null)
             {
                 bool hasPath = personagemEmVisualizacao != null &&
-                               personagemEmVisualizacao.upgradePaths != null &&
-                               i < personagemEmVisualizacao.upgradePaths.Count &&
-                               personagemEmVisualizacao.upgradePaths[i] != null;
+                       personagemEmVisualizacao.upgradePaths != null &&
+                       i < personagemEmVisualizacao.upgradePaths.Count &&
+                       personagemEmVisualizacao.upgradePaths[i] != null;
 
                 botao.gameObject.SetActive(visivel && hasPath);
             }
@@ -275,12 +275,23 @@ public class SelecaoManager : MonoBehaviour
         {
             GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
             slotsEquipe[slotSendoEditado].SetPersonagem(personagemEmVisualizacao);
-            if (GameDataManager.Instance.equipeSelecionada[0] != null)
-            {
-                botaoJogar.interactable = true;
-            }
+            AtualizarEstadoBotaoJogar();
         }
         VoltarParaPainelEquipe();
+    }
+
+    void AtualizarEstadoBotaoJogar()
+    {
+        if (GameDataManager.Instance != null && botaoJogar != null)
+        {
+            bool podeJogar = GameDataManager.Instance.equipeSelecionada[0] != null &&
+                             GameDataManager.Instance.equipeSelecionada[1] != null;
+            botaoJogar.interactable = podeJogar;
+        }
+        else if (botaoJogar != null)
+        {
+            botaoJogar.interactable = false;
+        }
     }
 
     public void VoltarParaPainelEquipe()

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using static TrapDataSO;
+using UnityEngine.Rendering;
 
 public class BuildManager : MonoBehaviour
 {
@@ -42,12 +43,10 @@ public class BuildManager : MonoBehaviour
     void Start()
     {
         buildCamera.Priority.Value = PriorityInactive;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = false;
     }
 
-    // ESTA É A CORREÇÃO CRUCIAL (PROBLEMA 1)
-    // O loop 'for (int i = 1; ...)' começa em 1, ignorando o índice 0 (o jogador).
     public void SetAvailableTowers(CharacterBase[] selectedTeam)
     {
         availableTowers.Clear();
@@ -117,8 +116,20 @@ public class BuildManager : MonoBehaviour
             UIManager.Instance.ShowBuildUI(state);
         }
 
-        Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = state;
+        UnityEngine.Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = state;
+    }
+
+    private bool IsBuildAllowed(object buildableData)
+    {
+        if (buildableData is TrapDataSO trapData && trapData.logicPrefab != null)
+        {
+            if (trapData.logicPrefab.GetComponent<Teleportador>() != null)
+            {
+                return Teleportador.GetPortalCount() < 2;
+            }
+        }
+        return true;
     }
 
     void HandleBuildGhost()
@@ -156,13 +167,17 @@ public class BuildManager : MonoBehaviour
         {
             if (selectedBuildableData is TrapDataSO trapData)
             {
-                if (trapData.placementType == TrapPlacementType.OnPath)
+                switch (trapData.placementType)
                 {
-                    isOverValidSurface = hit.transform.CompareTag("Path");
-                }
-                else
-                {
-                    isOverValidSurface = hit.transform.CompareTag("Local");
+                    case TrapPlacementType.OnPath:
+                        isOverValidSurface = hit.transform.CompareTag("Path");
+                        break;
+                    case TrapPlacementType.OffPath:
+                        isOverValidSurface = hit.transform.CompareTag("Local");
+                        break;
+                    case TrapPlacementType.QualquerLugar:
+                        isOverValidSurface = true;
+                        break;
                 }
             }
             else if (selectedBuildableData is CharacterBase)
@@ -188,11 +203,12 @@ public class BuildManager : MonoBehaviour
 
         int buildingCost = selectedBuildableCost;
         bool hasEnoughCurrency = CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites);
+        bool isBuildAllowed = IsBuildAllowed(selectedBuildableData);
 
         var ghostRenderer = currentBuildGhost.GetComponentInChildren<MeshRenderer>();
         if (ghostRenderer != null)
         {
-            ghostRenderer.material = (isOverValidSurface && hasEnoughCurrency) ? validPlacementMaterial : invalidPlacementMaterial;
+            ghostRenderer.material = (isOverValidSurface && hasEnoughCurrency && isBuildAllowed) ? validPlacementMaterial : invalidPlacementMaterial;
         }
     }
 
@@ -208,6 +224,7 @@ public class BuildManager : MonoBehaviour
             if (Physics.Raycast(downRay, out downHit, 20f))
             {
                 return downHit.point.y - hitPoint.y + bottomDistance + globalHeightOffset;
+               
             }
         }
         return globalHeightOffset;
@@ -225,13 +242,27 @@ public class BuildManager : MonoBehaviour
             int buildingCost = selectedBuildableCost;
 
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
-            {
+               {
                 Vector3 finalPosition = currentBuildGhost.transform.position;
 
                 finalPosition.x = Mathf.Round(finalPosition.x / gridSize) * gridSize;
                 finalPosition.z = Mathf.Round(finalPosition.z / gridSize) * gridSize;
 
-                Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
+                GameObject newBuildObject = Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
+
+                if (selectedBuildableData is TrapDataSO trapData && trapData.logicPrefab != null)
+                {
+                    var logicComponentOnPrefab = trapData.logicPrefab.GetComponent<MonoBehaviour>();
+                    if (logicComponentOnPrefab != null)
+                    {
+                        newBuildObject.AddComponent(logicComponentOnPrefab.GetType());
+                    }
+                    else
+                    {
+                        Debug.LogError($"[BuildManager] O 'logicPrefab' em {trapData.name} não tem um script (MonoBehaviour) anexado.");
+                    }
+                }
+
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
                 ClearSelection();
             }
@@ -250,5 +281,5 @@ public class BuildManager : MonoBehaviour
         selectedBuildableData = null;
 
         TowerSelectionManager.Instance.DeselectTower();
-    }
+       }
 }

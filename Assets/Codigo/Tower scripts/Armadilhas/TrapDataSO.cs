@@ -1,11 +1,11 @@
 // TrapDataSO.cs
 using UnityEngine;
 
-// Enum para definir onde a armadilha pode ser colocada
 public enum TrapPlacementType
 {
-    OnPath,  // Apenas no caminho dos inimigos
-    OffPath  // Apenas fora do caminho e fora de locais de torre
+    OnPath,  // Apenas no caminho dos inimigos
+    OffPath, // Apenas fora do caminho e fora de locais de torre
+    QualquerLugar // Opção adicionada
 }
 
 [CreateAssetMenu(fileName = "Nova Armadilha", menuName = "ExoBeasts/Armadilha")]
@@ -16,14 +16,18 @@ public class TrapDataSO : ScriptableObject
     [TextArea(3, 5)]
     public string description = "Descrição da armadilha.";
     public Sprite icon;
-    public GameObject prefab; // O prefab da armadilha a ser instanciado
+
+    [Tooltip("O prefab VISUAL da armadilha (modelo 3D, collider, etc.)")]
+    public GameObject prefab;
+
+    [Header("Lógica da Armadilha")]
+    [Tooltip("Prefab que contém o SCRIPT (MonoBehaviour) da lógica desta armadilha.")]
+    public GameObject logicPrefab;
 
     [Header("Posicionamento")]
     public TrapPlacementType placementType = TrapPlacementType.OffPath;
 
     [Header("Custos")]
     public int geoditeCost = 10;
-    public int darkEtherCost = 0; // Se armadilhas usarem Ether
-
-    // Adicione outras propriedades se necessário (dano, efeito, etc.)
+    public int darkEtherCost = 0;
 }

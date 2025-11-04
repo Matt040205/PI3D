@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; // Necessário para usar .ToArray() no Awake
+using System.Linq;
 
 public class EnemyHealthSystem : MonoBehaviour
 {
@@ -10,18 +10,17 @@ public class EnemyHealthSystem : MonoBehaviour
     public Material markedMaterial;
     private Renderer enemyRenderer;
 
-    // --- MODIFICAÇÃO: Armazenar todos os materiais originais ---
     private Material[] originalMaterials;
 
     [Header("Status Atual")]
     public float currentHealth;
     public bool isDead;
 
-    // --- Status de Combate ---
     private float baseArmor;
     private float currentArmorModifier = 0f;
     private int armorShredStacks = 0;
     private float markedDamageMultiplier = 1f;
+    private float vulnerabilityMultiplier = 1f;
 
     private EnemyController enemyController;
     private bool isMarked = false;
@@ -31,7 +30,6 @@ public class EnemyHealthSystem : MonoBehaviour
     void Awake()
     {
         enemyController = GetComponent<EnemyController>();
-        // Tenta encontrar o Renderer no próprio GameObject ou nos filhos
         enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer == null)
         {
@@ -40,8 +38,6 @@ public class EnemyHealthSystem : MonoBehaviour
 
         if (enemyRenderer != null)
         {
-            // --- MUDANÇA PRINCIPAL: CLONA e salva todos os materiais originais ---
-            // Usar .materials (plural) para clonar o array, garantindo que não altere assets originais.
             originalMaterials = enemyRenderer.materials.ToArray();
             Debug.Log($"<color=blue>EnemyHealthSystem:</color> Renderer '{enemyRenderer.gameObject.name}' encontrado. {originalMaterials.Length} materiais originais salvos.");
         }
@@ -64,8 +60,8 @@ public class EnemyHealthSystem : MonoBehaviour
         armorShredStacks = 0;
         isDead = false;
         markedDamageMultiplier = 1f;
+        vulnerabilityMultiplier = 1f;
 
-        // Garante que o inimigo comece com o material original ao ser reutilizado
         if (enemyRenderer != null && originalMaterials != null)
         {
             enemyRenderer.materials = originalMaterials;
@@ -77,7 +73,7 @@ public class EnemyHealthSystem : MonoBehaviour
     {
         if (isDead) return false;
 
-        float damageWithMark = damage * markedDamageMultiplier;
+        float damageWithMark = damage * markedDamageMultiplier * vulnerabilityMultiplier;
 
         float armorToIgnore = baseArmor * armorPenetration;
         float effectiveArmor = Mathf.Max(0, baseArmor - currentArmorModifier - armorToIgnore);
@@ -86,9 +82,9 @@ public class EnemyHealthSystem : MonoBehaviour
 
         float finalDamage = damageWithMark * damageMultiplier;
 
-        if (markedDamageMultiplier > 1f)
+        if (markedDamageMultiplier > 1f || vulnerabilityMultiplier > 1f)
         {
-            Debug.Log($"<color=orange>Dano MARCADO:</color> Dano Base {damage.ToString("F1")}, Multiplicador de Marcação {markedDamageMultiplier.ToString("F2")}, Armadura Efetiva {effectiveArmor.ToString("F1")}. Dano Final: {finalDamage.ToString("F1")}");
+            Debug.Log($"<color=orange>Dano Modificado:</color> Dano Base {damage.ToString("F1")}, Multiplicador (Mark*Vuln) {(markedDamageMultiplier * vulnerabilityMultiplier).ToString("F2")}, Armadura Efetiva {effectiveArmor.ToString("F1")}. Dano Final: {finalDamage.ToString("F1")}");
         }
 
         currentHealth -= finalDamage;
@@ -111,13 +107,22 @@ public class EnemyHealthSystem : MonoBehaviour
         }
     }
 
+    public void AplicarVulnerabilidade(float multiplicador)
+    {
+        vulnerabilityMultiplier = multiplicador;
+    }
+
+    public void RemoverVulnerabilidade()
+    {
+        vulnerabilityMultiplier = 1f;
+    }
+
     public void ApplyMarkedStatus(float multiplier)
     {
         markedDamageMultiplier = multiplier;
 
         if (enemyRenderer != null && markedMaterial != null && !isMarked)
         {
-            // --- MUDANÇA PRINCIPAL: Cria e aplica um novo array com o MarkedMaterial em todas as slots ---
             Material[] markedMaterialsArray = new Material[enemyRenderer.materials.Length];
             for (int i = 0; i < markedMaterialsArray.Length; i++)
             {
@@ -130,7 +135,6 @@ public class EnemyHealthSystem : MonoBehaviour
         }
         else if (isMarked)
         {
-            // Apenas atualiza a lógica
             Debug.Log($"<color=yellow>JÁ MARCADO:</color> {gameObject.name} já estava marcado. Multiplicador atualizado para {multiplier}.");
         }
         else
@@ -145,7 +149,6 @@ public class EnemyHealthSystem : MonoBehaviour
 
         if (enemyRenderer != null && originalMaterials != null && isMarked)
         {
-            // --- MUDANÇA PRINCIPAL: Restaura o array de materiais original ---
             enemyRenderer.materials = originalMaterials;
 
             isMarked = false;

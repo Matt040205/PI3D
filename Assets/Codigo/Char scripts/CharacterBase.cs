@@ -1,6 +1,13 @@
-// CharacterBase.cs
 using System.Collections.Generic;
 using UnityEngine;
+
+// Struct auxiliar para guardar os pontos por caminho
+[System.Serializable]
+public struct CaminhoRastrosData
+{
+    public string idCaminho;
+    public int pontosGastos;
+}
 
 [CreateAssetMenu(fileName = "CharacterData", menuName = "Tower Defense/Character Base")]
 public class CharacterBase : ScriptableObject
@@ -10,26 +17,19 @@ public class CharacterBase : ScriptableObject
     public float damage = 10f;
     public float moveSpeed = 5f;
     public float reloadSpeed = 2f;
-    public float attackSpeed = 1f; // Tiros por segundo
-    public float meleeRange = 2f; // Pode ser usado como Range da torre
+    public float attackSpeed = 1f;
+    public float meleeRange = 2f;
     public float armor = 0f;
 
-    [Tooltip("Chance de causar um acerto crítico, de 0.0 a 1.0 (ex: 0.1 = 10%).")]
     [Range(0f, 1f)]
-    public float critChance = 0.05f; // 5% de chance base
-
-    [Tooltip("Multiplicador de dano em um acerto crítico (ex: 1.5 = 150% do dano normal).")]
-    public float critDamage = 1.5f; // 150% de dano base
-
-    // --- ADIÇÃO AQUI ---
-    [Tooltip("Quanto da armadura do inimigo é ignorada, de 0.0 a 1.0 (ex: 0.5 = 50%).")]
+    public float critChance = 0.05f;
+    public float critDamage = 1.5f;
     [Range(0f, 1f)]
-    public float armorPenetration = 0f; // Começa com 0%
+    public float armorPenetration = 0f;
 
-    [Header("Ultimate Settings")] // <<< NOVO HEADER ADICIONADO AQUI
-    [Tooltip("A quantidade de carga da Ultimate (em percentual de 0.0 a 1.0) ganha por 1 ponto de dano causado.")]
+    [Header("Ultimate Settings")]
     [Range(0f, 0.1f)]
-    public float ultimateChargePerDamage = 0.001f; // Exemplo: 0.001f = 0.1% de carga por 1 de dano
+    public float ultimateChargePerDamage = 0.001f;
 
     [Header("Combat Settings")]
     public CombatType combatType = CombatType.Ranged;
@@ -50,11 +50,26 @@ public class CharacterBase : ScriptableObject
     public Ability ultimate;
 
     [Header("Tower Upgrades")]
-    [Tooltip("A lista de caminhos de upgrade disponíveis quando este personagem é uma torre.")]
     public List<UpgradePath> upgradePaths;
 
     [Header("Tower Specifics (Placeholder)")]
     public int cost = 50;
+
+    // --- CORREÇÃO DE SERIALIZAÇÃO ---
+    [Header("Rastros Progress")]
+    public int pontosRastrosDisponiveis = 10;
+    public int pontosRastrosGastos = 0;
+    // Tem de ser List<T> para o Unity guardar
+    public List<CaminhoRastrosData> pontosPorCaminho = new List<CaminhoRastrosData>();
+    public List<string> habilidadesDesbloqueadas = new List<string>();
+
+    public void ResetarRastros()
+    {
+        pontosRastrosDisponiveis = 10;
+        pontosRastrosGastos = 0;
+        pontosPorCaminho.Clear();
+        habilidadesDesbloqueadas.Clear();
+    }
 }
 
 public enum CombatType { Ranged, Melee }

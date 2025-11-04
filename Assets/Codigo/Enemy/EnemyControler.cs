@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
-// O enum não precisa de mudanças
 public enum AITargetPriority
 {
     Player,
@@ -24,17 +23,15 @@ public class EnemyController : MonoBehaviour
     public AITargetPriority mainPriority = AITargetPriority.Objective;
     public float selfDefenseRadius = 5f;
 
-    // Componentes
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
     private Rigidbody rb;
-    // REMOVIDO: private PlayerHealthSystem playerHealthSystem; (Não é mais necessário)
 
-    // Status calculados
     private float currentDamage;
     private float currentMoveSpeed;
+    private float originalMoveSpeed;
+    private bool isSlowed = false;
 
-    // Variáveis de comportamento
     private int currentPointIndex = 0;
     private Transform target;
 
@@ -42,12 +39,8 @@ public class EnemyController : MonoBehaviour
     public float chaseDistance = 50f;
     public float attackDistance = 2f;
 
-    // Referência para o jogador (agora privada e preenchida externamente)
     private Transform playerTransform;
 
-    // REMOVIDO: Variaveis para o ataque no player (isAttackingPlayer, timeSinceLastAttack)
-
-    // Propriedades
     public bool IsDead { get { return healthSystem.isDead; } }
     public Transform Target { get { return target; } }
 
@@ -80,7 +73,10 @@ public class EnemyController : MonoBehaviour
         }
 
         currentDamage = enemyData.GetDamage(nivel);
-        currentMoveSpeed = enemyData.GetMoveSpeed(nivel);
+        originalMoveSpeed = enemyData.GetMoveSpeed(nivel);
+        currentMoveSpeed = originalMoveSpeed;
+        isSlowed = false;
+
         healthSystem.enemyData = this.enemyData;
         healthSystem.InitializeHealth(nivel);
         currentPointIndex = 0;
@@ -91,7 +87,6 @@ public class EnemyController : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
-        // NOVO: Inicializa o Combat System com os dados
         if (combatSystem != null)
         {
             combatSystem.InitializeCombat(enemyData, nivel);
@@ -112,8 +107,24 @@ public class EnemyController : MonoBehaviour
         {
             Patrol();
         }
+    }
 
-        // REMOVIDO: A lógica de ataque isAttackingPlayer/timeSinceLastAttack foi removida daqui.
+    public void AplicarDesaceleracao(float percentual)
+    {
+        if (!isSlowed)
+        {
+            currentMoveSpeed = originalMoveSpeed * (1f - percentual);
+            isSlowed = true;
+        }
+    }
+
+    public void RemoverDesaceleracao()
+    {
+        if (isSlowed)
+        {
+            currentMoveSpeed = originalMoveSpeed;
+            isSlowed = false;
+        }
     }
 
     private void DecideTarget()
@@ -148,12 +159,10 @@ public class EnemyController : MonoBehaviour
         MoveTowardsPosition(currentDestination.position);
     }
 
-    // USANDO OnTriggerEnter para os pontos de patrulha
     void OnTriggerEnter(Collider other)
     {
         if (patrolPoints != null && currentPointIndex < patrolPoints.Count)
         {
-            // Verifica se o objeto que colidiu é o ponto de patrulha atual na sequência
             if (other.transform == patrolPoints[currentPointIndex])
             {
                 Debug.Log("Inimigo chegou ao ponto de patrulha: " + other.gameObject.name + ". Avançando para o próximo.");
@@ -161,10 +170,6 @@ public class EnemyController : MonoBehaviour
             }
         }
     }
-
-    // REMOVIDO: OnCollisionStay(Collision collision) (Ataque anterior removido)
-    // REMOVIDO: OnCollisionExit(Collision collision) (Ataque anterior removido)
-    // REMOVIDO: private void AttackPlayer() (Ataque anterior removido)
 
     private void AttackObjectiveAndDie()
     {
@@ -183,13 +188,11 @@ public class EnemyController : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         if (distanceToTarget <= attackDistance)
         {
-            // Inimigo para de se mover quando entra no alcance de ataque
             if (rb != null)
             {
                 rb.linearVelocity = Vector3.zero;
             }
 
-            // Rotaciona para o alvo
             Vector3 direction = (target.position - transform.position).normalized;
             direction.y = 0;
             if (direction != Vector3.zero)
@@ -197,8 +200,6 @@ public class EnemyController : MonoBehaviour
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
             }
-
-            // REMOVIDO: Não há mais chamada direta ao combatSystem. O ataque é automático por área no CombatSystem.
         }
         else
         {

@@ -2,15 +2,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class Rastros : MonoBehaviour
 {
-    [Header("Pontos do Jogador")]
-    public int pontosDisponiveis = 10;
-    public int pontosGastosGlobal = 0;
-    public Dictionary<string, int> pontosPorCaminho = new Dictionary<string, int>();
-    public HashSet<string> habilidadesDesbloqueadas = new HashSet<string>();
-
     [Header("Referências da UI (Árvore)")]
     public List<BotaoHabilidade> todosBotoesDaArvore;
     public TextMeshProUGUI textoPontosDisponiveis;
@@ -25,35 +20,47 @@ public class Rastros : MonoBehaviour
     [Tooltip("Arraste o ScriptableObject 'Banco de Icones de Status' aqui.")]
     public StatIconDatabase iconDatabase;
 
+    [Header("Debug")]
+    [Tooltip("Personagem para testar a cena sem vir da Seleção")]
+    public CharacterBase personagemParaDebug;
+
     private CharacterBase personagemSendoUprado;
     private BotaoHabilidade habilidadeSelecionada;
 
-    void Start()
+    // As propriedades agora lêem os dados corretos do ScriptableObject
+    public int pontosDisponiveis => personagemSendoUprado?.pontosRastrosDisponiveis ?? 0;
+    public int pontosGastosGlobal => personagemSendoUprado?.pontosRastrosGastos ?? 0;
+    // Estas são as únicas que precisam de ser públicas para o BotaoHabilidade
+    public List<CaminhoRastrosData> pontosPorCaminho => personagemSendoUprado?.pontosPorCaminho;
+    public List<string> habilidadesDesbloqueadas => personagemSendoUprado?.habilidadesDesbloqueadas;
+
+
+    void Awake()
     {
         if (GameDataManager.Instance != null && GameDataManager.Instance.personagemParaRastros != null)
         {
             personagemSendoUprado = GameDataManager.Instance.personagemParaRastros;
-            Debug.Log("Configurando Rastros para: " + personagemSendoUprado.name);
-            if (textoNomePersonagem != null)
-            {
-                textoNomePersonagem.text = personagemSendoUprado.name;
-            }
+        }
+        else if (personagemParaDebug != null)
+        {
+            Debug.LogWarning("Rastros: GameDataManager vazio. Usando personagem de DEBUG.");
+            personagemSendoUprado = personagemParaDebug;
         }
         else
         {
-            Debug.LogError("Personagem para Rastros não encontrado no GameDataManager!");
-            if (textoNomePersonagem != null)
-            {
-                textoNomePersonagem.text = "Personagem Desconhecido";
-            }
+            Debug.LogError("Personagem para Rastros não encontrado E personagem de DEBUG não definido! A cena não pode funcionar.");
+            if (textoNomePersonagem != null) textoNomePersonagem.text = "ERRO";
+            if (textoPontosDisponiveis != null) textoPontosDisponiveis.text = "Pontos: -";
             return;
         }
 
+        if (textoNomePersonagem != null)
+        {
+            textoNomePersonagem.text = personagemSendoUprado.name;
+        }
+
         InicializarCaminhos();
-
         AtualizarIconesBotoes();
-
-        ReaplicarUpgradesSalvos();
 
         if (painelDescricao != null)
         {
@@ -65,17 +72,62 @@ public class Rastros : MonoBehaviour
             botaoConfirmarCompra.onClick.AddListener(ConfirmarCompraHabilidade);
         }
 
-        AtualizarUI();
+        AtualizarUI(); // Atualiza os pontos imediatamente
+    }
+
+    void Start()
+    {
+        // Se o personagem não foi carregado no Awake, não faça nada.
+        if (personagemSendoUprado == null) return;
+
+        // Atualiza os botões SÓ DEPOIS que eles correram o Start() deles
         AtualizarEstadoBotoes();
     }
 
-    void InicializarCaminhos()
+    // --- FUNÇÕES HELPER PARA LIDAR COM A NOVA LISTA ---
+    private int GetPontosNoCaminho(string idCaminho)
     {
-        if (!pontosPorCaminho.ContainsKey("Central")) pontosPorCaminho.Add("Central", 0);
-        if (!pontosPorCaminho.ContainsKey("Caminho1")) pontosPorCaminho.Add("Caminho1", 0);
-        if (!pontosPorCaminho.ContainsKey("Caminho2")) pontosPorCaminho.Add("Caminho2", 0);
-        if (!pontosPorCaminho.ContainsKey("Caminho3")) pontosPorCaminho.Add("Caminho3", 0);
-        if (!pontosPorCaminho.ContainsKey("Caminho4")) pontosPorCaminho.Add("Caminho4", 0);
+        if (pontosPorCaminho == null) return 0;
+        foreach (var caminho in pontosPorCaminho)
+        {
+            if (caminho.idCaminho == idCaminho)
+            {
+                return caminho.pontosGastos;
+            }
+        }
+        return 0;
+    }
+
+    private void AddPontoNoCaminho(string idCaminho)
+    {
+        if (pontosPorCaminho == null) return;
+        for (int i = 0; i < pontosPorCaminho.Count; i++)
+        {
+            if (pontosPorCaminho[i].idCaminho == idCaminho)
+            {
+                // Como struct, temos de criar uma nova cópia e reatribuir
+                var data = pontosPorCaminho[i];
+                data.pontosGastos++;
+                pontosPorCaminho[i] = data;
+                return;
+            }
+        }
+        // Se não encontrou, adiciona um novo
+        pontosPorCaminho.Add(new CaminhoRastrosData { idCaminho = idCaminho, pontosGastos = 1 });
+    }
+    // --------------------------------------------------
+
+    void InicializarCaminhos()
+    {
+        // Esta função agora apenas garante que a lista existe
+        if (personagemSendoUprado != null && personagemSendoUprado.pontosPorCaminho == null)
+        {
+            personagemSendoUprado.pontosPorCaminho = new List<CaminhoRastrosData>();
+        }
+        if (personagemSendoUprado != null && personagemSendoUprado.habilidadesDesbloqueadas == null)
+        {
+            personagemSendoUprado.habilidadesDesbloqueadas = new List<string>();
+        }
     }
 
     void AtualizarIconesBotoes()
@@ -89,21 +141,18 @@ public class Rastros : MonoBehaviour
         foreach (var botao in todosBotoesDaArvore)
         {
             if (botao == null || botao.iconeHabilidade == null) continue;
-
             RastroUpgrade upgrade = botao.GetUpgradeParaPersonagem(personagemSendoUprado);
-
             if (upgrade != null && upgrade.modifiers.Count > 0)
             {
                 CharacterStatType statPrincipal = upgrade.modifiers[0].statToModify;
                 Sprite icon = iconDatabase.GetIconForStat(statPrincipal);
-
                 if (icon != null)
                 {
                     botao.iconeHabilidade.sprite = icon;
                 }
                 else
                 {
-                    Debug.LogWarning($"Ícone para o status {statPrincipal} não encontrado no Database (Botão: {botao.idHabilidade}).");
+                    Debug.LogWarning($"Ícone para o status {statPrincipal} não encontrado (Botão: {botao.idHabilidade}).");
                 }
             }
             else
@@ -117,7 +166,7 @@ public class Rastros : MonoBehaviour
     {
         habilidadeSelecionada = botao;
 
-        if (habilidadeSelecionada == null || habilidadesDesbloqueadas.Contains(habilidadeSelecionada.idHabilidade))
+        if (habilidadeSelecionada == null || personagemSendoUprado.habilidadesDesbloqueadas.Contains(habilidadeSelecionada.idHabilidade))
         {
             if (painelDescricao != null) painelDescricao.SetActive(false);
             habilidadeSelecionada = null;
@@ -138,28 +187,27 @@ public class Rastros : MonoBehaviour
         }
 
         bool podeComprar = ChecarCondicoes(habilidadeSelecionada);
-
         botaoConfirmarCompra.interactable = podeComprar && (upgradeCorreto != null);
     }
 
     public void ConfirmarCompraHabilidade()
     {
         if (habilidadeSelecionada == null) return;
-
         bool sucesso = TentarDesbloquear(habilidadeSelecionada);
-
         if (painelDescricao != null) painelDescricao.SetActive(false);
         habilidadeSelecionada = null;
     }
 
     private bool ChecarCondicoes(BotaoHabilidade botao)
     {
-        if (botao == null) return false;
-        if (habilidadesDesbloqueadas.Contains(botao.idHabilidade)) return false;
-        if (pontosDisponiveis < botao.custo) return false;
-        if (!string.IsNullOrEmpty(botao.preRequisitoHabilidade) && !habilidadesDesbloqueadas.Contains(botao.preRequisitoHabilidade)) return false;
-        if (pontosGastosGlobal < botao.pontosGlobaisNecessarios) return false;
-        int pontosAtuaisNesteCaminho = pontosPorCaminho.ContainsKey(botao.idCaminho) ? pontosPorCaminho[botao.idCaminho] : 0;
+        if (botao == null || personagemSendoUprado == null) return false;
+        if (personagemSendoUprado.habilidadesDesbloqueadas.Contains(botao.idHabilidade)) return false;
+        if (personagemSendoUprado.pontosRastrosDisponiveis < botao.custo) return false;
+        if (!string.IsNullOrEmpty(botao.preRequisitoHabilidade) && !personagemSendoUprado.habilidadesDesbloqueadas.Contains(botao.preRequisitoHabilidade)) return false;
+        if (personagemSendoUprado.pontosRastrosGastos < botao.pontosGlobaisNecessarios) return false;
+
+        // --- LÓGICA ATUALIZADA ---
+        int pontosAtuaisNesteCaminho = GetPontosNoCaminho(botao.idCaminho);
         if (pontosAtuaisNesteCaminho < botao.pontosNoCaminhoNecessarios) return false;
 
         return true;
@@ -180,10 +228,11 @@ public class Rastros : MonoBehaviour
             return false;
         }
 
-        pontosDisponiveis -= botao.custo;
-        pontosGastosGlobal += 1;
-        pontosPorCaminho[botao.idCaminho] = pontosPorCaminho[botao.idCaminho] + 1;
-        habilidadesDesbloqueadas.Add(botao.idHabilidade);
+        personagemSendoUprado.pontosRastrosDisponiveis -= botao.custo;
+        personagemSendoUprado.pontosRastrosGastos += 1;
+        // --- LÓGICA ATUALIZADA ---
+        AddPontoNoCaminho(botao.idCaminho);
+        personagemSendoUprado.habilidadesDesbloqueadas.Add(botao.idHabilidade);
 
         AplicarUpgrade(upgradeCorreto);
         Debug.Log("Upgrade " + upgradeCorreto.upgradeName + " aplicado!");
@@ -196,7 +245,6 @@ public class Rastros : MonoBehaviour
     private void AplicarUpgrade(RastroUpgrade upgrade)
     {
         if (personagemSendoUprado == null || upgrade == null) return;
-
         foreach (var modifier in upgrade.modifiers)
         {
             switch (modifier.statToModify)
@@ -207,14 +255,12 @@ public class Rastros : MonoBehaviour
                     else
                         personagemSendoUprado.maxHealth *= (1 + modifier.value);
                     break;
-
                 case CharacterStatType.Damage:
                     if (modifier.modType == ModificationType.Additive)
                         personagemSendoUprado.damage += modifier.value;
                     else
                         personagemSendoUprado.damage *= (1 + modifier.value);
                     break;
-
                 case CharacterStatType.MoveSpeed:
                     if (modifier.modType == ModificationType.Additive)
                         personagemSendoUprado.moveSpeed += modifier.value;
@@ -225,28 +271,11 @@ public class Rastros : MonoBehaviour
         }
     }
 
-    private void ReaplicarUpgradesSalvos()
-    {
-        Debug.Log("Reaplicando " + habilidadesDesbloqueadas.Count + " upgrades salvos...");
-        foreach (var botao in todosBotoesDaArvore)
-        {
-            if (botao != null && habilidadesDesbloqueadas.Contains(botao.idHabilidade))
-            {
-                RastroUpgrade upgradeCorreto = botao.GetUpgradeParaPersonagem(personagemSendoUprado);
-
-                if (upgradeCorreto != null)
-                {
-                    AplicarUpgrade(upgradeCorreto);
-                }
-            }
-        }
-    }
-
     public void AtualizarUI()
     {
         if (textoPontosDisponiveis != null)
         {
-            textoPontosDisponiveis.text = "Pontos: " + pontosDisponiveis;
+            textoPontosDisponiveis.text = "Pontos: " + (personagemSendoUprado?.pontosRastrosDisponiveis ?? 0);
         }
     }
 

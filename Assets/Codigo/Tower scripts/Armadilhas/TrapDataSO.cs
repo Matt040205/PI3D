@@ -1,11 +1,10 @@
-// TrapDataSO.cs
 using UnityEngine;
 
 public enum TrapPlacementType
 {
-    OnPath,  // Apenas no caminho dos inimigos
-    OffPath, // Apenas fora do caminho e fora de locais de torre
-    QualquerLugar // Opção adicionada
+    OnPath,
+    OffPath,
+    QualquerLugar
 }
 
 [CreateAssetMenu(fileName = "Nova Armadilha", menuName = "ExoBeasts/Armadilha")]
@@ -30,4 +29,8 @@ public class TrapDataSO : ScriptableObject
     [Header("Custos")]
     public int geoditeCost = 10;
     public int darkEtherCost = 0;
+
+    [Header("Limites")]
+    [Tooltip("Limite máximo de armadilhas deste tipo no mapa. 0 = Ilimitado.")]
+    public int buildLimit = 0;
 }

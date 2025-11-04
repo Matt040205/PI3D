@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff799e7fdfa0466438566604962b6289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trapData: {fileID: 11400000, guid: a1774902a14055740bc45ccf9e46bfde, type: 2}
   geodidasPorCiclo: 15
   tempoPorCiclo: 20

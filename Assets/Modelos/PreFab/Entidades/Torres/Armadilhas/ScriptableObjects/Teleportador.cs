@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(BoxCollider))]
-public class Teleportador : MonoBehaviour
+public class Teleportador : TrapLogicBase
 {
     private static List<Teleportador> portais = new List<Teleportador>();
     private const int MAX_PORTAIS = 2;

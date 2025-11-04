@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using static TrapDataSO;
-using UnityEngine.Rendering;
+using UnityEngine.EventSystems;
 
 public class BuildManager : MonoBehaviour
 {
@@ -15,6 +15,7 @@ public class BuildManager : MonoBehaviour
     [Header("Listas de Construíveis")]
     private List<CharacterBase> availableTowers = new List<CharacterBase>();
     public List<TrapDataSO> availableTraps = new List<TrapDataSO>();
+    private Dictionary<TrapDataSO, int> activeTrapCounts = new Dictionary<TrapDataSO, int>();
 
     private GameObject selectedBuildablePrefab;
     private int selectedBuildableCost;
@@ -45,6 +46,32 @@ public class BuildManager : MonoBehaviour
         buildCamera.Priority.Value = PriorityInactive;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         UnityEngine.Cursor.visible = false;
+    }
+
+    public int GetTrapCount(TrapDataSO trapData)
+    {
+        if (activeTrapCounts.ContainsKey(trapData))
+        {
+            return activeTrapCounts[trapData];
+        }
+        return 0;
+    }
+
+    public void RegisterTrap(TrapDataSO trapData)
+    {
+        int count = GetTrapCount(trapData);
+        activeTrapCounts[trapData] = count + 1;
+        UpdateBuildUI();
+    }
+
+    public void DeregisterTrap(TrapDataSO trapData)
+    {
+        int count = GetTrapCount(trapData);
+        if (count > 0)
+        {
+            activeTrapCounts[trapData] = count - 1;
+        }
+        UpdateBuildUI();
     }
 
     public void SetAvailableTowers(CharacterBase[] selectedTeam)
@@ -96,9 +123,19 @@ public class BuildManager : MonoBehaviour
         if (isBuildingMode)
         {
             HandleBuildGhost();
+
             if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
                 PlaceBuilding();
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                ClearSelection();
             }
         }
     }
@@ -118,18 +155,6 @@ public class BuildManager : MonoBehaviour
 
         UnityEngine.Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = state;
-    }
-
-    private bool IsBuildAllowed(object buildableData)
-    {
-        if (buildableData is TrapDataSO trapData && trapData.logicPrefab != null)
-        {
-            if (trapData.logicPrefab.GetComponent<Teleportador>() != null)
-            {
-                return Teleportador.GetPortalCount() < 2;
-            }
-        }
-        return true;
     }
 
     void HandleBuildGhost()
@@ -212,6 +237,25 @@ public class BuildManager : MonoBehaviour
         }
     }
 
+    private bool IsBuildAllowed(object buildableData)
+    {
+        if (buildableData is TrapDataSO trapData)
+        {
+            if (trapData.logicPrefab != null && trapData.logicPrefab.GetComponent<Teleportador>() != null)
+            {
+                if (Teleportador.GetPortalCount() >= 2)
+                    return false;
+            }
+
+            if (trapData.buildLimit > 0)
+            {
+                if (GetTrapCount(trapData) >= trapData.buildLimit)
+                    return false;
+            }
+        }
+        return true;
+    }
+
     private float CalculateRequiredHeight(Vector3 hitPoint, GameObject prefab)
     {
         Collider col = prefab.GetComponentInChildren<Collider>();
@@ -224,7 +268,6 @@ public class BuildManager : MonoBehaviour
             if (Physics.Raycast(downRay, out downHit, 20f))
             {
                 return downHit.point.y - hitPoint.y + bottomDistance + globalHeightOffset;
-               
             }
         }
         return globalHeightOffset;
@@ -242,7 +285,7 @@ public class BuildManager : MonoBehaviour
             int buildingCost = selectedBuildableCost;
 
             if (CurrencyManager.Instance.HasEnoughCurrency(buildingCost, CurrencyType.Geodites))
-               {
+            {
                 Vector3 finalPosition = currentBuildGhost.transform.position;
 
                 finalPosition.x = Mathf.Round(finalPosition.x / gridSize) * gridSize;
@@ -250,12 +293,25 @@ public class BuildManager : MonoBehaviour
 
                 GameObject newBuildObject = Instantiate(prefabToBuild, finalPosition, Quaternion.identity);
 
+                TrapDataSO placedTrapData = null;
+
                 if (selectedBuildableData is TrapDataSO trapData && trapData.logicPrefab != null)
                 {
+                    placedTrapData = trapData;
                     var logicComponentOnPrefab = trapData.logicPrefab.GetComponent<MonoBehaviour>();
                     if (logicComponentOnPrefab != null)
                     {
-                        newBuildObject.AddComponent(logicComponentOnPrefab.GetType());
+                        var newComponent = newBuildObject.AddComponent(logicComponentOnPrefab.GetType());
+
+                        TrapLogicBase trapLogic = newComponent as TrapLogicBase;
+                        if (trapLogic != null)
+                        {
+                            trapLogic.trapData = trapData;
+                        }
+                        else
+                        {
+                            Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
+                        }
                     }
                     else
                     {
@@ -264,12 +320,18 @@ public class BuildManager : MonoBehaviour
                 }
 
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
+
+                if (placedTrapData != null)
+                {
+                    RegisterTrap(placedTrapData);
+                }
+
                 ClearSelection();
             }
         }
     }
 
-    void ClearSelection()
+    public void ClearSelection()
     {
         if (currentBuildGhost != null)
         {
@@ -279,7 +341,5 @@ public class BuildManager : MonoBehaviour
         selectedBuildablePrefab = null;
         selectedBuildableCost = 0;
         selectedBuildableData = null;
-
-        TowerSelectionManager.Instance.DeselectTower();
-       }
+    }
 }

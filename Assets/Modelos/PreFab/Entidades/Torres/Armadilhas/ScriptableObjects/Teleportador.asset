@@ -21,3 +21,4 @@ MonoBehaviour:
   placementType: 2
   geoditeCost: 340
   darkEtherCost: 0
+  buildLimit: 2

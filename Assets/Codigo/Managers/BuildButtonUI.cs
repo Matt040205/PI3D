@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unity.VisualScripting.Member;
 
 public class BuildButtonUI : MonoBehaviour
 {
@@ -43,8 +44,13 @@ public class BuildButtonUI : MonoBehaviour
         {
             if (towerData == null) continue;
             GameObject buttonGO = Instantiate(buildButtonPrefab, towerButtonContainer);
-
             Button button = buttonGO.GetComponent<Button>();
+
+            BuildTooltipTrigger tooltipTrigger = buttonGO.GetComponent<BuildTooltipTrigger>();
+            if (tooltipTrigger != null)
+            {
+                tooltipTrigger.SetBuildInfo(towerData.name, towerData.description);
+            }
 
             Image iconImage = null;
             Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
@@ -86,8 +92,22 @@ public class BuildButtonUI : MonoBehaviour
         {
             if (trapData == null) continue;
             GameObject buttonGO = Instantiate(buildButtonPrefab, trapButtonContainer);
-
             Button button = buttonGO.GetComponent<Button>();
+
+            BuildTooltipTrigger tooltipTrigger = buttonGO.GetComponent<BuildTooltipTrigger>();
+            if (tooltipTrigger != null)
+            {
+                tooltipTrigger.SetBuildInfo(trapData.trapName, trapData.description);
+            }
+
+            if (trapData.buildLimit > 0 && BuildManager.Instance != null)
+            {
+                int currentCount = BuildManager.Instance.GetTrapCount(trapData);
+                if (currentCount >= trapData.buildLimit)
+                {
+                    button.interactable = false;
+                }
+            }
 
             Image iconImage = null;
             Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
@@ -106,12 +126,13 @@ public class BuildButtonUI : MonoBehaviour
                 iconImage.sprite = trapData.icon;
                 iconImage.enabled = true;
             }
-            else
+
+      else
             {
                 Debug.LogWarning($"Não foi possível encontrar o 'Image' no objeto filho chamado '{iconChildObjectName}' no prefab {buttonGO.name}", buttonGO);
             }
 
-            if (button != null)
+            if (button != null && button.interactable)
             {
                 button.onClick.AddListener(() => {
                     BuildManager.Instance.SelectTrapToBuild(trapData);

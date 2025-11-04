@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Piche : MonoBehaviour
+public class Piche : TrapLogicBase
 {
     public float percentualDesaceleracao = 0.5f;
     public float multiplicadorDanoVulneravel = 1.5f;

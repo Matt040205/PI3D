@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(SphereCollider))]
-public class Fogueira : MonoBehaviour
+public class Fogueira : TrapLogicBase
 {
     public float curaPorSegundo = 5f;
     public float taxaDeCura = 1.0f;

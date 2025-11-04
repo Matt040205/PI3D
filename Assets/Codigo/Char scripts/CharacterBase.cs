@@ -12,15 +12,20 @@ public struct CaminhoRastrosData
 [CreateAssetMenu(fileName = "CharacterData", menuName = "Tower Defense/Character Base")]
 public class CharacterBase : ScriptableObject
 {
-    [Header("Basic Stats")]
+    [Header("Basic Info")]
+    public new string name; // "new" esconde o 'name' padrão do ScriptableObject
+    [TextArea(3, 5)]
+    public string description = "Descrição do personagem ou torre."; // <-- CAMPO ADICIONADO
+
+    [Header("Basic Stats")]
     public float maxHealth = 100f;
+    // ... (o resto das suas variáveis de stats)
     public float damage = 10f;
     public float moveSpeed = 5f;
     public float reloadSpeed = 2f;
     public float attackSpeed = 1f;
     public float meleeRange = 2f;
     public float armor = 0f;
-
     [Range(0f, 1f)]
     public float critChance = 0.05f;
     public float critDamage = 1.5f;
@@ -55,12 +60,10 @@ public class CharacterBase : ScriptableObject
     [Header("Tower Specifics (Placeholder)")]
     public int cost = 50;
 
-    // --- CORREÇÃO DE SERIALIZAÇÃO ---
-    [Header("Rastros Progress")]
+    [Header("Rastros Progress")]
     public int pontosRastrosDisponiveis = 10;
     public int pontosRastrosGastos = 0;
-    // Tem de ser List<T> para o Unity guardar
-    public List<CaminhoRastrosData> pontosPorCaminho = new List<CaminhoRastrosData>();
+    public List<CaminhoRastrosData> pontosPorCaminho = new List<CaminhoRastrosData>();
     public List<string> habilidadesDesbloqueadas = new List<string>();
 
     public void ResetarRastros()

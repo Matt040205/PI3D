@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
   m_Name: Ansgar
   m_EditorClassIdentifier: 
+  name: Ansgar
+  description: 'Uma torre focada em alcance e perita em acertar inimigos voadores
+
+'
   maxHealth: 100
   damage: 35
   moveSpeed: 5
@@ -40,3 +44,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e3b5fca90f9ede7468360d926aa3e19d, type: 2}
   - {fileID: 11400000, guid: 2fc44f5f36e25f944888dfed422ae759, type: 2}
   cost: 50
+  pontosRastrosDisponiveis: 10
+  pontosRastrosGastos: 0
+  pontosPorCaminho: []
+  habilidadesDesbloqueadas: []

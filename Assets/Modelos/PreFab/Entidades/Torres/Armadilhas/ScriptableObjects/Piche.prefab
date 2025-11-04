@@ -44,3 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e587c4504c828024db4ae3a766be3169, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trapData: {fileID: 11400000, guid: 8b47951347b78bb4ba54e9eb8db3292b, type: 2}
+  percentualDesaceleracao: 0.5
+  multiplicadorDanoVulneravel: 1.5
+  duracaoVulneravelAposSair: 3

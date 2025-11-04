@@ -12,12 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
   m_Name: PH
   m_EditorClassIdentifier: 
+  name: PH
+  description: 'Nada
+
+'
   maxHealth: 100
   damage: 10
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 1
   meleeRange: 1000
+  armor: 0
+  critChance: 0.05
+  critDamage: 1.5
+  armorPenetration: 0
+  ultimateChargePerDamage: 0.001
   combatType: 0
   fireMode: 0
   meleeAngle: 90
@@ -32,3 +41,7 @@ MonoBehaviour:
   ultimate: {fileID: 0}
   upgradePaths: []
   cost: 50
+  pontosRastrosDisponiveis: 10
+  pontosRastrosGastos: 0
+  pontosPorCaminho: []
+  habilidadesDesbloqueadas: []

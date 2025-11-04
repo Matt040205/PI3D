@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(BoxCollider))]
-public class Espinhos : MonoBehaviour
+public class Espinhos : TrapLogicBase
 {
     public float dano = 25f;
     public float tempoRecarga = 3f;

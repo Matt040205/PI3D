@@ -19,7 +19,6 @@ public class Upgrade : ScriptableObject
     [Header("Informações do Upgrade")]
     public string upgradeName;
     [TextArea] public string description;
-    // public Sprite icon; // <-- LINHA REMOVIDA
 
     [Header("Custos")]
     public int geoditeCost;

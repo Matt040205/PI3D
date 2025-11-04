@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
   m_Name: Naoyoshi
   m_EditorClassIdentifier: 
+  name: NaoYoshi
+  description: Uma torre focada em cura e ataque
   maxHealth: 100
   damage: 5
   moveSpeed: 5
@@ -40,3 +42,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cd0e481f38befc0458343bf71b90b0f0, type: 2}
   - {fileID: 11400000, guid: 2d797209d612bf94bbf1a50ef6ef172f, type: 2}
   cost: 50
+  pontosRastrosDisponiveis: 10
+  pontosRastrosGastos: 0
+  pontosPorCaminho: []
+  habilidadesDesbloqueadas: []

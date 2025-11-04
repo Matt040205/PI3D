@@ -9,6 +9,7 @@ public class EnemyHealthSystem : MonoBehaviour
     public EnemyDataSO enemyData;
     public Material markedMaterial;
     private Renderer enemyRenderer;
+    private WorldSpaceEnemyUI worldSpaceUI;
 
     private Material[] originalMaterials;
 
@@ -30,6 +31,7 @@ public class EnemyHealthSystem : MonoBehaviour
     void Awake()
     {
         enemyController = GetComponent<EnemyController>();
+        worldSpaceUI = GetComponentInChildren<WorldSpaceEnemyUI>();
         enemyRenderer = GetComponent<Renderer>();
         if (enemyRenderer == null)
         {
@@ -39,7 +41,6 @@ public class EnemyHealthSystem : MonoBehaviour
         if (enemyRenderer != null)
         {
             originalMaterials = enemyRenderer.materials.ToArray();
-            Debug.Log($"<color=blue>EnemyHealthSystem:</color> Renderer '{enemyRenderer.gameObject.name}' encontrado. {originalMaterials.Length} materiais originais salvos.");
         }
         else
         {
@@ -69,7 +70,9 @@ public class EnemyHealthSystem : MonoBehaviour
         isMarked = false;
     }
 
-    public bool TakeDamage(float damage, float armorPenetration = 0f)
+    // --- FUNÇÃO CORRIGIDA ---
+    // Agora aceita o parâmetro "isCritical"
+    public bool TakeDamage(float damage, float armorPenetration = 0f, bool isCritical = false)
     {
         if (isDead) return false;
 
@@ -87,7 +90,15 @@ public class EnemyHealthSystem : MonoBehaviour
             Debug.Log($"<color=orange>Dano Modificado:</color> Dano Base {damage.ToString("F1")}, Multiplicador (Mark*Vuln) {(markedDamageMultiplier * vulnerabilityMultiplier).ToString("F2")}, Armadura Efetiva {effectiveArmor.ToString("F1")}. Dano Final: {finalDamage.ToString("F1")}");
         }
 
-        currentHealth -= finalDamage;
+        // --- CHAMADA CORRIGIDA ---
+        // Agora passa o "isCritical" para a UI
+        if (worldSpaceUI != null && finalDamage > 0)
+        {
+            worldSpaceUI.ShowDamageNumber(finalDamage, isCritical);
+        }
+        // -------------------------
+
+        currentHealth -= finalDamage;
 
         if (currentHealth <= 0)
         {

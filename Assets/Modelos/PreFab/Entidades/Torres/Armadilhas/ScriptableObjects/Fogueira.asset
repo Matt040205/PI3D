@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Fogueira
   m_EditorClassIdentifier: 
   trapName: Fogueira
-  description: 'Fogueira que cura seu personagem enquanto come um Marshmallow
+  description: 'Fogueira que cura seu personagem e as torres enquanto come um Marshmallow
 
 '
   icon: {fileID: 21300000, guid: 5e2860b467f0e36469cc18987fccdfae, type: 3}
   prefab: {fileID: 5116539652328571518, guid: 6c8b8b063617027409b92fcbb9c034ae, type: 3}
   logicPrefab: {fileID: 6355479832040929062, guid: a77950151a0a7034db0af92b0ae48133, type: 3}
-  placementType: 0
+  placementType: 2
   geoditeCost: 340
   darkEtherCost: 0
+  buildLimit: 3

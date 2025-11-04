@@ -1,136 +1,143 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class CommanderAbilityController : MonoBehaviour
 {
-    [Header("Dados do Personagem")]
     public CharacterBase characterData;
+    public Dictionary<Ability, float> abilityCooldowns = new Dictionary<Ability, float>();
 
-    [Header("Ultimate Charge")]
-    [Tooltip("A taxa de carregamento passivo da Ultimate por segundo (ex: 0.01f = 1% por segundo).")]
-    public float ultimateChargeRatePerSecond = 0.01f;
+    public float ultimateChargeThreshold = 100f;
+    public float currentUltimateCharge = 0f;
 
-    [Tooltip("O carregamento atual da Ultimate (0.0f = 0% a 1.0f = 100%).")]
-    private float currentUltimateCharge = 0f;
+    private PlayerHealthSystem playerHealth;
 
-    public float CurrentUltimateCharge { get { return currentUltimateCharge; } }
-    public bool IsUltimateReady { get { return currentUltimateCharge >= 1f; } }
-
-    private Dictionary<Ability, float> abilityCooldowns = new Dictionary<Ability, float>();
+    public float CurrentUltimateCharge
+    {
+        get
+        {
+            if (ultimateChargeThreshold <= 0) return 0;
+            return Mathf.Clamp01(currentUltimateCharge / ultimateChargeThreshold);
+        }
+    }
 
     void Start()
     {
-        if (characterData.ability1 != null) abilityCooldowns[characterData.ability1] = 0f;
-        if (characterData.ability2 != null) abilityCooldowns[characterData.ability2] = 0f;
+        playerHealth = GetComponent<PlayerHealthSystem>();
+        if (playerHealth != null)
+        {
+            playerHealth.OnDamageDealt += HandleDamageDealt;
+        }
 
+        if (characterData.ability1 != null)
+        {
+            abilityCooldowns[characterData.ability1] = 0;
+            characterData.ability1.Initialize();
+        }
+        if (characterData.ability2 != null)
+        {
+            abilityCooldowns[characterData.ability2] = 0;
+            characterData.ability2.Initialize();
+        }
         if (characterData.ultimate != null)
         {
-            if (!abilityCooldowns.ContainsKey(characterData.ultimate))
-            {
-                abilityCooldowns[characterData.ultimate] = 0f;
-            }
-            currentUltimateCharge = 0f;
+            abilityCooldowns[characterData.ultimate] = 0;
+            characterData.ultimate.Initialize();
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnDamageDealt -= HandleDamageDealt;
         }
     }
 
     void Update()
     {
-        HandleAbilityInputs();
-
-        if (characterData.ultimate != null && currentUltimateCharge < 1f)
+        List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
+        foreach (Ability ability in keys)
         {
-            currentUltimateCharge += ultimateChargeRatePerSecond * Time.deltaTime;
-            currentUltimateCharge = Mathf.Clamp01(currentUltimateCharge);
+            if (abilityCooldowns[ability] > 0)
+            {
+                abilityCooldowns[ability] -= Time.deltaTime;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ActivateAbility(characterData.ability1);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            ActivateAbility(characterData.ability2);
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ActivateUltimate();
         }
     }
 
-    private void HandleAbilityInputs()
+    public void ActivateAbility(Ability ability)
     {
-        if (Input.GetKeyDown(KeyCode.Q) && characterData.ability1 != null)
+        if (ability == null || !abilityCooldowns.ContainsKey(ability) || abilityCooldowns[ability] > 0)
         {
-            TryActivateAbility(characterData.ability1);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E) && characterData.ability2 != null)
-        {
-            TryActivateAbility(characterData.ability2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.X) && characterData.ultimate != null)
-        {
-            TryActivateAbility(characterData.ultimate);
-        }
-    }
-
-    private void TryActivateAbility(Ability ability)
-    {
-        if (ability == characterData.ultimate)
-        {
-            if (IsUltimateReady)
-            {
-                bool shouldGoOnCooldown = ability.Activate(this.gameObject);
-                if (shouldGoOnCooldown)
-                {
-                    currentUltimateCharge = 0f;
-                    Debug.Log("Ultimate ativada com sucesso! Carga reiniciada.");
-                }
-            }
-            else
-            {
-                Debug.Log($"Ultimate {ability.name} carregando: {CurrentUltimateCharge:P2}");
-            }
             return;
         }
 
-        if (abilityCooldowns.ContainsKey(ability) && Time.time >= abilityCooldowns[ability])
-        {
-            bool shouldGoOnCooldown = ability.Activate(this.gameObject);
+        bool shouldStartCooldown = ability.Activate(gameObject);
 
-            if (shouldGoOnCooldown)
-            {
-                abilityCooldowns[ability] = Time.time + ability.cooldown;
-            }
+        if (shouldStartCooldown)
+        {
+            abilityCooldowns[ability] = ability.cooldown;
         }
         else
         {
-            Debug.Log("Habilidade " + ability.name + " em recarga!");
+            abilityCooldowns[ability] = 0;
         }
-    }
-
-    public void AddUltimateCharge(float amount)
-    {
-        if (characterData.ultimate == null) return;
-        currentUltimateCharge += amount;
-        currentUltimateCharge = Mathf.Clamp01(currentUltimateCharge);
     }
 
     public float GetRemainingCooldownPercent(Ability ability)
     {
-        if (ability == null || ability == characterData.ultimate || ability.cooldown <= 0) return 0f;
+        if (ability == null || !abilityCooldowns.ContainsKey(ability) || ability.cooldown <= 0)
+            return 0;
 
-        if (abilityCooldowns.ContainsKey(ability))
-        {
-            float remainingTime = abilityCooldowns[ability] - Time.time;
-            return Mathf.Clamp01(remainingTime / ability.cooldown);
-        }
-        return 0f;
+        return abilityCooldowns[ability] / ability.cooldown;
     }
 
-    public void ReduceAllAbilityCooldowns(float percent)
+    public void ActivateUltimate()
     {
-        List<Ability> abilitiesOnCooldown = new List<Ability>(abilityCooldowns.Keys);
-
-        foreach (var ability in abilitiesOnCooldown)
+        if (characterData.ultimate == null || CurrentUltimateCharge < 1f)
         {
-            if (ability == characterData.ultimate) continue;
-
-            float remainingTime = abilityCooldowns[ability] - Time.time;
-            if (remainingTime > 0)
-            {
-                abilityCooldowns[ability] -= remainingTime * percent;
-            }
+            return;
         }
-        Debug.Log("Cooldowns reduzidos em " + (percent * 100) + "%! A Ultimate usa um sistema de carga separado.");
+
+        bool shouldStartCooldown = characterData.ultimate.Activate(gameObject);
+        if (shouldStartCooldown)
+        {
+            abilityCooldowns[characterData.ultimate] = characterData.ultimate.cooldown;
+            currentUltimateCharge = 0f;
+        }
+    }
+
+    private void HandleDamageDealt(float damage)
+    {
+        if (characterData != null && characterData.ultimateChargePerDamage > 0)
+        {
+            currentUltimateCharge += damage * characterData.ultimateChargePerDamage;
+            currentUltimateCharge = Mathf.Min(currentUltimateCharge, ultimateChargeThreshold);
+        }
+    }
+
+    public void ReduceAllAbilityCooldowns(float reductionAmount)
+    {
+        if (characterData.ability1 != null && abilityCooldowns.ContainsKey(characterData.ability1))
+        {
+            abilityCooldowns[characterData.ability1] = Mathf.Max(0, abilityCooldowns[characterData.ability1] - reductionAmount);
+        }
+        if (characterData.ability2 != null && abilityCooldowns.ContainsKey(characterData.ability2))
+        {
+            abilityCooldowns[characterData.ability2] = Mathf.Max(0, abilityCooldowns[characterData.ability2] - reductionAmount);
+        }
     }
 }

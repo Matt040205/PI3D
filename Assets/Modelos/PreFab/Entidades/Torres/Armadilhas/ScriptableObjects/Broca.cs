@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Broca : MonoBehaviour
+public class Broca : TrapLogicBase
 {
     public int geodidasPorCiclo = 5;
     public float tempoPorCiclo = 10f;

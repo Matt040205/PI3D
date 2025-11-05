@@ -289,9 +289,6 @@ public class PlayerHUD : MonoBehaviour
 
         if (ultimate_ChargeFill != null)
         {
-            // --- ESTA É A LINHA QUE MUDOU ---
-            // Invertemos a lógica: 1.0 (cheio) - 0.0 (carregando) = 1.0 (máscara cheia)
-            // 1.0 (cheio) - 1.0 (carregado) = 0.0 (máscara vazia)
             ultimate_ChargeFill.fillAmount = 1f - abilityController.CurrentUltimateCharge;
         }
     }

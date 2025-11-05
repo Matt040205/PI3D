@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CommanderAbilityController : MonoBehaviour
 {
@@ -55,6 +56,12 @@ public class CommanderAbilityController : MonoBehaviour
 
     void Update()
     {
+        if (currentUltimateCharge < ultimateChargeThreshold && characterData != null && characterData.ultimateChargePerSecond > 0)
+        {
+            currentUltimateCharge += characterData.ultimateChargePerSecond * Time.deltaTime;
+            currentUltimateCharge = Mathf.Min(currentUltimateCharge, ultimateChargeThreshold);
+        }
+
         List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
         foreach (Ability ability in keys)
         {
@@ -72,7 +79,7 @@ public class CommanderAbilityController : MonoBehaviour
         {
             ActivateAbility(characterData.ability2);
         }
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             ActivateUltimate();
         }

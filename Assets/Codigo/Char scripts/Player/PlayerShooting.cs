@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerHealthSystem))]
 public class PlayerShooting : MonoBehaviour
 {
     [Header("Configurações")]
@@ -23,9 +24,8 @@ public class PlayerShooting : MonoBehaviour
     private Transform modelPivot;
     private ProjectilePool projectilePool;
     private Camera mainCamera;
-
-    // --- ADIÇÃO 1: Referência para o Animator ---
     private Animator animator;
+    private PlayerHealthSystem playerHealth;
 
     private bool hasNextShotBonus = false;
     private float nextShotDamageBonus = 1f;
@@ -36,16 +36,15 @@ public class PlayerShooting : MonoBehaviour
         currentAmmo = characterData.magazineSize;
         cameraController = FindObjectOfType<CameraController>();
         mainCamera = Camera.main;
+        playerHealth = GetComponent<PlayerHealthSystem>();
 
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
         if (playerMovement != null)
         {
             modelPivot = playerMovement.GetModelPivot();
 
-            // --- ADIÇÃO 2: Pegar o Animator que está no modelo ---
             if (modelPivot != null)
             {
-                // Assumindo que o Animator está no "samurai", que é filho do "modelPivot"
                 animator = modelPivot.GetComponentInChildren<Animator>();
             }
         }
@@ -111,19 +110,15 @@ public class PlayerShooting : MonoBehaviour
         hasNextShotBonus = true;
         nextShotDamageBonus = damageBonus;
         nextShotAreaBonus = areaBonus;
-        Debug.Log("<color=cyan>Habilidade Voo Gracioso ativada:</color> O próximo tiro tem o bônus. hasNextShotBonus = " + hasNextShotBonus);
     }
 
     void Shoot()
     {
-        // --- ADIÇÃO 3: Disparar o Trigger "Shoot" ---
         if (animator != null)
         {
-            // Isso vai disparar a animação na sua "Shooting Layer"
             animator.SetTrigger("Shoot");
         }
 
-        // Você pode deletar isso se o seu firePoint já estiver posicionado
         if (modelPivot != null)
         {
             firePoint.position = modelPivot.position + modelPivot.forward * 0.5f;
@@ -132,57 +127,39 @@ public class PlayerShooting : MonoBehaviour
 
         Vector3 shotDirection = GetShotDirection();
 
-        RaycastHit hit;
-        bool hasHit = Physics.Raycast(
-            firePoint.position,
-            shotDirection,
-            out hit,
-            maxDistance,
-            hitLayers
-        );
+        float finalDamage = characterData.damage;
+        bool isCritical = false;
 
-        Vector3 hitPosition = hasHit ? hit.point : firePoint.position + shotDirection * maxDistance;
-
-        if (hasHit)
+        if (Random.value <= characterData.critChance)
         {
-            EnemyHealthSystem enemyHealth = hit.collider.GetComponent<EnemyHealthSystem>();
-            if (enemyHealth != null)
-            {
-                float finalDamage = characterData.damage;
-
-                if (hasNextShotBonus)
-                {
-                    finalDamage *= nextShotDamageBonus;
-                    Debug.Log("<color=yellow>BÔNUS APLICADO:</color> Dano do tiro foi aumentado de " + characterData.damage + " para " + finalDamage + ".");
-
-                    hasNextShotBonus = false;
-                    nextShotDamageBonus = 1f;
-                    nextShotAreaBonus = 1f;
-                }
-
-                enemyHealth.TakeDamage(finalDamage);
-                Debug.Log("Acertou inimigo: " + hit.collider.name + " com " + finalDamage + " de dano");
-            }
-            else
-            {
-                Debug.Log("Acertou algo que não é inimigo: " + hit.collider.name);
-            }
+            finalDamage *= characterData.critDamage;
+            isCritical = true;
         }
-        else
+
+        if (hasNextShotBonus)
         {
+            finalDamage *= nextShotDamageBonus;
+            hasNextShotBonus = false;
+            nextShotDamageBonus = 1f;
+            nextShotAreaBonus = 1f;
         }
 
         if (projectilePool != null && projectileVisualPrefab != null)
         {
             GameObject visualProjectile = projectilePool.GetProjectile(
-                firePoint.position,
-                Quaternion.LookRotation(shotDirection)
-            );
+              firePoint.position,
+              Quaternion.LookRotation(shotDirection));
 
             ProjectileVisual visualScript = visualProjectile.GetComponent<ProjectileVisual>();
             if (visualScript != null)
             {
-                visualScript.Initialize(hitPosition);
+                visualScript.Initialize(
+                  finalDamage,
+                  isCritical,
+                  characterData.armorPenetration,
+                  playerHealth,
+                            shotDirection
+                );
             }
         }
 
@@ -223,27 +200,18 @@ public class PlayerShooting : MonoBehaviour
     {
         if (isReloading) return;
 
-        // --- LÓGICA DO MÉTODO B ---
-
-        // 1. Você precisa saber o tempo original da sua animação
-        // (Infelizmente, você tem que "escrever" ele aqui)
-        float originalAnimationLength = 3.0f; // Ex: sua animação tem 3 segundos
-
-        // 2. Calcule o multiplicador
-        // Se seu script quer 1.5s, o multiplicador é 3.0 / 1.5 = 2 (tocar 2x mais rápido)
+        float originalAnimationLength = 3.0f;
         float multiplier = originalAnimationLength / characterData.reloadSpeed;
 
-        // 3. Envie para o Animator
         if (animator != null)
         {
             animator.SetFloat("ReloadSpeedMultiplier", multiplier);
             animator.SetTrigger("Reload");
         }
-        // ----------------------------
 
         isReloading = true;
         reloadStartTime = Time.time;
-        Invoke("FinishReload", characterData.reloadSpeed); // O Invoke ainda é necessário aqui
+        Invoke("FinishReload", characterData.reloadSpeed);
     }
 
     void FinishReload()

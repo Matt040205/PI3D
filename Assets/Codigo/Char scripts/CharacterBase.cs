@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Struct auxiliar para guardar os pontos por caminho
 [System.Serializable]
 public struct CaminhoRastrosData
 {
@@ -13,19 +12,19 @@ public struct CaminhoRastrosData
 public class CharacterBase : ScriptableObject
 {
     [Header("Basic Info")]
-    public new string name; // "new" esconde o 'name' padrão do ScriptableObject
+    public new string name;
     [TextArea(3, 5)]
-    public string description = "Descrição do personagem ou torre."; // <-- CAMPO ADICIONADO
+    public string description = "Descrição do personagem ou torre.";
 
-    [Header("Basic Stats")]
+    [Header("Basic Stats")]
     public float maxHealth = 100f;
-    // ... (o resto das suas variáveis de stats)
     public float damage = 10f;
     public float moveSpeed = 5f;
     public float reloadSpeed = 2f;
     public float attackSpeed = 1f;
     public float meleeRange = 2f;
     public float armor = 0f;
+
     [Range(0f, 1f)]
     public float critChance = 0.05f;
     public float critDamage = 1.5f;
@@ -33,8 +32,10 @@ public class CharacterBase : ScriptableObject
     public float armorPenetration = 0f;
 
     [Header("Ultimate Settings")]
-    [Range(0f, 0.1f)]
-    public float ultimateChargePerDamage = 0.001f;
+    [Tooltip("Pontos de Ultimate ganhos por segundo, passivamente.")]
+    public float ultimateChargePerSecond = 1f;
+    [Tooltip("Pontos de Ultimate ganhos por cada 1 ponto de dano causado.")]
+    public float ultimateChargePerDamage = 0.1f;
 
     [Header("Combat Settings")]
     public CombatType combatType = CombatType.Ranged;

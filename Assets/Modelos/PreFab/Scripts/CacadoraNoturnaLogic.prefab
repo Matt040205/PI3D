@@ -44,3 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa339251c2698f1479d0b3c69aae325a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectParticles: {fileID: 0}
+  beamVisualPrefab: {fileID: 4885778646325350380, guid: ece46e452da42b04c8174d2ae43c9b4c, type: 3}
+  visualDuration: 1

@@ -7,7 +7,7 @@ public class HabilidadeVooGracioso : Ability
     public float jumpHeightModifier = 1.5f;
     public float staticAimDuration = 3f;
     public float bonusDamageMultiplier = 1.5f;
-    public float bonusAreaMultiplier = 1.2f;
+    public float bonusExplosionRadius = 5f;
 
     [Tooltip("Arraste o prefab da lógica da habilidade aqui.")]
     public VooGraciosoLogic logicPrefab;
@@ -21,9 +21,9 @@ public class HabilidadeVooGracioso : Ability
         }
 
         VooGraciosoLogic logic = Instantiate(logicPrefab, quemUsou.transform);
-        logic.StartEffect(quemUsou, jumpHeightModifier, staticAimDuration, bonusDamageMultiplier, bonusAreaMultiplier);
+        logic.StartEffect(quemUsou, jumpHeightModifier, staticAimDuration, bonusDamageMultiplier, bonusExplosionRadius);
 
-        Debug.Log("Voo Gracioso ativado. Próxima flecha causa mais dano e área.");
+        Debug.Log("Voo Gracioso ativado. Próxima flecha causa mais dano e explode.");
         return true;
     }
 }

@@ -1,24 +1,42 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
 public class ProjectileVisual : MonoBehaviour
 {
-    [Header("Configurações")]
+    [Header("Configuraï¿½ï¿½es")]
     public float speed = 80f;
     public float maxLifetime = 2f;
+    public GameObject impactEffectPrefab;
 
-    private Vector3 targetPosition;
-    private bool hasTarget;
-    private float startTime;
+    private float damage;
+    private bool isCritical;
+    private float armorPenetration;
+    private PlayerHealthSystem playerHealth;
+
     private ProjectilePool pool;
+    private Rigidbody rb;
+    private bool hasHit;
 
-    public void Initialize(Vector3 target)
+    void Awake()
     {
-        targetPosition = target;
-        hasTarget = true;
-        startTime = Time.time;
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = false;
+        GetComponent<Collider>().isTrigger = true;
+    }
 
-        // Destruir após tempo máximo (segurança)
-        Invoke("ReturnToPool", maxLifetime);
+    public void Initialize(float damage, bool isCritical, float armorPenetration, PlayerHealthSystem playerHealth, Vector3 direction)
+    {
+        this.damage = damage;
+        this.isCritical = isCritical;
+        this.armorPenetration = armorPenetration;
+        this.playerHealth = playerHealth;
+        this.hasHit = false;
+
+        rb.linearVelocity = direction * speed;
+        CancelInvoke(nameof(ReturnToPool));
+        Invoke(nameof(ReturnToPool), maxLifetime);
     }
 
     public void SetPoolReference(ProjectilePool poolReference)
@@ -26,51 +44,44 @@ public class ProjectileVisual : MonoBehaviour
         pool = poolReference;
     }
 
-    void Update()
+    void OnTriggerEnter(Collider other)
     {
-        if (!hasTarget) return;
+        if (hasHit) return;
 
-        // Calcular direção e distância
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
+        if (other.CompareTag("Player")) return;
 
-        // Mover em direção ao alvo
-        float step = speed * Time.deltaTime;
+        hasHit = true;
+        rb.linearVelocity = Vector3.zero;
 
-        // Se estiver muito perto, teletransportar para o alvo
-        if (step > distanceToTarget)
+        EnemyHealthSystem enemyHealth = other.GetComponent<EnemyHealthSystem>();
+        if (enemyHealth != null)
         {
-            transform.position = targetPosition;
-        }
-        else
-        {
-            transform.position += direction * step;
-        }
+            enemyHealth.TakeDamage(damage, armorPenetration, isCritical);
 
-        // Rotacionar na direção do movimento
-        if (direction != Vector3.zero)
-        {
-            transform.rotation = Quaternion.LookRotation(direction);
+            if (playerHealth != null)
+            {
+                playerHealth.TriggerDamageDealt(damage);
+            }
         }
 
-        // Destruir quando chegar perto do alvo
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        if (impactEffectPrefab != null)
         {
-            ReturnToPool();
+            Instantiate(impactEffectPrefab, transform.position, Quaternion.LookRotation(other.transform.position - transform.position));
         }
+
+        ReturnToPool();
     }
 
     void ReturnToPool()
     {
+        CancelInvoke();
+        rb.linearVelocity = Vector3.zero;
         if (pool != null)
         {
             pool.ReturnProjectile(gameObject);
         }
         else
         {
-            // --- MUDANÇA PARA POOLING: Fallback removido ---
-            // Substitui o Destroy(gameObject) por um log e desativação.
-            Debug.LogError("Projetil escapou do Pool! Desativando em vez de destruir.");
             gameObject.SetActive(false);
         }
     }

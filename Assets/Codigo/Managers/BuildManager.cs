@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using static TrapDataSO;
 using UnityEngine.EventSystems;
+using static Unity.VisualScripting.Member;
+using UnityEngine.Rendering;
 
 public class BuildManager : MonoBehaviour
 {
@@ -146,6 +148,13 @@ public class BuildManager : MonoBehaviour
         if (!state)
         {
             ClearSelection();
+        }
+        else
+        {
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.TriggerTutorial("BUILD_TOWER");
+            }
         }
 
         if (UIManager.Instance != null)
@@ -306,11 +315,11 @@ public class BuildManager : MonoBehaviour
                         TrapLogicBase trapLogic = newComponent as TrapLogicBase;
                         if (trapLogic != null)
                         {
-                            trapLogic.trapData = trapData;
+                             trapData = trapData;
                         }
                         else
                         {
-                            Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
+                             Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
                         }
                     }
                     else
@@ -320,8 +329,9 @@ public class BuildManager : MonoBehaviour
                 }
 
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
-
-                if (placedTrapData != null)
+                
+      
+        if (placedTrapData != null)
                 {
                     RegisterTrap(placedTrapData);
                 }

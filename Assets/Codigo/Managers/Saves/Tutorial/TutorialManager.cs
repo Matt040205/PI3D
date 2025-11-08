@@ -1,16 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(TutorialPopupUI))]
 public class TutorialManager : MonoBehaviour
 {
     public static TutorialManager Instance;
 
     [Header("Referências")]
-    public TutorialPopupUI popupUI;
+    [Tooltip("Arraste o GameObject 'TutorialPopupPanel' (o que está desativado) aqui.")]
+    public GameObject popupPanelObject;
     public List<TutorialData> todosOsTutoriais;
 
     private Dictionary<string, TutorialData> databaseTutoriais = new Dictionary<string, TutorialData>();
+    private TutorialPopupUI popupUIScript;
 
     void Awake()
     {
@@ -20,22 +21,22 @@ public class TutorialManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
-        popupUI = GetComponent<TutorialPopupUI>();
+        // Não faz DontDestroyOnLoad se o painel for da cena
 
         foreach (TutorialData tutorial in todosOsTutoriais)
         {
-            if (tutorial != null)
+            if (tutorial != null && !databaseTutoriais.ContainsKey(tutorial.tutorialID))
             {
-                databaseTutoriais[tutorial.tutorialID] = tutorial;
+                databaseTutoriais.Add(tutorial.tutorialID, tutorial);
             }
         }
     }
 
     public void TriggerTutorial(string tutorialID)
     {
-        if (GameDataManager.Instance == null) return;
+        if (GameDataManager.Instance == null || popupPanelObject == null) return;
+
         if (GameDataManager.Instance.tutoriaisConcluidos.Contains(tutorialID))
         {
             return;
@@ -44,10 +45,19 @@ public class TutorialManager : MonoBehaviour
         if (databaseTutoriais.ContainsKey(tutorialID))
         {
             TutorialData data = databaseTutoriais[tutorialID];
-            if (popupUI != null)
+
+            // 1. Ativa o GameObject do painel
+            popupPanelObject.SetActive(true);
+
+            // 2. Pega o script (que agora está ativo)
+            popupUIScript = popupPanelObject.GetComponent<TutorialPopupUI>();
+
+            if (popupUIScript != null)
             {
-                popupUI.Show(data);
+                // 3. Mostra o pop-up
+                popupUIScript.Show(data);
             }
+
             ConcluirTutorial(tutorialID);
         }
     }

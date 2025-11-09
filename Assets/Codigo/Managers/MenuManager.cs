@@ -3,9 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    // A variável nomeDaCena não é mais necessária aqui, pois será passada diretamente pelo botão.
-    // Removi: public string nomeDaCena;
-
     [Header("Menus")]
     public GameObject menuPanel;
     public GameObject optionsPanel;
@@ -22,24 +19,14 @@ public class MenuManager : MonoBehaviour
         if (sonsPanel != null) sonsPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// Carrega uma nova cena. O nome da cena é passado como parâmetro no evento OnClick do botão.
-    /// </summary>
-    /// <param name="nomeDaCena">O nome exato da cena a ser carregada (configurado no Inspector do botão).</param>
     public void ChangeScene(string nomeDaCena)
     {
         if (!string.IsNullOrEmpty(nomeDaCena))
         {
-            // 1. Garante que o tempo volte ao normal.
             Time.timeScale = 1f;
-
-            // 2. [NOVA LINHA] Garante que o jogo não se considere mais "pausado".
             PauseControl.isPaused = false;
-
-            // 3. [BOA PRÁTICA] Garante que o cursor esteja visível para os menus.
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-
             SceneManager.LoadScene(nomeDaCena);
         }
         else
@@ -55,13 +42,9 @@ public class MenuManager : MonoBehaviour
             PausePanel.SetActive(false);
             HUDPanel.SetActive(true);
         }
-
         Time.timeScale = 1f;
-
         PauseControl.isPaused = false;
 
-        // --- MUDANÇA AQUI ---
-        // Acessa a variável estática diretamente
         if (BuildManager.isBuildingMode)
         {
             Cursor.lockState = CursorLockMode.None;

@@ -61,17 +61,36 @@ public class SelecaoManager : MonoBehaviour
         painelEscolhaPersonagem.SetActive(false);
         painelDetalhes.SetActive(false);
         yield return new WaitForEndOfFrame();
+
         if (GameDataManager.Instance != null)
         {
-            GameDataManager.Instance.LimparSelecao();
-            GameDataManager.Instance.personagemParaRastros = null;
+            if (GameDataManager.Instance.personagemParaRastros != null)
+            {
+                if (TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.TriggerTutorial("GO_TO_ACTION");
+                }
+                GameDataManager.Instance.personagemParaRastros = null;
+            }
+            else
+            {
+                if (TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.TriggerTutorial("SELECT_COMMANDER");
+                }
+                GameDataManager.Instance.LimparSelecao();
+                GameDataManager.Instance.personagemParaRastros = null;
+            }
         }
+
         ConfigurarBotoesPrincipais();
         CriarGridEquipe();
         PopularGridDeEscolha();
         LayoutRebuilder.ForceRebuildLayoutImmediate(gridEquipeContainer.GetComponent<RectTransform>());
         LayoutRebuilder.ForceRebuildLayoutImmediate(gridEscolhaContainer.GetComponent<RectTransform>());
         painelEquipe.SetActive(true);
+
+        AtualizarEstadoBotaoJogar();
     }
 
     public void AbrirPainelDetalhes(CharacterBase personagem)
@@ -79,6 +98,18 @@ public class SelecaoManager : MonoBehaviour
         painelEscolhaPersonagem.SetActive(false);
         painelDetalhes.SetActive(true);
         personagemEmVisualizacao = personagem;
+
+        if (TutorialManager.Instance != null)
+        {
+            if (slotSendoEditado == 0)
+            {
+                TutorialManager.Instance.TriggerTutorial("COMMANDER_SKILLS");
+            }
+            else if (slotSendoEditado == 1)
+            {
+                TutorialManager.Instance.TriggerTutorial("TOWER_UPGRADES");
+            }
+        }
 
         imagemDetalhes.sprite = personagem.characterIcon;
         nomeDetalhes.text = personagem.name;
@@ -196,9 +227,9 @@ public class SelecaoManager : MonoBehaviour
             if (botao != null)
             {
                 bool hasPath = personagemEmVisualizacao != null &&
-                       personagemEmVisualizacao.upgradePaths != null &&
-                       i < personagemEmVisualizacao.upgradePaths.Count &&
-                       personagemEmVisualizacao.upgradePaths[i] != null;
+                    personagemEmVisualizacao.upgradePaths != null &&
+                    i < personagemEmVisualizacao.upgradePaths.Count &&
+                    personagemEmVisualizacao.upgradePaths[i] != null;
 
                 botao.gameObject.SetActive(visivel && hasPath);
             }
@@ -235,6 +266,11 @@ public class SelecaoManager : MonoBehaviour
             return;
         }
 
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
+        }
+
         GameDataManager.Instance.personagemParaRastros = personagemEmVisualizacao;
 
         if (!string.IsNullOrEmpty(nomeDaCenaRastros))
@@ -261,18 +297,49 @@ public class SelecaoManager : MonoBehaviour
             int index = i;
             slotButton.onClick.AddListener(() => AbrirPainelEscolha(index));
 
-            slotUI.LimparSlot();
+            if (GameDataManager.Instance != null && GameDataManager.Instance.equipeSelecionada[i] != null)
+            {
+                slotUI.SetPersonagem(GameDataManager.Instance.equipeSelecionada[i]);
+            }
+            else
+            {
+                slotUI.LimparSlot();
+            }
+
             slotsEquipe.Add(slotUI);
         }
     }
 
     void PopularGridDeEscolha() { foreach (var personagem in todosOsPersonagens) { GameObject slotObj = Instantiate(slotEscolhaPrefab, gridEscolhaContainer); slotObj.GetComponent<Image>().sprite = personagem.characterIcon; Button slotButton = slotObj.GetComponent<Button>(); slotButton.onClick.AddListener(() => AbrirPainelDetalhes(personagem)); botoesDeEscolha.Add(personagem, slotButton); } }
-    public void AbrirPainelEscolha(int slotIndex) { slotSendoEditado = slotIndex; painelEquipe.SetActive(false); painelEscolhaPersonagem.SetActive(true); painelDetalhes.SetActive(false); if (GameDataManager.Instance == null) return; CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada; foreach (var par in botoesDeEscolha) { bool jaEscolhido = equipeAtual.Contains(par.Key); bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key; par.Value.interactable = !jaEscolhido || noSlotAtual; } }
+
+    public void AbrirPainelEscolha(int slotIndex)
+    {
+        slotSendoEditado = slotIndex;
+        painelEquipe.SetActive(false);
+        painelEscolhaPersonagem.SetActive(true);
+        painelDetalhes.SetActive(false);
+
+        if (GameDataManager.Instance == null) return;
+        CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada;
+        foreach (var par in botoesDeEscolha) { bool jaEscolhido = equipeAtual.Contains(par.Key); bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key; par.Value.interactable = !jaEscolhido || noSlotAtual; }
+    }
 
     void ConfirmarEscolha()
     {
         if (GameDataManager.Instance != null && slotSendoEditado != -1)
         {
+            if (TutorialManager.Instance != null)
+            {
+                if (slotSendoEditado == 0)
+                {
+                    TutorialManager.Instance.TriggerTutorial("SELECT_TOWER");
+                }
+                else if (slotSendoEditado == 1)
+                {
+                    TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
+                }
+            }
+
             GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
             slotsEquipe[slotSendoEditado].SetPersonagem(personagemEmVisualizacao);
             AtualizarEstadoBotaoJogar();
@@ -285,7 +352,7 @@ public class SelecaoManager : MonoBehaviour
         if (GameDataManager.Instance != null && botaoJogar != null)
         {
             bool podeJogar = GameDataManager.Instance.equipeSelecionada[0] != null &&
-                             GameDataManager.Instance.equipeSelecionada[1] != null;
+                     GameDataManager.Instance.equipeSelecionada[1] != null;
             botaoJogar.interactable = podeJogar;
         }
         else if (botaoJogar != null)

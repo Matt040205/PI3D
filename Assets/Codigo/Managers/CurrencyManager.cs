@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro;
 
-// Enum para definir os tipos de moeda de forma clara e segura.
 public enum CurrencyType
 {
     Geodites,
@@ -21,9 +20,10 @@ public class CurrencyManager : MonoBehaviour
     [SerializeField] private int initialGeodites = 500;
     [SerializeField] private int initialDarkEther = 0;
 
-    // Propriedades públicas para acessar os valores, mas com set privado
     public int CurrentGeodites { get; private set; }
     public int CurrentDarkEther { get; private set; }
+
+    private bool jaGanhouRecursoTutorial = false;
 
     private void Awake()
     {
@@ -44,9 +44,14 @@ public class CurrencyManager : MonoBehaviour
         UpdateUI();
     }
 
-    // Método universal para adicionar qualquer tipo de moeda
     public void AddCurrency(int amount, CurrencyType type)
     {
+        if (amount <= 0)
+        {
+            UpdateUI();
+            return;
+        }
+
         switch (type)
         {
             case CurrencyType.Geodites:
@@ -56,10 +61,19 @@ public class CurrencyManager : MonoBehaviour
                 CurrentDarkEther += amount;
                 break;
         }
+
+        if (!jaGanhouRecursoTutorial && GameDataManager.Instance != null && GameDataManager.Instance.tutoriaisConcluidos.Contains("USE_SKILLS"))
+        {
+            jaGanhouRecursoTutorial = true;
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.TriggerTutorial("EXPLAIN_UPGRADE");
+            }
+        }
+
         UpdateUI();
     }
 
-    // Método universal para verificar se há saldo suficiente
     public bool HasEnoughCurrency(int amount, CurrencyType type)
     {
         switch (type)
@@ -73,7 +87,6 @@ public class CurrencyManager : MonoBehaviour
         }
     }
 
-    // Método universal para gastar moeda
     public void SpendCurrency(int amount, CurrencyType type)
     {
         if (HasEnoughCurrency(amount, type))
@@ -91,7 +104,6 @@ public class CurrencyManager : MonoBehaviour
         }
     }
 
-    // Atualiza ambos os textos da UI
     private void UpdateUI()
     {
         if (geoditesText != null)

@@ -46,8 +46,6 @@ public class BuildManager : MonoBehaviour
     void Start()
     {
         buildCamera.Priority.Value = PriorityInactive;
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = false;
     }
 
     public int GetTrapCount(TrapDataSO trapData)
@@ -145,15 +143,30 @@ public class BuildManager : MonoBehaviour
     void ToggleBuildMode(bool state)
     {
         buildCamera.Priority.Value = state ? PriorityBuild : PriorityInactive;
+
+        UnityEngine.Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = state;
+
         if (!state)
         {
             ClearSelection();
+            if (TutorialManager.Instance != null && GameDataManager.Instance != null && GameDataManager.Instance.tutoriaisConcluidos.Contains("RETURN_TO_COMMANDER"))
+            {
+                TutorialManager.Instance.TriggerTutorial("USE_SKILLS");
+            }
         }
         else
         {
-            if (TutorialManager.Instance != null)
+            if (TutorialManager.Instance != null && GameDataManager.Instance != null)
             {
-                TutorialManager.Instance.TriggerTutorial("BUILD_TOWER");
+                if (GameDataManager.Instance.tutoriaisConcluidos.Contains("EXPLAIN_UPGRADE"))
+                {
+                    TutorialManager.Instance.TriggerTutorial("HOW_TO_UPGRADE");
+                }
+                else if (GameDataManager.Instance.tutoriaisConcluidos.Contains("EXPLAIN_BUILD_MODE"))
+                {
+                    TutorialManager.Instance.TriggerTutorial("HOW_TO_BUILD");
+                }
             }
         }
 
@@ -161,9 +174,6 @@ public class BuildManager : MonoBehaviour
         {
             UIManager.Instance.ShowBuildUI(state);
         }
-
-        UnityEngine.Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = state;
     }
 
     void HandleBuildGhost()
@@ -308,32 +318,32 @@ public class BuildManager : MonoBehaviour
                 {
                     placedTrapData = trapData;
                     var logicComponentOnPrefab = trapData.logicPrefab.GetComponent<MonoBehaviour>();
-                    if (logicComponentOnPrefab != null)
                     {
                         var newComponent = newBuildObject.AddComponent(logicComponentOnPrefab.GetType());
 
                         TrapLogicBase trapLogic = newComponent as TrapLogicBase;
                         if (trapLogic != null)
                         {
-                             trapData = trapData;
+                            trapData = trapData;
                         }
                         else
                         {
-                             Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
+                            Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
                         }
-                    }
-                    else
-                    {
-                        Debug.LogError($"[BuildManager] O 'logicPrefab' em {trapData.name} não tem um script (MonoBehaviour) anexado.");
-                    }
+                       
+                    }            
                 }
 
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);
-                
-      
-        if (placedTrapData != null)
+
+                if (placedTrapData != null)
                 {
                     RegisterTrap(placedTrapData);
+                }
+
+                if (TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.TriggerTutorial("RETURN_TO_COMMANDER");
                 }
 
                 ClearSelection();

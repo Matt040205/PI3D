@@ -27,10 +27,8 @@ public class Rastros : MonoBehaviour
     private CharacterBase personagemSendoUprado;
     private BotaoHabilidade habilidadeSelecionada;
 
-    // As propriedades agora lêem os dados corretos do ScriptableObject
-    public int pontosDisponiveis => personagemSendoUprado?.pontosRastrosDisponiveis ?? 0;
+    public int pontosDisponiveis => personagemSendoUprado?.pontosRastrosDisponiveis ?? 0;
     public int pontosGastosGlobal => personagemSendoUprado?.pontosRastrosGastos ?? 0;
-    // Estas são as únicas que precisam de ser públicas para o BotaoHabilidade
     public List<CaminhoRastrosData> pontosPorCaminho => personagemSendoUprado?.pontosPorCaminho;
     public List<string> habilidadesDesbloqueadas => personagemSendoUprado?.habilidadesDesbloqueadas;
 
@@ -72,19 +70,21 @@ public class Rastros : MonoBehaviour
             botaoConfirmarCompra.onClick.AddListener(ConfirmarCompraHabilidade);
         }
 
-        AtualizarUI(); // Atualiza os pontos imediatamente
-    }
+        AtualizarUI();
+    }
 
     void Start()
     {
-        // Se o personagem não foi carregado no Awake, não faça nada.
         if (personagemSendoUprado == null) return;
 
-        // Atualiza os botões SÓ DEPOIS que eles correram o Start() deles
         AtualizarEstadoBotoes();
+
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.TriggerTutorial("EXPLAIN_RASTROS");
+        }
     }
 
-    // --- FUNÇÕES HELPER PARA LIDAR COM A NOVA LISTA ---
     private int GetPontosNoCaminho(string idCaminho)
     {
         if (pontosPorCaminho == null) return 0;
@@ -105,21 +105,17 @@ public class Rastros : MonoBehaviour
         {
             if (pontosPorCaminho[i].idCaminho == idCaminho)
             {
-                // Como struct, temos de criar uma nova cópia e reatribuir
                 var data = pontosPorCaminho[i];
                 data.pontosGastos++;
                 pontosPorCaminho[i] = data;
                 return;
             }
         }
-        // Se não encontrou, adiciona um novo
         pontosPorCaminho.Add(new CaminhoRastrosData { idCaminho = idCaminho, pontosGastos = 1 });
     }
-    // --------------------------------------------------
 
-    void InicializarCaminhos()
+    void InicializarCaminhos()
     {
-        // Esta função agora apenas garante que a lista existe
         if (personagemSendoUprado != null && personagemSendoUprado.pontosPorCaminho == null)
         {
             personagemSendoUprado.pontosPorCaminho = new List<CaminhoRastrosData>();
@@ -206,7 +202,6 @@ public class Rastros : MonoBehaviour
         if (!string.IsNullOrEmpty(botao.preRequisitoHabilidade) && !personagemSendoUprado.habilidadesDesbloqueadas.Contains(botao.preRequisitoHabilidade)) return false;
         if (personagemSendoUprado.pontosRastrosGastos < botao.pontosGlobaisNecessarios) return false;
 
-        // --- LÓGICA ATUALIZADA ---
         int pontosAtuaisNesteCaminho = GetPontosNoCaminho(botao.idCaminho);
         if (pontosAtuaisNesteCaminho < botao.pontosNoCaminhoNecessarios) return false;
 
@@ -230,12 +225,15 @@ public class Rastros : MonoBehaviour
 
         personagemSendoUprado.pontosRastrosDisponiveis -= botao.custo;
         personagemSendoUprado.pontosRastrosGastos += 1;
-        // --- LÓGICA ATUALIZADA ---
         AddPontoNoCaminho(botao.idCaminho);
         personagemSendoUprado.habilidadesDesbloqueadas.Add(botao.idHabilidade);
 
         AplicarUpgrade(upgradeCorreto);
-        Debug.Log("Upgrade " + upgradeCorreto.upgradeName + " aplicado!");
+
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.TriggerTutorial("RETURN_TO_SELECTION");
+        }
 
         AtualizarUI();
         AtualizarEstadoBotoes();

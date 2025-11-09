@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c92b6bd5f12f0b46b0e8207c190ca4d, type: 3}
-  m_Name: "Constru\xE7\xE3o"
+  m_Name: SelecionarTorre
   m_EditorClassIdentifier: 
-  tutorialID: HOW_TO_BUILD
-  titulo: "Constru\xE7\xE3o"
-  descricao: "Bem-vindo \xE0 Vis\xE3o A\xE9rea, junte dinheiro abatendo inimigos
-    e posicione torres e armadilhas para lidar com mais deles."
+  tutorialID: SELECT_TOWER
+  titulo: Selecionar sua Torre
+  descricao: Agora, escolha uma companheira...

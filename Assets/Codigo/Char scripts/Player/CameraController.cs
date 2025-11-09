@@ -20,7 +20,6 @@ public class CameraController : MonoBehaviour
     private float cameraRotationX;
     private float cameraRotationY;
 
-    // NOVAS CONSTANTES DE PRIORIDADE para clareza
     private const int PriorityNormal = 10;
     private const int PriorityAim = 15;
 
@@ -29,12 +28,8 @@ public class CameraController : MonoBehaviour
         normalFollow = normalCamera.GetComponent<CinemachineThirdPersonFollow>();
         aimFollow = aimCamera.GetComponent<CinemachineThirdPersonFollow>();
 
-        // Configuração inicial de prioridade
-        normalCamera.Priority.Value = PriorityNormal; // Prioridade padrão
-        aimCamera.Priority.Value = 5; // Prioridade baixa quando não está mirando
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        normalCamera.Priority.Value = PriorityNormal;
+        aimCamera.Priority.Value = 5;
     }
 
     private void Update()
@@ -66,13 +61,11 @@ public class CameraController : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             isAiming = true;
-            // ALTERADO: Usando as novas prioridades
             aimCamera.Priority.Value = PriorityAim;
         }
         if (Input.GetMouseButtonUp(1))
         {
             isAiming = false;
-            // ALTERADO: Resetando a prioridade da câmera de mira para um valor baixo
             aimCamera.Priority.Value = 5;
         }
     }

@@ -5,9 +5,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public struct MapeamentoUpgradePersonagem
 {
-    [Tooltip("Arraste o SO do Personagem (ex: Arqueira.asset)")]
     public CharacterBase personagemSO;
-    [Tooltip("Arraste o SO do Upgrade (ex: Arqueira_Rastro_1.asset)")]
     public RastroUpgrade upgradeSO;
 }
 
@@ -26,7 +24,6 @@ public class BotaoHabilidade : MonoBehaviour
     public int pontosNoCaminhoNecessarios = 0;
 
     [Header("Mapeamento de Upgrades")]
-    [Tooltip("Adicione um item a esta lista para CADA personagem que usar esta árvore.")]
     public List<MapeamentoUpgradePersonagem> upgradesPorPersonagem;
 
     [Header("Referências")]
@@ -57,8 +54,6 @@ public class BotaoHabilidade : MonoBehaviour
         }
     }
 
-    // OnEnable foi removido para impedir que corra antes do Rastros.Awake()
-
     void OnBotaoClicado()
     {
         if (managerRastros != null)
@@ -85,14 +80,11 @@ public class BotaoHabilidade : MonoBehaviour
     {
         if (meuBotao == null) meuBotao = GetComponent<Button>();
 
-        // --- PROTEÇÃO ADICIONADA ---
-        if (manager == null || manager.habilidadesDesbloqueadas == null || manager.pontosPorCaminho == null)
+        if (manager == null || manager.habilidadesDesbloqueadas == null || manager.pontosPorCaminho == null)
         {
-            // Tenta apanhar o manager se a referência se perdeu
             if (managerRastros == null)
                 managerRastros = FindObjectOfType<Rastros>();
 
-            // Se ainda assim for nulo, sai
             if (managerRastros == null || managerRastros.habilidadesDesbloqueadas == null)
             {
                 if (meuBotao != null) meuBotao.interactable = false;
@@ -106,8 +98,7 @@ public class BotaoHabilidade : MonoBehaviour
 
         if (manager.habilidadesDesbloqueadas.Contains(idHabilidade))
         {
-            // --- 1. COMPRADO (Claro / Verde) ---
-            if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
+            if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
             colors.disabledColor = corDesbloqueado;
             meuBotao.interactable = false;
         }
@@ -123,7 +114,6 @@ public class BotaoHabilidade : MonoBehaviour
             if (manager.pontosGastosGlobal < pontosGlobaisNecessarios)
                 disponivel = false;
 
-            // --- LÓGICA ATUALIZADA ---
             int pontosAtuaisCaminho = 0;
             foreach (var caminho in manager.pontosPorCaminho)
             {
@@ -138,8 +128,7 @@ public class BotaoHabilidade : MonoBehaviour
 
             if (disponivel)
             {
-                // --- 2. DISPONÍVEL (Escuro, mas clicável e claro no hover) ---
-                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
+                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
                 colors.normalColor = corBloqueado;
                 colors.highlightedColor = corDisponivel;
                 colors.pressedColor = new Color(0.9f, 0.9f, 0.9f);
@@ -148,8 +137,7 @@ public class BotaoHabilidade : MonoBehaviour
             }
             else
             {
-                // --- 3. BLOQUEADO (Escuro) ---
-                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
+                if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
                 colors.disabledColor = corBloqueado;
                 meuBotao.interactable = false;
             }

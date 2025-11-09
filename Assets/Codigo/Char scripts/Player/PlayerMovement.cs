@@ -32,15 +32,16 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
 
-    private Vector3 direction; // MUDANÇA: 'direction' agora é baseado no input local
+    private Vector3 direction;
     private float targetAngle;
 
-    // Suas variáveis originais
     public bool canDoubleJump = false;
     private bool hasDoubleJumped = false;
     public bool isFloating = false;
     public float floatDuration = 0f;
     public float jumpHeightModifier = 1f;
+
+    private bool jaMoveuTutorial = false;
 
     private void Start()
     {
@@ -52,7 +53,6 @@ public class PlayerMovement : MonoBehaviour
             cameraController = Camera.main.transform;
         }
 
-        // Configuração Automática da Mira (Prova de Instanciação)
         GameObject aimTargetObj = new GameObject(name + " AimTarget");
         aimTarget = aimTargetObj.transform;
 
@@ -65,6 +65,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (aimRig != null) aimRig.weight = 0f;
+
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.TriggerTutorial("PLAYER_MOVEMENT");
+        }
     }
 
     private void Update()
@@ -105,7 +110,6 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        // Mover o AimTarget com o Raycast
         if (aimTarget != null)
         {
             Ray ray = new Ray(cameraController.position, cameraController.forward);
@@ -119,9 +123,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Forçar a rotação se estivermos MIRANDO ou MOVENDO
-        // MUDANÇA: 'direction.magnitude' foi substituído por 'direction.sqrMagnitude' (um pouco mais otimizado)
-        if (isAiming || direction.sqrMagnitude > 0.01f) // 'direction' agora é (horizontal, 0, vertical)
+        if (isAiming || direction.sqrMagnitude > 0.01f)
         {
             if (isAiming)
             {
@@ -164,33 +166,31 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        float horizontal = Input.GetAxis("Horizontal"); // A/D
-        float vertical = Input.GetAxis("Vertical");   // W/S
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
-        // MUDANÇA: 'direction' agora armazena o input local (horizontal, 0, vertical)
         direction = new Vector3(horizontal, 0f, vertical);
 
         currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
-        // Usamos .sqrMagnitude porque é mais rápido que .magnitude
-        if (direction.sqrMagnitude > 0.01f) // 0.01f em vez de 0.1f, pois é ao quadrado
+        if (direction.sqrMagnitude > 0.01f)
         {
-            Vector3 moveDir; // O vetor de direção final
+            if (!jaMoveuTutorial && GameDataManager.Instance != null && GameDataManager.Instance.tutoriaisConcluidos.Contains("PLAYER_MOVEMENT"))
+            {
+                jaMoveuTutorial = true;
+                if (TutorialManager.Instance != null)
+                {
+                    TutorialManager.Instance.TriggerTutorial("EXPLAIN_BUILD_MODE");
+                }
+            }
+
+            Vector3 moveDir;
 
             if (isAiming)
             {
-                // --- LÓGICA DE STRAFE (MIRA) ---
-                // O personagem já está travado para a frente (pelo LateUpdate)
-                // Precisamos mover relativo à câmera
-
-                // Pega o ângulo de "olhar" (que é o ângulo da câmera)
                 float lookAngle = cameraController.eulerAngles.y;
-
-                // Gira o nosso vetor de input (direction) pelo ângulo da câmera
-                // (horizontal, 0, vertical) -> (movimento de strafe real)
                 moveDir = Quaternion.Euler(0f, lookAngle, 0f) * direction;
 
-                // Envia os inputs locais para o Blend Tree 2D de mira
                 if (animator != null)
                 {
                     animator.SetFloat("AimMoveX", horizontal, 0.1f, Time.deltaTime);
@@ -199,30 +199,22 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                // --- LÓGICA DE LOCOMOÇÃO (NORMAL) ---
-                // O personagem gira na direção do movimento
                 targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraController.eulerAngles.y;
                 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
-                // Envia a velocidade para o Blend Tree de locomoção
                 if (animator != null)
                 {
-                    // Usa a magnitude do input para o blend (normalizado para walk/run)
                     float animSpeed = (Input.GetKey(KeyCode.LeftShift) ? 1.0f : 0.5f) * direction.magnitude;
                     animator.SetFloat("MovementSpeed", animSpeed, 0.1f, Time.deltaTime);
                 }
             }
-
-            // Move o personagem (normalizado para evitar movimento diagonal mais rápido)
             controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
         }
         else
         {
-            // --- PARADO ---
             controller.Move(Vector3.zero);
             if (animator != null)
             {
-                // Zera os dois animators
                 animator.SetFloat("MovementSpeed", 0f, 0.1f, Time.deltaTime);
                 animator.SetFloat("AimMoveX", 0f, 0.1f, Time.deltaTime);
                 animator.SetFloat("AimMoveY", 0f, 0.1f, Time.deltaTime);

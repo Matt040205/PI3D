@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c92b6bd5f12f0b46b0e8207c190ca4d, type: 3}
-  m_Name: HabilidadesKit
+  m_Name: CaminhosDeTorre
   m_EditorClassIdentifier: 
-  tutorialID: 
-  titulo: 
-  descricao: 
+  tutorialID: TOWER_UPGRADES
+  titulo: Skils de Torres
+  descricao: "Aqui est\xE3o as torres e seus caminhos..."

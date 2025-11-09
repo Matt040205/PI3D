@@ -5,8 +5,8 @@ public class TutorialManager : MonoBehaviour
 {
     public static TutorialManager Instance;
 
-    [Header("Referências")]
-    [Tooltip("Arraste o GameObject 'TutorialPopupPanel' (o que está desativado) aqui.")]
+    [Header("Referncias")]
+    [Tooltip("Arraste o GameObject 'TutorialPopupPanel' (o que est desativado) aqui.")]
     public GameObject popupPanelObject;
     public List<TutorialData> todosOsTutoriais;
 
@@ -22,23 +22,42 @@ public class TutorialManager : MonoBehaviour
         }
         Instance = this;
 
-        // Não faz DontDestroyOnLoad se o painel for da cena
-
         foreach (TutorialData tutorial in todosOsTutoriais)
         {
-            if (tutorial != null && !databaseTutoriais.ContainsKey(tutorial.tutorialID))
+            if (tutorial != null && !string.IsNullOrEmpty(tutorial.tutorialID))
             {
-                databaseTutoriais.Add(tutorial.tutorialID, tutorial);
+                if (!databaseTutoriais.ContainsKey(tutorial.tutorialID))
+                {
+                    databaseTutoriais.Add(tutorial.tutorialID, tutorial);
+                }
+                else
+                {
+                    // DEBUG: Avisa se tiver IDs duplicados
+                    Debug.LogWarning($"TUTORIAL_MANAGER: ID Duplicado encontrado na lista 'todosOsTutoriais': {tutorial.tutorialID}. Apenas o primeiro será usado.");
+                }
             }
         }
     }
 
     public void TriggerTutorial(string tutorialID)
     {
-        if (GameDataManager.Instance == null || popupPanelObject == null) return;
+        Debug.Log($"TUTORIAL_MANAGER: Recebido gatilho para ID: [{tutorialID}]"); // DEBUG
+
+        if (GameDataManager.Instance == null)
+        {
+            Debug.LogError("TUTORIAL_MANAGER: GameDataManager.Instance é NULO.", this.gameObject);
+            return;
+        }
+
+        if (popupPanelObject == null)
+        {
+            Debug.LogError("TUTORIAL_MANAGER: 'popupPanelObject' não foi anexado no Inspetor!", this.gameObject);
+            return;
+        }
 
         if (GameDataManager.Instance.tutoriaisConcluidos.Contains(tutorialID))
         {
+            Debug.Log($"TUTORIAL_MANAGER: Tutorial [{tutorialID}] já foi concluído. Ignorando.", this.gameObject);
             return;
         }
 
@@ -46,19 +65,35 @@ public class TutorialManager : MonoBehaviour
         {
             TutorialData data = databaseTutoriais[tutorialID];
 
-            // 1. Ativa o GameObject do painel
-            popupPanelObject.SetActive(true);
+            // ----- DEBUG CHAVE -----
+            if (data == null)
+            {
+                Debug.LogError($"TUTORIAL_MANAGER: Encontrei o ID [{tutorialID}], mas o Scriptable Object (TutorialData) associado é NULO!", this.gameObject);
+                return;
+            }
 
-            // 2. Pega o script (que agora está ativo)
+            Debug.Log($"TUTORIAL_MANAGER: Título que estou enviando: '{data.titulo}'");
+            Debug.Log($"TUTORIAL_MANAGER: Descrição que estou enviando: '{data.descricao}'");
+            // ----- FIM DO DEBUG -----
+
+            popupPanelObject.SetActive(true);
             popupUIScript = popupPanelObject.GetComponent<TutorialPopupUI>();
 
             if (popupUIScript != null)
             {
-                // 3. Mostra o pop-up
-                popupUIScript.Show(data);
+                Debug.Log("TUTORIAL_MANAGER: Enviando dados para o popupUIScript.Show()");
+                popupUIScript.Show(data);
+            }
+            else
+            {
+                Debug.LogError($"TUTORIAL_MANAGER: Ativei o 'popupPanelObject', mas não encontrei o script 'TutorialPopupUI' nele.", popupPanelObject);
             }
 
             ConcluirTutorial(tutorialID);
+        }
+        else
+        {
+            Debug.LogError($"TUTORIAL_MANAGER: O ID [{tutorialID}] não foi encontrado no 'databaseTutoriais'. Verifique se o Scriptable Object está na lista 'todosOsTutoriais' e se o ID está escrito CORRETAMENTE.", this.gameObject);
         }
     }
 

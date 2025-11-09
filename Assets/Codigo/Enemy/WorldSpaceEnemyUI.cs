@@ -23,15 +23,30 @@ public class WorldSpaceEnemyUI : MonoBehaviour
 
     private Camera mainCamera;
 
+    void Awake()
+    {
+        InitializePool();
+    }
+
     void Start()
     {
         mainCamera = Camera.main;
-        InitializePool();
 
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
-                             mainCamera.transform.rotation * Vector3.up);
+                    mainCamera.transform.rotation * Vector3.up);
+        }
+    }
+
+    void OnEnable()
+    {
+        foreach (TextMeshProUGUI textMesh in textPool)
+        {
+            if (textMesh != null && textMesh.gameObject.activeInHierarchy)
+            {
+                textMesh.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -40,7 +55,7 @@ public class WorldSpaceEnemyUI : MonoBehaviour
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
-                             mainCamera.transform.rotation * Vector3.up);
+                    mainCamera.transform.rotation * Vector3.up);
         }
     }
 
@@ -79,9 +94,7 @@ public class WorldSpaceEnemyUI : MonoBehaviour
         return CreatePooledText();
     }
 
-    // --- FUNÇÃO ATUALIZADA ---
-    // Agora aceita um bool "isCritical" para decidir a cor
-    public void ShowDamageNumber(float damageAmount, bool isCritical)
+    public void ShowDamageNumber(float damageAmount, bool isCritical)
     {
         TextMeshProUGUI textMesh = GetPooledText();
         if (textMesh == null) return;
@@ -119,4 +132,3 @@ public class WorldSpaceEnemyUI : MonoBehaviour
         textMesh.gameObject.SetActive(false);
     }
 }
-

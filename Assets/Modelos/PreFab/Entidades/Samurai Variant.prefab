@@ -98,6 +98,14 @@ PrefabInstance:
       propertyPath: m_Data.m_DampRotation
       value: 0.001
       objectReference: {fileID: 0}
+    - target: {fileID: 573096255506189436, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: aimRig
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 573096255506189436, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: aimConstraint
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 702061340975147476, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -34.565
@@ -453,6 +461,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8614219079200053719, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+    - {fileID: 4674399538622136838, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4237064630503924919, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       insertIndex: -1

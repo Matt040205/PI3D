@@ -27,6 +27,9 @@ public class EnemyController : MonoBehaviour
     private EnemyCombatSystem combatSystem;
     private Rigidbody rb;
 
+    // Referência para o Animator
+    private Animator anim;
+
     private float currentDamage;
     private float currentMoveSpeed;
     private float originalMoveSpeed;
@@ -49,6 +52,9 @@ public class EnemyController : MonoBehaviour
         healthSystem = GetComponent<EnemyHealthSystem>();
         combatSystem = GetComponent<EnemyCombatSystem>();
         rb = GetComponent<Rigidbody>();
+
+        // Pega o componente Animator
+        anim = GetComponent<Animator>();
 
         if (rb == null)
         {
@@ -81,6 +87,14 @@ public class EnemyController : MonoBehaviour
         healthSystem.InitializeHealth(nivel);
         currentPointIndex = 0;
         target = null;
+
+        // Garante que o inimigo comece no estado "Idle" ao ser ativado
+        if (anim == null) anim = GetComponent<Animator>(); // Garante que temos a referência
+        if (anim != null) // Adiciona verificação para evitar erro
+        {
+            anim.SetBool("isWalking", false);
+        }
+
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
@@ -95,7 +109,11 @@ public class EnemyController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (IsDead) return;
+        if (IsDead)
+        {
+            if (anim != null) anim.SetBool("isWalking", false); // Garante que pare de andar se morrer
+            return;
+        }
 
         DecideTarget();
 
@@ -152,9 +170,13 @@ public class EnemyController : MonoBehaviour
     {
         if (patrolPoints == null || patrolPoints.Count == 0 || currentPointIndex >= patrolPoints.Count)
         {
+            if (anim != null) anim.SetBool("isWalking", false); // Parou de patrulhar, vai atacar objetivo
             AttackObjectiveAndDie();
             return;
         }
+
+        if (anim != null) anim.SetBool("isWalking", true); // Está em patrulha, então está andando
+
         Transform currentDestination = patrolPoints[currentPointIndex];
         MoveTowardsPosition(currentDestination.position);
     }
@@ -182,15 +204,24 @@ public class EnemyController : MonoBehaviour
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 
+    // --- FUNÇÃO MODIFICADA ---
     private void ChaseTarget()
     {
         if (target == null) return;
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
-        if (distanceToTarget <= attackDistance)
+
+        if (distanceToTarget <= attackDistance) // ESTADO DE ATAQUE
         {
             if (rb != null)
             {
-                rb.linearVelocity = Vector3.zero;
+                // Paramos apenas o X e Z, mantendo o Y (gravidade).
+                rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            }
+
+            if (anim != null)
+            {
+                anim.SetBool("isWalking", false); // Parou de andar
+                anim.SetTrigger("doAttack");      // Toca a animação de ataque
             }
 
             Vector3 direction = (target.position - transform.position).normalized;
@@ -201,18 +232,31 @@ public class EnemyController : MonoBehaviour
                 rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
             }
         }
-        else
+        else // ESTADO DE PERSEGUIÇÃO
         {
+            if (anim != null) anim.SetBool("isWalking", true); // Está perseguindo, então está andando
             MoveTowardsPosition(target.position);
         }
     }
 
+    // --- FUNÇÃO MODIFICADA ---
     private void MoveTowardsPosition(Vector3 targetPosition)
     {
         if (rb == null) return;
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
-        rb.MovePosition(transform.position + direction * currentMoveSpeed * Time.fixedDeltaTime);
+
+        // Em vez de MovePosition, vamos definir a velocidade.
+
+        // 1. Calculamos a velocidade horizontal desejada
+        Vector3 horizontalVelocity = direction * currentMoveSpeed;
+
+        // 2. Mantemos a velocidade vertical atual (gravidade)
+        float verticalVelocity = rb.linearVelocity.y;
+
+        // 3. Combinamos as duas e aplicamos
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
+
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
@@ -222,6 +266,10 @@ public class EnemyController : MonoBehaviour
 
     public void HandleDeath()
     {
+        if (anim != null) anim.SetBool("isWalking", false);
+        // NOTA: O ideal aqui seria disparar um trigger "doDie" e
+        // esperar a animação de morte terminar antes de chamar ReturnToPool.
+
         DropRewards();
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }

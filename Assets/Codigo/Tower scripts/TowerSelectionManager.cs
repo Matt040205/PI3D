@@ -36,6 +36,16 @@ public class TowerSelectionManager : MonoBehaviour
     {
         if (Time.timeScale == 0 || mainCamera == null) return;
 
+        if (!BuildManager.isBuildingMode)
+        {
+            if (towerCurrentlyHighlighted != null)
+            {
+                towerCurrentlyHighlighted.GetComponent<TowerSelectionCircle>()?.Unhighlight();
+                towerCurrentlyHighlighted = null;
+            }
+            return;
+        }
+
         HandleHoverHighlighting();
         HandleSelectionClick();
     }

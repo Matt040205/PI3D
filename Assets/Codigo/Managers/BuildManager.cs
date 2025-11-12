@@ -150,6 +150,12 @@ public class BuildManager : MonoBehaviour
         if (!state)
         {
             ClearSelection();
+
+            if (TowerSelectionManager.Instance != null)
+            {
+                TowerSelectionManager.Instance.DeselectTower();
+            }
+
             if (TutorialManager.Instance != null && GameDataManager.Instance != null && GameDataManager.Instance.tutoriaisConcluidos.Contains("RETURN_TO_COMMANDER"))
             {
                 TutorialManager.Instance.TriggerTutorial("USE_SKILLS");
@@ -318,6 +324,7 @@ public class BuildManager : MonoBehaviour
                 {
                     placedTrapData = trapData;
                     var logicComponentOnPrefab = trapData.logicPrefab.GetComponent<MonoBehaviour>();
+                    if (logicComponentOnPrefab != null)
                     {
                         var newComponent = newBuildObject.AddComponent(logicComponentOnPrefab.GetType());
 
@@ -330,8 +337,11 @@ public class BuildManager : MonoBehaviour
                         {
                             Debug.LogError($"[BuildManager] O script de lógica '{logicComponentOnPrefab.GetType()}' em {trapData.name} NÃO herda de 'TrapLogicBase'. O limite de build não funcionará.");
                         }
-                       
-                    }            
+                    }
+                    else
+                    {
+                        Debug.LogError($"[BuildManager] O 'logicPrefab' em {trapData.name} não tem um script (MonoBehaviour) anexado.");
+                    }
                 }
 
                 CurrencyManager.Instance.SpendCurrency(buildingCost, CurrencyType.Geodites);

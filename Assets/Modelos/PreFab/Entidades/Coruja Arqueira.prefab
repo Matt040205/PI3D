@@ -56,6 +56,10 @@ PrefabInstance:
       propertyPath: areaVisualPrefab
       value: 
       objectReference: {fileID: 4885778646325350380, guid: ece46e452da42b04c8174d2ae43c9b4c, type: 3}
+    - target: {fileID: 1514725371722067090, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: beamVisualPrefab
+      value: 
+      objectReference: {fileID: 4885778646325350380, guid: ece46e452da42b04c8174d2ae43c9b4c, type: 3}
     - target: {fileID: 2682399473942067493, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_Name
       value: Coruja Arqueira

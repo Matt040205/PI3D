@@ -9,9 +9,6 @@ public class TutorialPopupUI : MonoBehaviour
     public TextMeshProUGUI descricaoText;
     public Button botaoFechar;
 
-    private string debug_expectedTitle = "";
-    private string debug_expectedDesc = "";
-
     void Awake()
     {
         if (botaoFechar != null)
@@ -33,17 +30,13 @@ public class TutorialPopupUI : MonoBehaviour
             return;
         }
 
-        Debug.Log($"POPUP_UI INFO: Recebi dados para o ID: [{data.tutorialID}]");
-
         if (tituloText == null)
         {
             Debug.LogError("POPUP_UI ERRO: A referência 'tituloText' (TextMeshPro) está NULA.", this.gameObject);
         }
         else
         {
-            debug_expectedTitle = data.titulo;
             tituloText.text = data.titulo;
-            Debug.Log($"POPUP_UI INFO: Título que recebi: '{data.titulo}'. Texto agora no componente é: '{tituloText.text}'");
         }
 
         if (descricaoText == null)
@@ -52,9 +45,7 @@ public class TutorialPopupUI : MonoBehaviour
         }
         else
         {
-            debug_expectedDesc = data.descricao;
             descricaoText.text = data.descricao;
-            Debug.Log($"POPUP_UI INFO: Descrição que recebi: '{data.descricao}'. Texto agora no componente é: '{descricaoText.text}'");
         }
 
         if (painelRoot != null)
@@ -75,50 +66,25 @@ public class TutorialPopupUI : MonoBehaviour
         else
             this.gameObject.SetActive(false);
 
-        debug_expectedTitle = "";
-        debug_expectedDesc = "";
         Time.timeScale = 1f;
 
-        // --- MUDANÇA CORRIGIDA AQUI ---
-        // 1. Verifica se estamos na cena de Jogo (se o BuildManager existe)
         if (BuildManager.Instance != null)
         {
-            // 2. Se sim, estamos no modo construção?
             if (BuildManager.isBuildingMode)
             {
-                // Modo Construção: Mouse livre
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
             else
             {
-                // Modo Shooter: Mouse travado
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
         }
         else
         {
-            // 3. Se o BuildManager NÃO existe, estamos num Menu (Seleção de Personagem).
-            // Modo Menu: Mouse livre
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-        }
-    }
-
-    void Update()
-    {
-        if (painelRoot != null && painelRoot.activeSelf)
-        {
-            if (tituloText != null && tituloText.text != debug_expectedTitle)
-            {
-                Debug.LogWarning($"INTERFERÊNCIA DETECTADA (Título)! Algo mudou o texto para: '{tituloText.text}'", this.gameObject);
-            }
-
-            if (descricaoText != null && descricaoText.text != debug_expectedDesc)
-            {
-                Debug.LogWarning($"INTERFERÊNCIA DETECTADA (Descrição)! Algo mudou o texto para: '{descricaoText.text}'", this.gameObject);
-            }
         }
     }
 }

@@ -56,6 +56,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Teleporte
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9fd50235d8e155b4ca95130a106f8c12, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

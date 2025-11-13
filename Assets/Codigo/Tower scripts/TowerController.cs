@@ -3,10 +3,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-// Assumindo que EnemyType e EnemyController são acessíveis neste script.
-// Se houver um erro de compilação, pode ser necessário adicionar 'using static EnemyDataSO;'
-// ou ajustar os namespaces.
-
 public class TowerController : MonoBehaviour
 {
     [Header("Referências")]
@@ -17,22 +13,20 @@ public class TowerController : MonoBehaviour
     [Header("Configurações de IA")]
     [SerializeField] private string enemyTag = "Enemy";
 
-    // --- PROPRIEDADE PARA COMPORTAMENTO DE ALVO (FlyerEnemyTargetingBehavior) ---
     [Tooltip("Define se a torre pode mirar em inimigos do tipo Voador.")]
     public bool TargetsFlyingEnemies { get; set; } = false;
 
-    // --- Eventos para os Behaviors ---
     public event Action<EnemyHealthSystem> OnTargetDamaged;
     public event Func<EnemyHealthSystem, float, float> OnCalculateDamage;
     public event Action<EnemyHealthSystem> OnCriticalHit;
     public event Action<EnemyHealthSystem> OnEnemyKilled;
 
-    // --- Propriedade Pública de Estado ---
     public bool IsDestroyed { get; private set; }
 
-    // --- Status Atuais da Instância da Torre ---
+    [HideInInspector]
+    public int totalCostSpent { get; private set; }
+
     private float currentHealth;
-    // CORRIGIDO: maxHealth e currentRange substituídos por propriedades públicas para acesso externo.
     private float currentArmor;
     private float currentDamage;
     private float currentAttackSpeed;
@@ -40,12 +34,9 @@ public class TowerController : MonoBehaviour
     private float currentCritDamage;
     private float currentArmorPenetration;
 
-    // --- PROPRIEDADES DE STATUS ---
     public float MaxHealth { get; private set; }
     public float CurrentRange { get; private set; }
 
-
-    // --- Variáveis de Controle Interno ---
     private List<TowerBehavior> activeBehaviors = new List<TowerBehavior>();
     public int[] currentPathLevels;
     private Transform targetEnemy;
@@ -61,15 +52,15 @@ public class TowerController : MonoBehaviour
         }
         currentPathLevels = new int[towerData.upgradePaths.Count];
         CloneBaseStats();
-        // Chamada para UpdateTarget repetida a cada 0.5s para otimização
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
     void CloneBaseStats()
     {
-        // 🌟 Herda a vida máxima do CharacterBase
         MaxHealth = towerData.maxHealth;
         currentHealth = MaxHealth;
+
+        totalCostSpent = towerData.cost;
 
         currentArmor = towerData.armor;
         currentDamage = towerData.damage;
@@ -85,13 +76,16 @@ public class TowerController : MonoBehaviour
         Debug.Log($"<color=green>TORRE INICIALIZADA:</color> {gameObject.name} (Vida Máxima: {MaxHealth}, Dano: {currentDamage})");
     }
 
-    public void ApplyUpgrade(Upgrade upgradeToApply)
+    public void ApplyUpgrade(Upgrade upgradeToApply, int geoditeCost, int darkEtherCost)
     {
         if (upgradeToApply == null)
         {
             Debug.LogError("Tentativa de aplicar um upgrade NULO!");
             return;
         }
+
+        totalCostSpent += geoditeCost;
+        totalCostSpent += darkEtherCost;
 
         Debug.Log($"<color=cyan>Aplicando upgrade '{upgradeToApply.upgradeName}' na torre {gameObject.name}</color>");
 
@@ -167,15 +161,12 @@ public class TowerController : MonoBehaviour
             float damageToDeal = currentDamage;
             bool isCritical = UnityEngine.Random.value <= currentCritChance;
 
-            // ... (Lógica de Dano)
-
             if (isCritical)
             {
                 float criticalDamage = damageToDeal * currentCritDamage;
                 damageToDeal = criticalDamage;
             }
 
-            // Permite que outros scripts (habilidades) modifiquem o dano antes de ser aplicado
             if (OnCalculateDamage != null)
             {
                 foreach (Func<EnemyHealthSystem, float, float> modifier in OnCalculateDamage.GetInvocationList())
@@ -186,7 +177,6 @@ public class TowerController : MonoBehaviour
 
             bool enemyDied = healthSystem.TakeDamage(damageToDeal, currentArmorPenetration);
 
-            // Invoca eventos
             if (enemyDied)
             {
                 OnEnemyKilled?.Invoke(healthSystem);
@@ -194,13 +184,21 @@ public class TowerController : MonoBehaviour
 
             OnTargetDamaged?.Invoke(healthSystem);
 
-            // Invoca o evento de Acerto Crítico para os Behaviors (como Sangramento/Marcação)
             if (isCritical)
             {
                 OnCriticalHit?.Invoke(healthSystem);
             }
-
         }
+    }
+
+    public void SellTower(float refundPercentage)
+    {
+        if (CurrencyManager.Instance != null)
+        {
+            int refundAmount = Mathf.FloorToInt(totalCostSpent * refundPercentage);
+            CurrencyManager.Instance.AddCurrency(refundAmount, CurrencyType.Geodites);
+        }
+        DestroyTower();
     }
 
     public void TakeDamage(float amount)
@@ -208,23 +206,19 @@ public class TowerController : MonoBehaviour
         if (IsDestroyed) return;
         float remainingDamage = amount;
 
-        // Aplica lógica de barreira / absorção de dano (se houver)
         Collider[] colliders = Physics.OverlapSphere(transform.position, 5f);
         foreach (var col in colliders)
         {
             SpiritualBarrierBehavior barrier = col.GetComponent<SpiritualBarrierBehavior>();
-            // Nota: Este SpiritualBarrierBehavior precisa ser um script seu
             if (barrier != null && barrier.towerController != this)
             {
                 remainingDamage = barrier.AbsorbDamage(remainingDamage);
             }
         }
 
-        // Aplica armadura e calcula o dano final
         float finalDamage = remainingDamage * (1 - currentArmor);
         currentHealth -= finalDamage;
 
-        // 🌟 NOVO LOG PARA CONFIRMAR O DANO DA AURA
         Debug.Log($"<color=red>DANO RECEBIDO:</color> {gameObject.name} sofreu {finalDamage:F1} de dano. Vida Restante: {currentHealth:F1} / {MaxHealth:F1}.");
 
         if (currentHealth <= 0)
@@ -238,33 +232,33 @@ public class TowerController : MonoBehaviour
     {
         IsDestroyed = true;
         targetEnemy = null;
+
+        if (TowerSelectionManager.Instance != null)
+        {
+            TowerSelectionManager.Instance.DeselectAll();
+        }
+
         Debug.Log($"<color=red>TORRE DESTRUÍDA!</color> Torre {gameObject.name} foi destruída!");
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     public void Revive(float healthPercentage)
     {
         if (!IsDestroyed) return;
         IsDestroyed = false;
-        // Usando a nova propriedade
         currentHealth = MaxHealth * healthPercentage;
         Debug.Log($"Torre {gameObject.name} foi revivida!");
     }
 
-    // MÉTODOS PÚBLICOS E DE CONTROLE
-    // CORRIGIDO: O método Heal usa a nova propriedade MaxHealth
     public void Heal(float amount) { currentHealth = Mathf.Min(currentHealth + amount, MaxHealth); }
     public void AddArmorBonus(float amount) { currentArmor += amount; }
     public void AddAttackSpeedBonus(float amount) { currentAttackSpeed *= (1 + amount); }
     public void AddDamageBonus(float amount) { currentDamage *= (1 + amount); }
     public void PerformExtraAttack() { Shoot(); }
 
-    // --- MÉTODO CORRIGIDO PARA MIRAR EM INIMIGOS VOADORES ---
     void UpdateTarget()
     {
-        // 1. Encontra todos os inimigos dentro do raio de alcance
         Collider[] collidersInRadius = Physics.OverlapSphere(transform.position, CurrentRange);
-
         Transform nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
 
@@ -272,22 +266,19 @@ public class TowerController : MonoBehaviour
         {
             if (collider.CompareTag(enemyTag))
             {
-                // Tenta obter o EnemyController e o EnemyData
                 EnemyController enemyController = collider.GetComponent<EnemyController>();
 
                 if (enemyController == null || enemyController.enemyData == null) continue;
 
                 EnemyType enemyType = enemyController.enemyData.enemyType;
 
-                // Lógica de filtragem:
                 bool isTargetable = (enemyType == EnemyType.Terrestre) ||
-                                    (TargetsFlyingEnemies && enemyType == EnemyType.Voador);
+                          (TargetsFlyingEnemies && enemyType == EnemyType.Voador);
 
                 if (isTargetable)
                 {
                     float distanceToEnemy = Vector3.Distance(transform.position, collider.transform.position);
 
-                    // Lógica de Prioridade: Mudar o alvo apenas se for mais próximo (nearest target priority)
                     if (distanceToEnemy < shortestDistance)
                     {
                         shortestDistance = distanceToEnemy;

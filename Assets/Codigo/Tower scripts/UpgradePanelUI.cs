@@ -26,6 +26,11 @@ public class UpgradePanelUI : MonoBehaviour
     public TextMeshProUGUI costText3;
     public TextMeshProUGUI levelText3;
 
+    [Header("Controles da Torre")]
+    public Button sellButton;
+    public TextMeshProUGUI sellPriceText;
+    public float sellRefundPercentage = 0.4f;
+
     private TowerController currentTower;
     private CanvasGroup panelCanvasGroup;
     private const int MAX_TOTAL_POINTS = 6;
@@ -37,6 +42,11 @@ public class UpgradePanelUI : MonoBehaviour
         {
             Debug.LogError("CanvasGroup não encontrado no uiPanel! Adicione um componente CanvasGroup.", uiPanel);
             panelCanvasGroup = uiPanel.AddComponent<CanvasGroup>();
+        }
+
+        if (sellButton != null)
+        {
+            sellButton.onClick.AddListener(SellTower);
         }
     }
 
@@ -80,6 +90,12 @@ public class UpgradePanelUI : MonoBehaviour
         UpdatePathButton(0, upgradeButton1, costText1, levelText1, isFullyUpgraded, totalPointsSpent);
         UpdatePathButton(1, upgradeButton2, costText2, levelText2, isFullyUpgraded, totalPointsSpent);
         UpdatePathButton(2, upgradeButton3, costText3, levelText3, isFullyUpgraded, totalPointsSpent);
+
+        if (sellPriceText != null)
+        {
+            int refundAmount = Mathf.FloorToInt(currentTower.totalCostSpent * sellRefundPercentage);
+            sellPriceText.text = $"Vender por <color=#76D7C4>{refundAmount}G</color>";
+        }
 
         panelCanvasGroup.interactable = !isFullyUpgraded;
         panelCanvasGroup.alpha = isFullyUpgraded ? 0.5f : 1f;
@@ -214,7 +230,6 @@ public class UpgradePanelUI : MonoBehaviour
         }
     }
 
-
     public void UpgradePath(int pathIndex)
     {
         if (currentTower == null) return;
@@ -236,16 +251,15 @@ public class UpgradePanelUI : MonoBehaviour
         int darkEtherCost = nextUpgrade.darkEtherCost;
 
         if (CurrencyManager.Instance.HasEnoughCurrency(geoditeCost, CurrencyType.Geodites) &&
-          CurrencyManager.Instance.HasEnoughCurrency(darkEtherCost, CurrencyType.DarkEther))
+         CurrencyManager.Instance.HasEnoughCurrency(darkEtherCost, CurrencyType.DarkEther))
         {
             CurrencyManager.Instance.SpendCurrency(geoditeCost, CurrencyType.Geodites);
             CurrencyManager.Instance.SpendCurrency(darkEtherCost, CurrencyType.DarkEther);
 
-            currentTower.ApplyUpgrade(nextUpgrade);
+            currentTower.ApplyUpgrade(nextUpgrade, geoditeCost, darkEtherCost);
             currentTower.currentPathLevels[pathIndex]++;
-           
-    
-      if (TutorialManager.Instance != null)
+
+            if (TutorialManager.Instance != null)
             {
                 TutorialManager.Instance.TriggerTutorial("NEXT_WAVE");
             }
@@ -256,6 +270,15 @@ public class UpgradePanelUI : MonoBehaviour
         {
             Debug.Log("Recursos insuficientes para este upgrade!");
         }
+    }
+
+    private void SellTower()
+    {
+        if (currentTower == null) return;
+
+        currentTower.SellTower(sellRefundPercentage);
+
+      HidePanel();
     }
 
     private IEnumerator RefreshUIAfterFrame()

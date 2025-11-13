@@ -153,7 +153,7 @@ public class BuildManager : MonoBehaviour
 
             if (TowerSelectionManager.Instance != null)
             {
-                TowerSelectionManager.Instance.DeselectTower();
+                TowerSelectionManager.Instance.DeselectAll();
             }
 
             if (TutorialManager.Instance != null && GameDataManager.Instance != null && GameDataManager.Instance.tutoriaisConcluidos.Contains("RETURN_TO_COMMANDER"))
@@ -331,7 +331,7 @@ public class BuildManager : MonoBehaviour
                         TrapLogicBase trapLogic = newComponent as TrapLogicBase;
                         if (trapLogic != null)
                         {
-                            trapData = trapData;
+                            trapLogic.trapData = trapData;
                         }
                         else
                         {

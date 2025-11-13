@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using static Unity.VisualScripting.Member;
 
 public class BuildButtonUI : MonoBehaviour
@@ -14,6 +15,10 @@ public class BuildButtonUI : MonoBehaviour
     [Header("Configuração do Prefab")]
     [Tooltip("O nome EXATO do GameObject 'Filho' que contém a imagem do ícone")]
     public string iconChildObjectName = "Icon";
+    [Tooltip("O nome EXATO do GameObject 'Filho' que contém o texto do limite")]
+    public string limitTextChildObjectName = "LimitText";
+    [Tooltip("O nome EXATO do GameObject 'Filho' que contém o texto do preço")]
+    public string priceTextChildObjectName = "PriceText";
 
     public void ClearTowerButtons()
     {
@@ -52,18 +57,20 @@ public class BuildButtonUI : MonoBehaviour
                 tooltipTrigger.SetBuildInfo(towerData.name, towerData.description);
             }
 
-            Image iconImage = null;
-            Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
-
-            foreach (Image img in allImages)
+            TextMeshProUGUI limitText = FindChildText(buttonGO, limitTextChildObjectName);
+            if (limitText != null)
             {
-                if (img.gameObject.name == iconChildObjectName)
-                {
-                    iconImage = img;
-                    break;
-                }
+                limitText.gameObject.SetActive(false);
             }
 
+            TextMeshProUGUI priceText = FindChildText(buttonGO, priceTextChildObjectName);
+            if (priceText != null)
+            {
+                priceText.text = $"<color=#76D7C4>{towerData.cost}G</color>";
+                priceText.gameObject.SetActive(true);
+            }
+
+            Image iconImage = FindChildIcon(buttonGO);
             if (iconImage != null && towerData.characterIcon != null)
             {
                 iconImage.sprite = towerData.characterIcon;
@@ -100,34 +107,44 @@ public class BuildButtonUI : MonoBehaviour
                 tooltipTrigger.SetBuildInfo(trapData.trapName, trapData.description);
             }
 
+            TextMeshProUGUI limitText = FindChildText(buttonGO, limitTextChildObjectName);
             if (trapData.buildLimit > 0 && BuildManager.Instance != null)
             {
                 int currentCount = BuildManager.Instance.GetTrapCount(trapData);
+
+                if (limitText != null)
+                {
+                    limitText.text = $"{currentCount}/{trapData.buildLimit}";
+                    limitText.gameObject.SetActive(true);
+                }
+
                 if (currentCount >= trapData.buildLimit)
                 {
                     button.interactable = false;
                 }
             }
-
-            Image iconImage = null;
-            Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
-
-            foreach (Image img in allImages)
+            else if (limitText != null)
             {
-                if (img.gameObject.name == iconChildObjectName)
-                {
-                    iconImage = img;
-                    break;
-                }
+                limitText.gameObject.SetActive(false);
             }
 
+            TextMeshProUGUI priceText = FindChildText(buttonGO, priceTextChildObjectName);
+            if (priceText != null)
+            {
+                List<string> costs = new List<string>();
+                if (trapData.geoditeCost > 0) costs.Add($"<color=#76D7C4>{trapData.geoditeCost}G</color>");
+                if (trapData.darkEtherCost > 0) costs.Add($"<color=#C39BD3>{trapData.darkEtherCost}E</color>");
+                priceText.text = costs.Count > 0 ? string.Join(" / ", costs) : "Grátis";
+                priceText.gameObject.SetActive(true);
+            }
+
+            Image iconImage = FindChildIcon(buttonGO);
             if (iconImage != null && trapData.icon != null)
             {
                 iconImage.sprite = trapData.icon;
                 iconImage.enabled = true;
             }
-
-      else
+            else
             {
                 Debug.LogWarning($"Não foi possível encontrar o 'Image' no objeto filho chamado '{iconChildObjectName}' no prefab {buttonGO.name}", buttonGO);
             }
@@ -139,5 +156,32 @@ public class BuildButtonUI : MonoBehaviour
                 });
             }
         }
+    }
+
+    private Image FindChildIcon(GameObject buttonGO)
+    {
+        Image[] allImages = buttonGO.GetComponentsInChildren<Image>(true);
+        foreach (Image img in allImages)
+        {
+            if (img.gameObject.name == iconChildObjectName)
+            {
+                return img;
+            }
+        }
+        return null;
+    }
+
+    private TextMeshProUGUI FindChildText(GameObject buttonGO, string objectName)
+    {
+        TextMeshProUGUI[] allTexts = buttonGO.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach (TextMeshProUGUI txt in allTexts)
+        {
+            if (txt.gameObject.name == objectName)
+            {
+                return txt;
+            }
+        }
+        Debug.LogWarning($"Não foi possível encontrar o 'TextMeshProUGUI' no objeto filho chamado '{objectName}' no prefab {buttonGO.name}", buttonGO);
+        return null;
     }
 }

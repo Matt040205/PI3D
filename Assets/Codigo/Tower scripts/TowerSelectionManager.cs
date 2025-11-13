@@ -1,19 +1,27 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine.UI;
 
 public class TowerSelectionManager : MonoBehaviour
 {
     public static TowerSelectionManager Instance;
 
-    [Header("Referências da UI")]
+    [Header("Painel de Upgrade (Torres)")]
     public UpgradePanelUI upgradePanel;
+
+    [Header("Painel de Venda (Armadilhas)")]
+    public GameObject trapSellPanel;
+    public Button trapSellButton;
+    public TextMeshProUGUI trapSellPriceText;
 
     [Header("Configuração da Seleção")]
     public LayerMask towerLayerMask;
 
     private TowerController selectedTower;
-    private TowerController towerCurrentlyHighlighted;
+    private TrapLogicBase selectedTrap;
+    private Component currentlyHighlighted;
     private Camera mainCamera;
 
     void Awake()
@@ -30,6 +38,13 @@ public class TowerSelectionManager : MonoBehaviour
             Debug.LogError("[TowerSelectionManager] Câmera principal não encontrada!");
             this.enabled = false;
         }
+
+        if (trapSellButton != null)
+        {
+            trapSellButton.onClick.AddListener(SellSelectedTrap);
+        }
+
+        DeselectAll();
     }
 
     void Update()
@@ -38,10 +53,10 @@ public class TowerSelectionManager : MonoBehaviour
 
         if (!BuildManager.isBuildingMode)
         {
-            if (towerCurrentlyHighlighted != null)
+            if (currentlyHighlighted != null)
             {
-                towerCurrentlyHighlighted.GetComponent<TowerSelectionCircle>()?.Unhighlight();
-                towerCurrentlyHighlighted = null;
+                (currentlyHighlighted as TowerController)?.GetComponent<TowerSelectionCircle>()?.Unhighlight();
+                currentlyHighlighted = null;
             }
             return;
         }
@@ -54,44 +69,40 @@ public class TowerSelectionManager : MonoBehaviour
     {
         if (EventSystem.current.IsPointerOverGameObject())
         {
-            if (towerCurrentlyHighlighted != null)
+            if (currentlyHighlighted != null)
             {
-                Debug.Log($"[Highlight] Rato saiu da torre ({towerCurrentlyHighlighted.name}) para a UI.");
-                towerCurrentlyHighlighted.GetComponent<TowerSelectionCircle>()?.Unhighlight();
-                towerCurrentlyHighlighted = null;
+                (currentlyHighlighted as TowerController)?.GetComponent<TowerSelectionCircle>()?.Unhighlight();
+                currentlyHighlighted = null;
             }
             return;
         }
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        TowerController towerHit = null;
+        Component hitComponent = null;
 
         if (Physics.Raycast(ray, out hit, 1000f, towerLayerMask))
         {
-            towerHit = hit.collider.GetComponent<TowerController>();
-
-            if (towerHit == null)
+            hitComponent = hit.collider.GetComponentInParent<TowerController>();
+            if (hitComponent == null)
             {
-                towerHit = hit.collider.GetComponentInParent<TowerController>();
+                hitComponent = hit.collider.GetComponentInParent<TrapLogicBase>();
             }
         }
 
-        if (towerHit != towerCurrentlyHighlighted)
+        if (hitComponent != currentlyHighlighted)
         {
-            if (towerCurrentlyHighlighted != null)
+            if (currentlyHighlighted != null)
             {
-                Debug.Log($"[Highlight] Rato saiu da torre ({towerCurrentlyHighlighted.name}).");
-                towerCurrentlyHighlighted.GetComponent<TowerSelectionCircle>()?.Unhighlight();
+                (currentlyHighlighted as TowerController)?.GetComponent<TowerSelectionCircle>()?.Unhighlight();
             }
 
-            if (towerHit != null)
+            if (hitComponent != null)
             {
-                Debug.Log($"[Highlight] Rato entrou na torre ({towerHit.name}).");
-                towerHit.GetComponent<TowerSelectionCircle>()?.Highlight();
+                (hitComponent as TowerController)?.GetComponent<TowerSelectionCircle>()?.Highlight();
             }
 
-            towerCurrentlyHighlighted = towerHit;
+            currentlyHighlighted = hitComponent;
         }
     }
 
@@ -101,19 +112,28 @@ public class TowerSelectionManager : MonoBehaviour
         {
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                Debug.Log("[Clique] Clique ignorado (sobre a UI).");
                 return;
             }
 
-            if (towerCurrentlyHighlighted != null)
+            if (currentlyHighlighted != null)
             {
-                Debug.Log($"[Clique] Clicou na torre em highlight: {towerCurrentlyHighlighted.name}");
-                SelectTower(towerCurrentlyHighlighted);
+                TowerController tower = currentlyHighlighted as TowerController;
+                if (tower != null)
+                {
+                    SelectTower(tower);
+                }
+                else
+                {
+                    TrapLogicBase trap = currentlyHighlighted as TrapLogicBase;
+                    if (trap != null)
+                    {
+                        SelectTrap(trap);
+                    }
+                }
             }
             else
             {
-                Debug.Log("[Clique] Clicou no chão. Deselecionando.");
-                DeselectTower();
+                DeselectAll();
             }
         }
     }
@@ -122,10 +142,11 @@ public class TowerSelectionManager : MonoBehaviour
     {
         if (tower == selectedTower && upgradePanel.IsPanelVisible())
         {
-            DeselectTower();
+            DeselectAll();
         }
         else
         {
+            DeselectAll();
             selectedTower = tower;
             if (upgradePanel != null)
             {
@@ -139,15 +160,54 @@ public class TowerSelectionManager : MonoBehaviour
         }
     }
 
-    public void DeselectTower()
+    void SelectTrap(TrapLogicBase trap)
     {
-        if (selectedTower != null || (upgradePanel != null && upgradePanel.IsPanelVisible()))
+        if (trap == selectedTrap && trapSellPanel.activeSelf)
         {
-            selectedTower = null;
-            if (upgradePanel != null)
+            DeselectAll();
+        }
+        else
+        {
+            DeselectAll();
+            selectedTrap = trap;
+
+            if (trapSellPanel != null && trap.trapData != null)
             {
-                upgradePanel.HidePanel();
+                float refundPercentage = trap.sellRefundPercentage;
+                int geoditeRefund = Mathf.FloorToInt(trap.trapData.geoditeCost * refundPercentage);
+
+                if (trapSellPriceText != null)
+                {
+                    trapSellPriceText.text = $"Vender por <color=#76D7C4>{geoditeRefund}G</color>";
+                }
+
+                trapSellPanel.SetActive(true);
             }
+        }
+    }
+
+    void SellSelectedTrap()
+    {
+        if (selectedTrap != null)
+        {
+            selectedTrap.SellTrap();
+        }
+        DeselectAll();
+    }
+
+    public void DeselectAll()
+    {
+        selectedTower = null;
+        selectedTrap = null;
+
+        if (upgradePanel != null)
+        {
+            upgradePanel.HidePanel();
+        }
+
+        if (trapSellPanel != null)
+        {
+            trapSellPanel.SetActive(false);
         }
     }
 }

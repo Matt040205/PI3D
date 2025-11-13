@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: EXPLAIN_TRAILS
   titulo: Rastros dos Personagens
-  descricao: Por fim, clique em 'Rastros'...
+  descricao: "Por fim, volte em uma personagem, e clique em Rastros para seguir a
+    sua \xE1rvore de habilidades individuais"

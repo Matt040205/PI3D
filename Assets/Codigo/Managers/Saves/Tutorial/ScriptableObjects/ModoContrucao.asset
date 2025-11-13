@@ -14,4 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: EXPLAIN_BUILD_MODE
   titulo: "Modo Constru\xE7\xE3o"
-  descricao: "Bem-vindo. Este \xE9 o seu Quartel..."
+  descricao: "Bem-vindo. Este \xE9 o seu Quartel de TerraNova, aqui voc\xEA vai selecionar
+    seu time que vai ser composto pelo primeiro como Comandante, e o resto pelas
+    torres"

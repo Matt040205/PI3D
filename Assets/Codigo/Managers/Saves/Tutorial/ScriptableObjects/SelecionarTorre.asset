@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: SELECT_TOWER
   titulo: Selecionar sua Torre
-  descricao: Agora, escolha uma companheira...
+  descricao: Agora, escolha uma torre para ser sua companheira

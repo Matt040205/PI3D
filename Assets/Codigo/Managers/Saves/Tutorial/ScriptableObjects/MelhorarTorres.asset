@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: HOW_TO_UPGRADE
   titulo: Como fazer o upgrade
-  descricao: "Clique na torre que voc\xEA acabou de construir..."
+  descricao: "Clique na torre que voc\xEA acabou de construir para fazer a melhoria"

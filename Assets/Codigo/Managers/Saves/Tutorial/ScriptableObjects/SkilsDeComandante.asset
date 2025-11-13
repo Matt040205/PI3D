@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: COMMANDER_SKILLS
   titulo: Skills do Comandante
-  descricao: "Estas s\xE3o as habilidades de Comandante..."
+  descricao: "Estas s\xE3o as habilidades de Comandante, aqui voc\xEA vai ver suas
+    passivas, habilidades e supremas, cada um tem sua pr\xF3pia build"

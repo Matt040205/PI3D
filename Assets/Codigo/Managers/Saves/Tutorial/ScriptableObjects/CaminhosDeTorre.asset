@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: TOWER_UPGRADES
   titulo: Skils de Torres
-  descricao: "Aqui est\xE3o as torres e seus caminhos..."
+  descricao: "Aqui est\xE3o as torres e seus caminhos, voc\xEA pode ter apenas 6
+    n\xEDveis por torre, ent\xE3o pense com sabedoria sua build"

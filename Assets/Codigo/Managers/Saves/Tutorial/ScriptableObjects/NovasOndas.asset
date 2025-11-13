@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: NEXT_WAVE
   titulo: Novas ondas a caminho
-  descricao: Excelente! Uma nova onda...
+  descricao: "Excelente! Voc\xEA aprendeu tudo do b\xE1sico, agora novas ondas est\xE3o
+    a caminho, defenda e salve sua cidade."

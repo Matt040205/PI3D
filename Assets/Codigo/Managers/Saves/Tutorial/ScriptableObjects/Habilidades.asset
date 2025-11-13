@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: USE_SKILLS
   titulo: Usando Habilidades
-  descricao: Ajude suas defesas! Use [Q] e [E]...
+  descricao: "Ajude suas defesas! Use Q (habilidade prim\xE1ria),  E (habilidade
+    secund\xE1ria) e X (supremo)"

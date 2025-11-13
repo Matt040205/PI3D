@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Uma broca bem dura que quebra a pedra que compra nossas precisosas
     torres.
   icon: {fileID: 21300000, guid: 53bb50c5c0a00474487d51a03bbf7f01, type: 3}
-  prefab: {fileID: 6573593229986840769, guid: d025149b4c130344aa5d06abdbe86255, type: 3}
+  prefab: {fileID: 1413210981567544481, guid: 1141a5cb3ffb3d24e910283b22917e2b, type: 3}
   logicPrefab: {fileID: 7689497587118171773, guid: 3db24931f25bee8468347308275e106f, type: 3}
   placementType: 2
   geoditeCost: 340

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialID: RETURN_TO_COMMANDER
   titulo: Voltar pro modo de jogo
-  descricao: "Defesa posicionada! Aperte B para entrar no modo de constru\xE7\xE3o"
+  descricao: Defesa posicionada! Aperte B para voltar para o modo de batalha

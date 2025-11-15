@@ -9,7 +9,7 @@ public class UpgradePanelUI : MonoBehaviour
 {
     [Header("Referências Gerais")]
     public GameObject uiPanel;
-    public Image towerImage;
+    public UnityEngine.UI.Image towerImage;
 
     [Header("Referências do Caminho 1")]
     public Button upgradeButton1;
@@ -82,7 +82,7 @@ public class UpgradePanelUI : MonoBehaviour
 
     void UpdatePanelInfo()
     {
-        if (currentTower == null || panelCanvasGroup == null) return;
+        if (currentTower == null || panelCanvasGroup == null || currentTower.currentPathLevels == null) return;
 
         int totalPointsSpent = currentTower.currentPathLevels.Sum();
         bool isFullyUpgraded = totalPointsSpent >= MAX_TOTAL_POINTS;
@@ -107,7 +107,7 @@ public class UpgradePanelUI : MonoBehaviour
     {
         UpgradeTooltip tooltip = button.GetComponent<UpgradeTooltip>();
 
-        if (pathIndex >= currentTower.towerData.upgradePaths.Count || currentTower.towerData.upgradePaths[pathIndex] == null)
+        if (pathIndex >= currentTower.towerData.upgradePaths.Count || currentTower.towerData.upgradePaths[pathIndex] == null || pathIndex >= currentTower.currentPathLevels.Length)
         {
             button.gameObject.SetActive(false);
             if (costText) costText.gameObject.SetActive(false);
@@ -155,9 +155,9 @@ public class UpgradePanelUI : MonoBehaviour
         string tooltipTitleBase = path.pathName ?? "Caminho Desconhecido";
         string tooltipDescription = "";
 
-        SetElementAlpha(button.GetComponent<Image>(), 1f);
-        if (costText) costText.color = new Color(costText.color.r, costText.color.g, costText.color.b, 1f);
-        if (levelText) levelText.color = new Color(levelText.color.r, levelText.color.g, levelText.color.b, 1f);
+        SetElementAlpha(button.GetComponent<UnityEngine.UI.Image>(), 1f);
+        if (costText) costText.color = new UnityEngine.Color(costText.color.r, costText.color.g, costText.color.b, 1f);
+        if (levelText) levelText.color = new UnityEngine.Color(levelText.color.r, levelText.color.g, levelText.color.b, 1f);
 
         if (isLockedByChoice)
         {
@@ -168,9 +168,9 @@ public class UpgradePanelUI : MonoBehaviour
             if (tooltip != null) tooltip.SetTooltipInfo($"{tooltipTitleBase} (BLOQUEADO)", tooltipDescription);
             if (!isFullyUpgraded)
             {
-                SetElementAlpha(button.GetComponent<Image>(), 0.5f);
-                if (costText) costText.color = new Color(costText.color.r, costText.color.g, costText.color.b, 0.5f);
-                if (levelText) levelText.color = new Color(levelText.color.r, levelText.color.g, levelText.color.b, 0.5f);
+                SetElementAlpha(button.GetComponent<UnityEngine.UI.Image>(), 0.5f);
+                if (costText) costText.color = new UnityEngine.Color(costText.color.r, costText.color.g, costText.color.b, 0.5f);
+                if (levelText) levelText.color = new UnityEngine.Color(levelText.color.r, levelText.color.g, levelText.color.b, 0.5f);
             }
             return;
         }
@@ -196,6 +196,7 @@ public class UpgradePanelUI : MonoBehaviour
             button.interactable = canAfford && !isFullyUpgraded;
             costText.text = !isFullyUpgraded ? costString : "";
 
+
             tooltipDescription = $"<b>Próximo Nível ({currentLevel + 1}): {nextUpgrade.upgradeName}</b>\n{nextUpgrade.description}";
             if (tooltip != null) tooltip.SetTooltipInfo(tooltipTitleBase, tooltipDescription);
 
@@ -214,7 +215,7 @@ public class UpgradePanelUI : MonoBehaviour
     {
         if (element != null)
         {
-            Color color = element.color;
+            UnityEngine.Color color = element.color;
             color.a = alpha;
             element.color = color;
         }
@@ -224,11 +225,12 @@ public class UpgradePanelUI : MonoBehaviour
     {
         if (towerImage != null)
         {
-            Color imgColor = towerImage.color;
+            UnityEngine.Color imgColor = towerImage.color;
             imgColor.a = 1f;
             towerImage.color = imgColor;
         }
     }
+
 
     public void UpgradePath(int pathIndex)
     {
@@ -278,7 +280,7 @@ public class UpgradePanelUI : MonoBehaviour
 
         currentTower.SellTower(sellRefundPercentage);
 
-      HidePanel();
+        HidePanel();
     }
 
     private IEnumerator RefreshUIAfterFrame()

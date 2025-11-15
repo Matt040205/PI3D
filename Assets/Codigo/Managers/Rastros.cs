@@ -54,7 +54,7 @@ public class Rastros : MonoBehaviour
 
         if (textoNomePersonagem != null)
         {
-            textoNomePersonagem.text = personagemSendoUprado.name;
+            textoNomePersonagem.text = personagemSendoUprado.name.Replace("(Clone)", "");
         }
 
         InicializarCaminhos();
@@ -81,6 +81,8 @@ public class Rastros : MonoBehaviour
         {
             TutorialManager.Instance.TriggerTutorial("EXPLAIN_RASTROS");
         }
+
+        AtualizarEstadoBotoes();
     }
 
     private int GetPontosNoCaminho(string idCaminho)
@@ -262,7 +264,7 @@ public class Rastros : MonoBehaviour
                         personagemSendoUprado.moveSpeed += modifier.value;
                     else
                         personagemSendoUprado.moveSpeed *= (1 + modifier.value);
-                break;
+                    break;
             }
         }
     }

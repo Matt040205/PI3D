@@ -1,7 +1,8 @@
 using UnityEngine;
-using TMPro; // Adiciona a biblioteca para usar TextMeshPro
+using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class HordeManager : MonoBehaviour
 {
@@ -10,11 +11,8 @@ public class HordeManager : MonoBehaviour
     public int enemiesPerHordeMax = 10;
     public int victoryHorde = 5;
 
-    // --- NOVAS VARIÁVEIS DE CONFIGURAÇÃO DE SPAWN ---
     [Header("Spawn de Inimigos")]
-    [Tooltip("Tempo (em segundos) entre cada grupo de inimigos spawnado.")]
     public float spawnInterval = 1f;
-    [Tooltip("Quantos inimigos são spawnados a cada intervalo de tempo.")]
     public int enemiesPerInterval = 1;
 
     [Header("Dados dos Inimigos")]
@@ -28,7 +26,6 @@ public class HordeManager : MonoBehaviour
     public int currentHorde = 0;
     public int enemyLevel = 1;
 
-    // Nova variável para o texto da horda na UI
     [Header("UI")]
     public TextMeshProUGUI hordeText;
     public TextMeshProUGUI hordeTextBuild;
@@ -37,10 +34,9 @@ public class HordeManager : MonoBehaviour
     private bool waveIsActive = false;
     private Transform playerTransform;
 
-    // --- NOVAS VARIÁVEIS DE CONTROLE INTERNO ---
-    private int enemiesToSpawnTotal; // Total de inimigos que a horda deve gerar
-    private int enemiesSpawnedCount = 0; // Contagem de inimigos já gerados
-    private Coroutine spawnCoroutine; // Referência para controlar a coroutine de spawn
+    private int enemiesToSpawnTotal;
+    private int enemiesSpawnedCount = 0;
+    private Coroutine spawnCoroutine;
 
     void Start()
     {
@@ -76,8 +72,6 @@ public class HordeManager : MonoBehaviour
         {
             CheckForRemainingEnemies();
 
-            // A horda só termina quando *todos* os inimigos foram spawnados (agora controlados por tempo)
-            // *e* todos os inimigos ativos na cena (vivos) foram derrotados.
             bool allEnemiesSpawned = enemiesSpawnedCount >= enemiesToSpawnTotal;
             bool allAliveEnemiesDefeated = aliveEnemies.Count == 0;
 
@@ -85,18 +79,15 @@ public class HordeManager : MonoBehaviour
             {
                 waveIsActive = false;
 
-                // Garantir que a coroutine de spawn foi parada.
                 if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
 
                 Debug.Log("Horda " + currentHorde + " concluída!");
                 if (currentHorde >= victoryHorde)
                 {
-                    Debug.Log("Parabéns! Você venceu o jogo!");
-                    // Pode adicionar um evento de vitória aqui
+                    SceneManager.LoadScene("Win");
                 }
                 else
                 {
-                    // Inicia o timer de 5 segundos para a próxima horda
                     Invoke("StartNextHorde", 5f);
                 }
             }
@@ -116,15 +107,12 @@ public class HordeManager : MonoBehaviour
     {
         currentHorde++;
         enemyLevel = currentHorde;
-        Debug.Log("Iniciando Horda " + currentHorde);
 
-        // 1. Calcula o total de inimigos para esta horda
         enemiesToSpawnTotal = Random.Range(enemiesPerHordeMin, enemiesPerHordeMax + 1);
-        enemiesSpawnedCount = 0; // Reinicia a contagem
+        enemiesSpawnedCount = 0;
 
         if (enemiesToSpawnTotal > 0)
         {
-            // 2. Inicia o spawn baseado em tempo
             if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
             spawnCoroutine = StartCoroutine(SpawnEnemiesOverTime());
         }
@@ -133,7 +121,6 @@ public class HordeManager : MonoBehaviour
         UpdateHordeUI();
     }
 
-    // --- NOVA COROUTINE: Lógica de Spawn com Timer (Substitui o antigo SpawnEnemies) ---
     private IEnumerator SpawnEnemiesOverTime()
     {
         if (spawnPaths == null || spawnPaths.Count == 0)
@@ -149,7 +136,6 @@ public class HordeManager : MonoBehaviour
 
         while (enemiesSpawnedCount < enemiesToSpawnTotal)
         {
-            // Calcula quantos inimigos realmente devem ser spawnados neste intervalo (evita spawnar a mais)
             int enemiesThisInterval = Mathf.Min(enemiesPerInterval, enemiesToSpawnTotal - enemiesSpawnedCount);
 
             for (int i = 0; i < enemiesThisInterval; i++)
@@ -159,17 +145,14 @@ public class HordeManager : MonoBehaviour
 
             enemiesSpawnedCount += enemiesThisInterval;
 
-            // Só espera se ainda houver inimigos para spawnar
             if (enemiesSpawnedCount < enemiesToSpawnTotal)
             {
                 yield return new WaitForSeconds(spawnInterval);
             }
         }
 
-        Debug.Log("Todos os " + enemiesToSpawnTotal + " inimigos da Horda " + currentHorde + " foram spawnados.");
     }
 
-    // --- NOVO MÉTODO: Lógica para spawnar um único inimigo ---
     void SpawnSingleEnemy()
     {
         int pathIndex = GetRandomPathIndex();

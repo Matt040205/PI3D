@@ -2325,7 +2325,7 @@ MonoBehaviour:
   slotEquipePrefab: {fileID: 5887390853914384219, guid: 143511db6f7e6ae4dad0fc22b616d6eb, type: 3}
   gridEquipeContainer: {fileID: 1632905769}
   botaoJogar: {fileID: 1990063980}
-  nomeDaCenaDoJogo: 
+  nomeDaCenaDoJogo: CenaMapaTeste
   slotEscolhaPrefab: {fileID: 5887390853914384219, guid: 01bc6ec0bdc2e2f4cbdf26b68a2090e8, type: 3}
   gridEscolhaContainer: {fileID: 885901113}
   botaoVoltarDaEscolha: {fileID: 1526568676}

@@ -18525,6 +18525,7 @@ MonoBehaviour:
   trapButtonContainer: {fileID: 5918298254032222406}
   iconChildObjectName: RepresentacaoDoBoneco
   limitTextChildObjectName: LimitText
+  priceTextChildObjectName: PriceText
 --- !u!1 &6863664768586772893
 GameObject:
   m_ObjectHideFlags: 0
@@ -20191,6 +20192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5824923823444924677}
   - component: {fileID: 5534669388535471857}
+  - component: {fileID: 4029435622060926509}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -20258,6 +20260,18 @@ MonoBehaviour:
   sellButton: {fileID: 0}
   sellPriceText: {fileID: 0}
   sellRefundPercentage: 0.4
+--- !u!225 &4029435622060926509
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8012821877452405672}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8024095811003720342
 GameObject:
   m_ObjectHideFlags: 0

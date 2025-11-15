@@ -62,11 +62,6 @@ public class BotaoHabilidade : MonoBehaviour
 
     void Start()
     {
-        if (bordaImage != null)
-        {
-            bordaImage.gameObject.SetActive(false);
-        }
-
         if (managerRastros != null)
         {
             VerificarEstado(managerRastros);
@@ -88,7 +83,9 @@ public class BotaoHabilidade : MonoBehaviour
 
         foreach (var map in upgradesPorPersonagem)
         {
-            if (map.personagemSO == personagemAtivo)
+            if (map.personagemSO == null) continue;
+
+            if (personagemAtivo.name.StartsWith(map.personagemSO.name))
             {
                 return map.upgradeSO;
             }
@@ -169,11 +166,6 @@ public class BotaoHabilidade : MonoBehaviour
                 {
                     bordaImage.gameObject.SetActive(true);
                     bordaImage.color = corDisponivel;
-
-                    if (temPontos)
-                    {
-                        StartBlinking();
-                    }
                 }
             }
             else
@@ -190,7 +182,6 @@ public class BotaoHabilidade : MonoBehaviour
         }
         meuBotao.colors = colors;
     }
-
     private void StartBlinking()
     {
         if (blinkingCoroutine == null && gameObject.activeInHierarchy)
@@ -203,31 +194,32 @@ public class BotaoHabilidade : MonoBehaviour
     {
         if (blinkingCoroutine != null)
         {
+            StopCoroutine(blinkingCoroutine);
             blinkingCoroutine = null;
         }
 
-        if (bordaImage != null)
+        if (iconeHabilidade != null)
         {
-            UnityEngine.Color c = bordaImage.color;
+            UnityEngine.Color c = iconeHabilidade.color;
             c.a = 1f;
-            bordaImage.color = c;
+            iconeHabilidade.color = c;
         }
     }
 
     private IEnumerator BlinkEffect()
     {
-        if (bordaImage == null) yield break;
+        if (iconeHabilidade == null) yield break;
 
         float pulseSpeed = 2f;
+        UnityEngine.Color baseColor = iconeHabilidade.color;
 
         while (true)
         {
             float alpha = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
             alpha = Mathf.Lerp(0.3f, 1.0f, alpha);
 
-            UnityEngine.Color c = bordaImage.color;
-            c.a = alpha;
-            bordaImage.color = c;
+            baseColor.a = alpha;
+            iconeHabilidade.color = baseColor;
             yield return null;
         }
     }

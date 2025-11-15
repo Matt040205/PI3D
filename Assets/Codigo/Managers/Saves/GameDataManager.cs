@@ -26,10 +26,12 @@ public class GameDataManager : MonoBehaviour
 
     public void LimparSelecao()
     {
+        Debug.Log("GAMEDATA_MANAGER: Limpando seleção e destruindo instâncias.");
         for (int i = 0; i < equipeSelecionada.Length; i++)
         {
             if (equipeSelecionada[i] != null)
             {
+                Debug.Log($"GAMEDATA_MANAGER: Destruindo {equipeSelecionada[i].name}");
                 Destroy(equipeSelecionada[i]);
             }
             equipeSelecionada[i] = null;

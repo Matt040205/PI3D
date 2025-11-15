@@ -93,6 +93,20 @@ public class SelecaoManager : MonoBehaviour
         AtualizarEstadoBotaoJogar();
     }
 
+    private CharacterBase FindInstanceInEquipe(CharacterBase asset)
+    {
+        if (GameDataManager.Instance == null || asset == null) return null;
+        string instanceName = asset.name + "(Clone)";
+        foreach (CharacterBase instance in GameDataManager.Instance.equipeSelecionada)
+        {
+            if (instance != null && instance.name == instanceName)
+            {
+                return instance;
+            }
+        }
+        return null;
+    }
+
     public void AbrirPainelDetalhes(CharacterBase personagem)
     {
         painelEscolhaPersonagem.SetActive(false);
@@ -126,15 +140,37 @@ public class SelecaoManager : MonoBehaviour
         PreencherTextosDeUpgrade(personagem);
         AtualizarTextoBotoesCaminho(personagem);
 
-        MostrarPainelHabilidades();
+        if (slotSendoEditado == 0)
+        {
+            MostrarPainelHabilidades();
+        }
+        else
+        {
+            MostrarPainelUpgradesTorre();
+        }
 
         botaoConfirmarEscolha.onClick.RemoveAllListeners();
         botaoConfirmarEscolha.onClick.AddListener(ConfirmarEscolha);
 
         if (botaoRastros != null)
         {
+            CharacterBase instanceInSlot = null;
+            if (GameDataManager.Instance != null && slotSendoEditado != -1 && slotSendoEditado < GameDataManager.Instance.equipeSelecionada.Length)
+            {
+                instanceInSlot = GameDataManager.Instance.equipeSelecionada[slotSendoEditado];
+            }
+
+            botaoRastros.interactable = true;
             botaoRastros.onClick.RemoveAllListeners();
-            botaoRastros.onClick.AddListener(AbrirCenaRastros);
+
+            if (instanceInSlot != null && instanceInSlot.name.StartsWith(personagem.name))
+            {
+                botaoRastros.onClick.AddListener(() => AbrirCenaRastros(instanceInSlot));
+            }
+            else
+            {
+                botaoRastros.onClick.AddListener(() => AbrirCenaRastros(personagemEmVisualizacao));
+            }
         }
     }
 
@@ -252,11 +288,11 @@ public class SelecaoManager : MonoBehaviour
         }
     }
 
-    public void AbrirCenaRastros()
+    public void AbrirCenaRastros(CharacterBase personagemParaEditar)
     {
-        if (personagemEmVisualizacao == null)
+        if (personagemParaEditar == null)
         {
-            Debug.LogError("Nenhum personagem selecionado para ver os Rastros.");
+            Debug.LogError("Personagem para Rastros é nulo.");
             return;
         }
 
@@ -269,9 +305,9 @@ public class SelecaoManager : MonoBehaviour
         if (TutorialManager.Instance != null)
         {
             TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
-        }
+                 }
 
-        GameDataManager.Instance.personagemParaRastros = personagemEmVisualizacao;
+        GameDataManager.Instance.personagemParaRastros = personagemParaEditar;
 
         if (!string.IsNullOrEmpty(nomeDaCenaRastros))
         {
@@ -321,13 +357,30 @@ public class SelecaoManager : MonoBehaviour
 
         if (GameDataManager.Instance == null) return;
         CharacterBase[] equipeAtual = GameDataManager.Instance.equipeSelecionada;
-        foreach (var par in botoesDeEscolha) { bool jaEscolhido = equipeAtual.Contains(par.Key); bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) && equipeAtual[slotSendoEditado] == par.Key; par.Value.interactable = !jaEscolhido || noSlotAtual; }
+        foreach (var par in botoesDeEscolha)
+        {
+            bool jaEscolhido = false;
+            foreach (CharacterBase instance in equipeAtual)
+                {
+                if (instance != null && instance.name.StartsWith(par.Key.name))
+                {
+                    jaEscolhido = true;
+                    break;
+                }
+            }
+            
+  
+       bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) &&
+               (equipeAtual[slotSendoEditado] != null && equipeAtual[slotSendoEditado].name.StartsWith(par.Key.name));
+
+            par.Value.interactable = !jaEscolhido || noSlotAtual;
+        }
     }
 
     void ConfirmarEscolha()
     {
         if (GameDataManager.Instance != null && slotSendoEditado != -1)
-        {
+                 {
             if (TutorialManager.Instance != null)
             {
                 if (slotSendoEditado == 0)
@@ -336,12 +389,17 @@ public class SelecaoManager : MonoBehaviour
                 }
                 else if (slotSendoEditado == 1)
                 {
-                    TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
+                     TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
                 }
             }
 
-            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = personagemEmVisualizacao;
-            slotsEquipe[slotSendoEditado].SetPersonagem(personagemEmVisualizacao);
+            if (GameDataManager.Instance.equipeSelecionada[slotSendoEditado] != null)
+            {
+                Destroy(GameDataManager.Instance.equipeSelecionada[slotSendoEditado]);
+            }
+
+            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = Instantiate(personagemEmVisualizacao);
+             slotsEquipe[slotSendoEditado].SetPersonagem(GameDataManager.Instance.equipeSelecionada[slotSendoEditado]);
             AtualizarEstadoBotaoJogar();
         }
         VoltarParaPainelEquipe();
@@ -352,7 +410,7 @@ public class SelecaoManager : MonoBehaviour
         if (GameDataManager.Instance != null && botaoJogar != null)
         {
             bool podeJogar = GameDataManager.Instance.equipeSelecionada[0] != null &&
-                     GameDataManager.Instance.equipeSelecionada[1] != null;
+                      GameDataManager.Instance.equipeSelecionada[1] != null;
             botaoJogar.interactable = podeJogar;
         }
         else if (botaoJogar != null)

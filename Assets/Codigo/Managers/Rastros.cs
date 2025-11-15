@@ -77,8 +77,6 @@ public class Rastros : MonoBehaviour
     {
         if (personagemSendoUprado == null) return;
 
-        AtualizarEstadoBotoes();
-
         if (TutorialManager.Instance != null)
         {
             TutorialManager.Instance.TriggerTutorial("EXPLAIN_RASTROS");
@@ -264,7 +262,7 @@ public class Rastros : MonoBehaviour
                         personagemSendoUprado.moveSpeed += modifier.value;
                     else
                         personagemSendoUprado.moveSpeed *= (1 + modifier.value);
-                    break;
+                break;
             }
         }
     }

@@ -37,6 +37,8 @@ public class BuildManager : MonoBehaviour
     private const int PriorityBuild = 20;
     private const int PriorityInactive = 0;
 
+    public bool IsHoldingBuilding { get { return selectedBuildablePrefab != null; } }
+
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -97,6 +99,11 @@ public class BuildManager : MonoBehaviour
 
     public void SelectTowerToBuild(CharacterBase towerData)
     {
+        if (TowerSelectionManager.Instance != null)
+        {
+            TowerSelectionManager.Instance.DeselectAll();
+        }
+
         ClearSelection();
         selectedBuildablePrefab = towerData.towerPrefab;
         selectedBuildableCost = towerData.cost;
@@ -105,6 +112,11 @@ public class BuildManager : MonoBehaviour
 
     public void SelectTrapToBuild(TrapDataSO trapData)
     {
+        if (TowerSelectionManager.Instance != null)
+        {
+            TowerSelectionManager.Instance.DeselectAll();
+        }
+
         ClearSelection();
         selectedBuildablePrefab = trapData.prefab;
         selectedBuildableCost = trapData.geoditeCost;

@@ -51,7 +51,7 @@ public class TowerSelectionManager : MonoBehaviour
     {
         if (Time.timeScale == 0 || mainCamera == null) return;
 
-        if (!BuildManager.isBuildingMode)
+        if (!BuildManager.isBuildingMode || (BuildManager.Instance != null && BuildManager.Instance.IsHoldingBuilding))
         {
             if (currentlyHighlighted != null)
             {

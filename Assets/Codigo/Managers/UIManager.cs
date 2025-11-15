@@ -98,16 +98,15 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Esta função recebe a lista de TORRES já filtrada (sem o jogador) do BuildManager
     public void UpdateBuildUI(List<CharacterBase> towers, List<TrapDataSO> traps)
     {
         if (buildButtonUI != null)
         {
             buildButtonUI.ClearTowerButtons();
-            buildButtonUI.CreateTowerBuildButtons(towers); // Cria botões só para a lista de torres
+            buildButtonUI.CreateTowerBuildButtons(towers);
 
             buildButtonUI.ClearTrapButtons();
-            buildButtonUI.CreateTrapBuildButtons(traps); // Cria botões só para a lista de armadilhas
+            buildButtonUI.CreateTrapBuildButtons(traps);
         }
         else
         {

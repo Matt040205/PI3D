@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 [System.Serializable]
 public struct MapeamentoUpgradePersonagem
@@ -30,14 +31,16 @@ public class BotaoHabilidade : MonoBehaviour
     public Rastros managerRastros;
     private Button meuBotao;
     public Image iconeHabilidade;
+    public Image bordaImage;
 
     [Header("Cores de Estado")]
-    public Color corBloqueado = new Color(0.5f, 0.5f, 0.5f, 1f);
-    public Color corDisponivel = Color.white;
-    public Color corDesbloqueado = Color.green;
+    public UnityEngine.Color corBloqueado = new UnityEngine.Color(0.5f, 0.5f, 0.5f, 1f);
+    public UnityEngine.Color corDisponivel = UnityEngine.Color.white;
+    public UnityEngine.Color corDesbloqueado = UnityEngine.Color.green;
 
+    private Coroutine blinkingCoroutine;
 
-    void Start()
+    void Awake()
     {
         meuBotao = GetComponent<Button>();
         meuBotao.onClick.RemoveAllListeners();
@@ -48,9 +51,25 @@ public class BotaoHabilidade : MonoBehaviour
             managerRastros = FindObjectOfType<Rastros>();
         }
 
-        if (managerRastros != null && !managerRastros.todosBotoesDaArvore.Contains(this))
+        if (managerRastros != null)
         {
-            managerRastros.todosBotoesDaArvore.Add(this);
+            if (!managerRastros.todosBotoesDaArvore.Contains(this))
+            {
+                managerRastros.todosBotoesDaArvore.Add(this);
+            }
+        }
+    }
+
+    void Start()
+    {
+        if (bordaImage != null)
+        {
+            bordaImage.gameObject.SetActive(false);
+        }
+
+        if (managerRastros != null)
+        {
+            VerificarEstado(managerRastros);
         }
     }
 
@@ -60,6 +79,7 @@ public class BotaoHabilidade : MonoBehaviour
         {
             managerRastros.SelecionarHabilidade(this);
         }
+        StopBlinking();
     }
 
     public RastroUpgrade GetUpgradeParaPersonagem(CharacterBase personagemAtivo)
@@ -90,8 +110,13 @@ public class BotaoHabilidade : MonoBehaviour
                 if (meuBotao != null) meuBotao.interactable = false;
                 return;
             }
-
             manager = managerRastros;
+        }
+
+        StopBlinking();
+        if (bordaImage != null)
+        {
+            bordaImage.gameObject.SetActive(false);
         }
 
         ColorBlock colors = meuBotao.colors;
@@ -101,18 +126,21 @@ public class BotaoHabilidade : MonoBehaviour
             if (iconeHabilidade != null) iconeHabilidade.color = corDesbloqueado;
             colors.disabledColor = corDesbloqueado;
             meuBotao.interactable = false;
+
+            if (bordaImage != null)
+            {
+                bordaImage.gameObject.SetActive(true);
+                bordaImage.color = corDesbloqueado;
+            }
         }
         else
         {
-            bool disponivel = true;
-            if (manager.pontosDisponiveis < custo)
-                disponivel = false;
-
+            bool preRequisitosOk = true;
             if (!string.IsNullOrEmpty(preRequisitoHabilidade) && !manager.habilidadesDesbloqueadas.Contains(preRequisitoHabilidade))
-                disponivel = false;
+                preRequisitosOk = false;
 
             if (manager.pontosGastosGlobal < pontosGlobaisNecessarios)
-                disponivel = false;
+                preRequisitosOk = false;
 
             int pontosAtuaisCaminho = 0;
             foreach (var caminho in manager.pontosPorCaminho)
@@ -124,24 +152,83 @@ public class BotaoHabilidade : MonoBehaviour
                 }
             }
             if (pontosAtuaisCaminho < pontosNoCaminhoNecessarios)
-                disponivel = false;
+                preRequisitosOk = false;
 
-            if (disponivel)
+            bool temPontos = manager.pontosDisponiveis >= custo;
+
+            if (preRequisitosOk)
             {
                 if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
                 colors.normalColor = corBloqueado;
                 colors.highlightedColor = corDisponivel;
-                colors.pressedColor = new Color(0.9f, 0.9f, 0.9f);
+                colors.pressedColor = new UnityEngine.Color(0.9f, 0.9f, 0.9f);
                 colors.selectedColor = corBloqueado;
-                meuBotao.interactable = true;
+                meuBotao.interactable = temPontos;
+
+                if (bordaImage != null)
+                {
+                    bordaImage.gameObject.SetActive(true);
+                    bordaImage.color = corDisponivel;
+
+                    if (temPontos)
+                    {
+                        StartBlinking();
+                    }
+                }
             }
             else
             {
                 if (iconeHabilidade != null) iconeHabilidade.color = corBloqueado;
                 colors.disabledColor = corBloqueado;
                 meuBotao.interactable = false;
+
+                if (bordaImage != null)
+                {
+                    bordaImage.gameObject.SetActive(false);
+                }
             }
         }
         meuBotao.colors = colors;
+    }
+
+    private void StartBlinking()
+    {
+        if (blinkingCoroutine == null && gameObject.activeInHierarchy)
+        {
+            blinkingCoroutine = StartCoroutine(BlinkEffect());
+        }
+    }
+
+    private void StopBlinking()
+    {
+        if (blinkingCoroutine != null)
+        {
+            blinkingCoroutine = null;
+        }
+
+        if (bordaImage != null)
+        {
+            UnityEngine.Color c = bordaImage.color;
+            c.a = 1f;
+            bordaImage.color = c;
+        }
+    }
+
+    private IEnumerator BlinkEffect()
+    {
+        if (bordaImage == null) yield break;
+
+        float pulseSpeed = 2f;
+
+        while (true)
+        {
+            float alpha = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
+            alpha = Mathf.Lerp(0.3f, 1.0f, alpha);
+
+            UnityEngine.Color c = bordaImage.color;
+            c.a = alpha;
+            bordaImage.color = c;
+            yield return null;
+        }
     }
 }

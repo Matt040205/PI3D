@@ -28,6 +28,10 @@ public class GameDataManager : MonoBehaviour
     {
         for (int i = 0; i < equipeSelecionada.Length; i++)
         {
+            if (equipeSelecionada[i] != null)
+            {
+                Destroy(equipeSelecionada[i]);
+            }
             equipeSelecionada[i] = null;
         }
     }

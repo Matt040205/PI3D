@@ -23,11 +23,14 @@ public class EnemyController : MonoBehaviour
     public AITargetPriority mainPriority = AITargetPriority.Objective;
     public float selfDefenseRadius = 5f;
 
+    [Header("Configurações")]
+    public float chaseDistance = 50f;
+    public float attackDistance = 2f;
+    public float respawnYThreshold = -10f;
+
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
     private Rigidbody rb;
-
-    // Referência para o Animator
     private Animator anim;
 
     private float currentDamage;
@@ -37,12 +40,8 @@ public class EnemyController : MonoBehaviour
 
     private int currentPointIndex = 0;
     private Transform target;
-
-    [Header("Configurações")]
-    public float chaseDistance = 50f;
-    public float attackDistance = 2f;
-
     private Transform playerTransform;
+    private Transform lastWaypointReached;
 
     public bool IsDead { get { return healthSystem.isDead; } }
     public Transform Target { get { return target; } }
@@ -52,8 +51,6 @@ public class EnemyController : MonoBehaviour
         healthSystem = GetComponent<EnemyHealthSystem>();
         combatSystem = GetComponent<EnemyCombatSystem>();
         rb = GetComponent<Rigidbody>();
-
-        // Pega o componente Animator
         anim = GetComponent<Animator>();
 
         if (rb == null)
@@ -88,9 +85,17 @@ public class EnemyController : MonoBehaviour
         currentPointIndex = 0;
         target = null;
 
-        // Garante que o inimigo comece no estado "Idle" ao ser ativado
-        if (anim == null) anim = GetComponent<Animator>(); // Garante que temos a referência
-        if (anim != null) // Adiciona verificação para evitar erro
+        if (patrolPoints != null && patrolPoints.Count > 0)
+        {
+            lastWaypointReached = patrolPoints[0];
+        }
+        else
+        {
+            lastWaypointReached = null;
+        }
+
+        if (anim == null) anim = GetComponent<Animator>();
+        if (anim != null)
         {
             anim.SetBool("isWalking", false);
         }
@@ -107,11 +112,21 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (IsDead) return;
+
+        if (transform.position.y < respawnYThreshold)
+        {
+            RespawnAtLastWaypoint();
+        }
+    }
+
     void FixedUpdate()
     {
         if (IsDead)
         {
-            if (anim != null) anim.SetBool("isWalking", false); // Garante que pare de andar se morrer
+            if (anim != null) anim.SetBool("isWalking", false);
             return;
         }
 
@@ -170,12 +185,12 @@ public class EnemyController : MonoBehaviour
     {
         if (patrolPoints == null || patrolPoints.Count == 0 || currentPointIndex >= patrolPoints.Count)
         {
-            if (anim != null) anim.SetBool("isWalking", false); // Parou de patrulhar, vai atacar objetivo
+            if (anim != null) anim.SetBool("isWalking", false);
             AttackObjectiveAndDie();
             return;
         }
 
-        if (anim != null) anim.SetBool("isWalking", true); // Está em patrulha, então está andando
+        if (anim != null) anim.SetBool("isWalking", true);
 
         Transform currentDestination = patrolPoints[currentPointIndex];
         MoveTowardsPosition(currentDestination.position);
@@ -188,8 +203,42 @@ public class EnemyController : MonoBehaviour
             if (other.transform == patrolPoints[currentPointIndex])
             {
                 Debug.Log("Inimigo chegou ao ponto de patrulha: " + other.gameObject.name + ". Avançando para o próximo.");
+                lastWaypointReached = patrolPoints[currentPointIndex];
                 currentPointIndex++;
             }
+        }
+    }
+
+    private void RespawnAtLastWaypoint()
+    {
+        if (lastWaypointReached == null)
+        {
+            if (patrolPoints != null && patrolPoints.Count > 0)
+            {
+                lastWaypointReached = patrolPoints[0];
+            }
+            else
+            {
+                Debug.LogError($"Inimigo {gameObject.name} caiu, mas não tem waypoints para respawn! Retornando ao pool.");
+                EnemyPoolManager.Instance.ReturnToPool(gameObject);
+                return;
+            }
+        }
+
+        Debug.LogWarning($"Inimigo {gameObject.name} caiu do mapa. Retornando ao último waypoint: {lastWaypointReached.name}");
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        transform.position = lastWaypointReached.position;
+        target = null;
+
+        if (anim != null)
+        {
+            anim.SetBool("isWalking", true);
         }
     }
 
@@ -204,24 +253,22 @@ public class EnemyController : MonoBehaviour
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 
-    // --- FUNÇÃO MODIFICADA ---
     private void ChaseTarget()
     {
         if (target == null) return;
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
-        if (distanceToTarget <= attackDistance) // ESTADO DE ATAQUE
+        if (distanceToTarget <= attackDistance)
         {
             if (rb != null)
             {
-                // Paramos apenas o X e Z, mantendo o Y (gravidade).
                 rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
             }
 
             if (anim != null)
             {
-                anim.SetBool("isWalking", false); // Parou de andar
-                anim.SetTrigger("doAttack");      // Toca a animação de ataque
+                anim.SetBool("isWalking", false);
+                anim.SetTrigger("doAttack");
             }
 
             Vector3 direction = (target.position - transform.position).normalized;
@@ -232,29 +279,21 @@ public class EnemyController : MonoBehaviour
                 rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.fixedDeltaTime));
             }
         }
-        else // ESTADO DE PERSEGUIÇÃO
+        else
         {
-            if (anim != null) anim.SetBool("isWalking", true); // Está perseguindo, então está andando
+            if (anim != null) anim.SetBool("isWalking", true);
             MoveTowardsPosition(target.position);
         }
     }
 
-    // --- FUNÇÃO MODIFICADA ---
     private void MoveTowardsPosition(Vector3 targetPosition)
     {
         if (rb == null) return;
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
 
-        // Em vez de MovePosition, vamos definir a velocidade.
-
-        // 1. Calculamos a velocidade horizontal desejada
         Vector3 horizontalVelocity = direction * currentMoveSpeed;
-
-        // 2. Mantemos a velocidade vertical atual (gravidade)
         float verticalVelocity = rb.linearVelocity.y;
-
-        // 3. Combinamos as duas e aplicamos
         rb.linearVelocity = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
 
         if (direction != Vector3.zero)
@@ -267,9 +306,6 @@ public class EnemyController : MonoBehaviour
     public void HandleDeath()
     {
         if (anim != null) anim.SetBool("isWalking", false);
-        // NOTA: O ideal aqui seria disparar um trigger "doDie" e
-        // esperar a animação de morte terminar antes de chamar ReturnToPool.
-
         DropRewards();
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }

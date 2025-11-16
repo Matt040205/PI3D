@@ -1,13 +1,22 @@
 using UnityEngine;
+using FMODUnity;
 
 [RequireComponent(typeof(PlayerHealthSystem))]
 public class PlayerShooting : MonoBehaviour
 {
-    [Header("Configura��es")]
+    [Header("Configurações")]
     public CharacterBase characterData;
     public Transform firePoint;
     public GameObject projectileVisualPrefab;
     public GameObject impactEffectPrefab;
+
+    //FMOD
+    [Header("Configurações FMOD")]
+
+    [EventRef]
+    public string eventoTiroUnico = "event:/SFX/Atirar"; 
+    [EventRef]
+    public string eventoTiroContinuo = "event:/SFX/Atirar_segurando"; 
 
     [Header("Raycast Settings")]
     public float maxDistance = 100f;
@@ -119,6 +128,22 @@ public class PlayerShooting : MonoBehaviour
             animator.SetTrigger("Shoot");
         }
 
+        // --- FMOD ---
+        // Verifica qual modo de tiro está ativo para tocar o som FMOD correto
+        if (characterData.fireMode == FireMode.FullAuto)
+        {
+            // Toca o som de tiro contínuo (automático)
+            if (!string.IsNullOrEmpty(eventoTiroContinuo)) 
+                RuntimeManager.PlayOneShot(eventoTiroContinuo, transform.position); // <--- ADICIONADO: Toca o som
+        }
+        else
+        {
+            // Toca o som de tiro único (semi-automático)
+            if (!string.IsNullOrEmpty(eventoTiroUnico)) 
+                RuntimeManager.PlayOneShot(eventoTiroUnico, transform.position); // <--- ADICIONADO: Toca o som
+        }
+        // --- FIM do FMOD ---
+
         if (modelPivot != null)
         {
             firePoint.position = modelPivot.position + modelPivot.forward * 0.5f;
@@ -147,17 +172,17 @@ public class PlayerShooting : MonoBehaviour
         if (projectilePool != null && projectileVisualPrefab != null)
         {
             GameObject visualProjectile = projectilePool.GetProjectile(
-              firePoint.position,
-              Quaternion.LookRotation(shotDirection));
+                firePoint.position,
+                Quaternion.LookRotation(shotDirection));
 
             ProjectileVisual visualScript = visualProjectile.GetComponent<ProjectileVisual>();
             if (visualScript != null)
             {
                 visualScript.Initialize(
-                  finalDamage,
-                  isCritical,
-                  characterData.armorPenetration,
-                  playerHealth,
+                    finalDamage,
+                    isCritical,
+                    characterData.armorPenetration,
+                    playerHealth,
                             shotDirection
                 );
             }

@@ -104,6 +104,14 @@ public class CommanderAbilityController : MonoBehaviour
         }
     }
 
+    public void ResetCooldown(Ability ability)
+    {
+        if (ability != null && abilityCooldowns.ContainsKey(ability))
+        {
+            abilityCooldowns[ability] = 0;
+        }
+    }
+
     public float GetRemainingCooldownPercent(Ability ability)
     {
         if (ability == null || !abilityCooldowns.ContainsKey(ability) || ability.cooldown <= 0)
@@ -139,7 +147,7 @@ public class CommanderAbilityController : MonoBehaviour
     public void ReduceAllAbilityCooldowns(float reductionAmount)
     {
         if (characterData.ability1 != null && abilityCooldowns.ContainsKey(characterData.ability1))
-        {
+        {
             abilityCooldowns[characterData.ability1] = Mathf.Max(0, abilityCooldowns[characterData.ability1] - reductionAmount);
         }
         if (characterData.ability2 != null && abilityCooldowns.ContainsKey(characterData.ability2))

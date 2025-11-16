@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 public class MeleeCombatSystem : MonoBehaviour
 {
@@ -9,6 +10,20 @@ public class MeleeCombatSystem : MonoBehaviour
     public float attackAngle = 90f;
     public LayerMask hitLayers;
 
+    [Header("Dano (Overrides da Ultimate)")]
+    public float damageCombo1 = 13f;
+    public float damageCombo2 = 15f;
+    public float damageCombo3 = 22f;
+
+    [Header("FMOD (Combo da Ultimate)")]
+    [EventRef]
+    public string eventoEspada1 = "event:/SFX/Espada";
+    [EventRef]
+    public string eventoEspada2 = "event:/SFX/Espada_1";
+    [EventRef]
+    public string eventoEspada3 = "event:/SFX/Espada_2";
+    public float comboResetTime = 1.5f;
+
     [Header("Estado")]
     public bool isAttacking;
     public float attackCooldown;
@@ -18,6 +33,13 @@ public class MeleeCombatSystem : MonoBehaviour
     public float? overrideAttackAngle = null;
 
     private float nextAttackTime;
+    private int comboCounter = 0;
+    private float lastAttackTimestamp = 0f;
+
+    void OnEnable()
+    {
+        comboCounter = 0;
+    }
 
     void Update()
     {
@@ -28,6 +50,11 @@ public class MeleeCombatSystem : MonoBehaviour
             {
                 isAttacking = false;
             }
+        }
+
+        if (Time.time - lastAttackTimestamp > comboResetTime && comboCounter != 0)
+        {
+            comboCounter = 0;
         }
 
         if (Input.GetButtonDown("Fire1") && Time.time >= nextAttackTime)
@@ -44,6 +71,31 @@ public class MeleeCombatSystem : MonoBehaviour
         isAttacking = true;
         attackCooldown = 1f / currentSpeed;
         nextAttackTime = Time.time + attackCooldown;
+        lastAttackTimestamp = Time.time;
+
+        float damageToApply = characterData.damage;
+
+        switch (comboCounter)
+        {
+            case 0:
+                if (!string.IsNullOrEmpty(eventoEspada1))
+                    RuntimeManager.PlayOneShot(eventoEspada1, transform.position);
+                damageToApply = damageCombo1;
+                comboCounter = 1;
+                break;
+            case 1:
+                if (!string.IsNullOrEmpty(eventoEspada2))
+                    RuntimeManager.PlayOneShot(eventoEspada2, transform.position);
+                damageToApply = damageCombo2;
+                comboCounter = 2;
+                break;
+            case 2:
+                if (!string.IsNullOrEmpty(eventoEspada3))
+                    RuntimeManager.PlayOneShot(eventoEspada3, transform.position);
+                damageToApply = damageCombo3;
+                comboCounter = 0;
+                break;
+        }
 
         Collider[] hitTargets = Physics.OverlapSphere(attackPoint.position, attackRange, hitLayers);
 
@@ -57,8 +109,8 @@ public class MeleeCombatSystem : MonoBehaviour
                 EnemyHealthSystem enHealth = target.GetComponent<EnemyHealthSystem>();
                 if (enHealth != null)
                 {
-                    enHealth.TakeDamage(characterData.damage);
-                    Debug.Log($"<color=cyan>ATAQUE MELEE:</color> Causou {characterData.damage} de dano em {target.name}");
+                    enHealth.TakeDamage(damageToApply);
+                    Debug.Log($"<color=cyan>ATAQUE MELEE (Combo {comboCounter}):</color> Causou {damageToApply} de dano em {target.name}");
                 }
             }
         }

@@ -1,5 +1,7 @@
 using UnityEngine;
 using FMODUnity;
+using System.Collections.Generic;
+using static Unity.VisualScripting.Member;
 
 [RequireComponent(typeof(PlayerHealthSystem))]
 public class PlayerShooting : MonoBehaviour
@@ -10,13 +12,23 @@ public class PlayerShooting : MonoBehaviour
     public GameObject projectileVisualPrefab;
     public GameObject impactEffectPrefab;
 
-    //FMOD
     [Header("Configurações FMOD")]
+    [Tooltip("Escreva 'Arma' ou 'Arco' para definir o som. (Deve corresponder exatamente)")]
+    public string tipoDeSom = "Arma";
 
+    [Header("FMOD - Sons da Arma")]
     [EventRef]
-    public string eventoTiroUnico = "event:/SFX/Atirar"; 
+    public string eventoTiroUnicoArma = "event:/SFX/Atirar";
     [EventRef]
-    public string eventoTiroContinuo = "event:/SFX/Atirar_segurando"; 
+    public string eventoTiroContinuoArma = "event:/SFX/Atirar_segurando";
+    [EventRef]
+    public string eventoRecargaArma = "event:/SFX/Recarga Arma";
+
+    [Header("FMOD - Sons do Arco")]
+    [EventRef]
+    public string eventoTiroUnicoArco = "event:/SFX/Arco";
+    [EventRef]
+    public string eventoTiroContinuoArco = "event:/SFX/Arco";
 
     [Header("Raycast Settings")]
     public float maxDistance = 100f;
@@ -128,21 +140,32 @@ public class PlayerShooting : MonoBehaviour
             animator.SetTrigger("Shoot");
         }
 
-        // --- FMOD ---
-        // Verifica qual modo de tiro está ativo para tocar o som FMOD correto
-        if (characterData.fireMode == FireMode.FullAuto)
+        if (tipoDeSom == "Arco")
         {
-            // Toca o som de tiro contínuo (automático)
-            if (!string.IsNullOrEmpty(eventoTiroContinuo)) 
-                RuntimeManager.PlayOneShot(eventoTiroContinuo, transform.position); // <--- ADICIONADO: Toca o som
+            if (characterData.fireMode == FireMode.FullAuto)
+            {
+                if (!string.IsNullOrEmpty(eventoTiroContinuoArco))
+                    RuntimeManager.PlayOneShot(eventoTiroContinuoArco, transform.position);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(eventoTiroUnicoArco))
+                    RuntimeManager.PlayOneShot(eventoTiroUnicoArco, transform.position);
+            }
         }
         else
         {
-            // Toca o som de tiro único (semi-automático)
-            if (!string.IsNullOrEmpty(eventoTiroUnico)) 
-                RuntimeManager.PlayOneShot(eventoTiroUnico, transform.position); // <--- ADICIONADO: Toca o som
+            if (characterData.fireMode == FireMode.FullAuto)
+            {
+                if (!string.IsNullOrEmpty(eventoTiroContinuoArma))
+                    RuntimeManager.PlayOneShot(eventoTiroContinuoArma, transform.position);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(eventoTiroUnicoArma))
+                    RuntimeManager.PlayOneShot(eventoTiroUnicoArma, transform.position);
+            }
         }
-        // --- FIM do FMOD ---
 
         if (modelPivot != null)
         {
@@ -172,18 +195,18 @@ public class PlayerShooting : MonoBehaviour
         if (projectilePool != null && projectileVisualPrefab != null)
         {
             GameObject visualProjectile = projectilePool.GetProjectile(
-                firePoint.position,
-                Quaternion.LookRotation(shotDirection));
+             firePoint.position,
+             Quaternion.LookRotation(shotDirection));
 
             ProjectileVisual visualScript = visualProjectile.GetComponent<ProjectileVisual>();
             if (visualScript != null)
             {
                 visualScript.Initialize(
-                    finalDamage,
-                    isCritical,
-                    characterData.armorPenetration,
-                    playerHealth,
-                            shotDirection
+                 finalDamage,
+                 isCritical,
+                 characterData.armorPenetration,
+                 playerHealth,
+                 shotDirection
                 );
             }
         }
@@ -232,6 +255,11 @@ public class PlayerShooting : MonoBehaviour
         {
             animator.SetFloat("ReloadSpeedMultiplier", multiplier);
             animator.SetTrigger("Reload");
+        }
+
+        if (tipoDeSom == "Arma" && !string.IsNullOrEmpty(eventoRecargaArma))
+        {
+            RuntimeManager.PlayOneShot(eventoRecargaArma, transform.position);
         }
 
         isReloading = true;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 [CreateAssetMenu(fileName = "Perseguindo as Presas", menuName = "ExoBeasts/Habilidades/Perseguindo as Presas")]
 public class HabilidadePerseguindoPresas : Ability
@@ -10,12 +11,21 @@ public class HabilidadePerseguindoPresas : Ability
     [Tooltip("Arraste o prefab da lógica da habilidade aqui.")]
     public PreyMarkLogic logicPrefab;
 
+    [Header("FMOD")]
+    [EventRef]
+    public string eventoTEC = "event:/SFX/TEC";
+
     public override bool Activate(GameObject quemUsou)
     {
         if (logicPrefab == null)
         {
             Debug.LogError("O prefab da lógica da habilidade está NULO no ScriptableObject 'Perseguindo as Presas'!");
-            return true; // Ainda coloca em cooldown para evitar spam, mas avisa sobre a falha.
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(eventoTEC))
+        {
+            RuntimeManager.PlayOneShot(eventoTEC, quemUsou.transform.position);
         }
 
         PreyMarkLogic logic = Instantiate(logicPrefab, quemUsou.transform);

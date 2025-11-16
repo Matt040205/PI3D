@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using System.Collections;
+using FMODUnity;
+using FMOD.Studio;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
@@ -20,6 +22,15 @@ public class PlayerMovement : MonoBehaviour
     public Rig aimRig;
     public MultiAimConstraint aimConstraint;
     public LayerMask aimLayerMask;
+
+    [Header("FMOD")]
+    [EventRef]
+    public string eventoPassos = "event:/SFX/Passos";
+    private EventInstance passosSoundInstance;
+    private bool isPlayingFootsteps = false;
+
+    [HideInInspector]
+    public bool isDashing = false;
 
     private bool isAiming = false;
     private Transform aimTarget;
@@ -43,11 +54,20 @@ public class PlayerMovement : MonoBehaviour
 
     private bool jaMoveuTutorial = false;
 
-    private void Start()
+    private void Awake()
     {
         controller = GetComponent<CharacterController>();
         animator = modelPivot.GetComponentInChildren<Animator>();
 
+        if (!string.IsNullOrEmpty(eventoPassos))
+        {
+            passosSoundInstance = RuntimeManager.CreateInstance(eventoPassos);
+            RuntimeManager.AttachInstanceToGameObject(passosSoundInstance, transform);
+        }
+    }
+
+    private void Start()
+    {
         if (cameraController == null && Camera.main != null)
         {
             cameraController = Camera.main.transform;
@@ -76,9 +96,10 @@ public class PlayerMovement : MonoBehaviour
     {
         isGrounded = controller.isGrounded;
 
-        if (PauseControl.isPaused || BuildManager.isBuildingMode)
+        if (PauseControl.isPaused || BuildManager.isBuildingMode || isDashing)
         {
-            if (animator != null) animator.SetFloat("MovementSpeed", 0f);
+            if (animator != null && !isDashing) animator.SetFloat("MovementSpeed", 0f);
+            StopFootstepSound();
             return;
         }
 
@@ -92,6 +113,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 isFloating = false;
             }
+            StopFootstepSound();
         }
         else
         {
@@ -103,9 +125,17 @@ public class PlayerMovement : MonoBehaviour
         if (animator != null) animator.SetBool("isGrounded", isGrounded);
     }
 
+    private void OnDestroy()
+    {
+        if (passosSoundInstance.isValid())
+        {
+            passosSoundInstance.release();
+        }
+    }
+
     private void LateUpdate()
     {
-        if (PauseControl.isPaused || BuildManager.isBuildingMode || isFloating)
+        if (PauseControl.isPaused || BuildManager.isBuildingMode || isFloating || isDashing)
         {
             return;
         }
@@ -208,7 +238,16 @@ public class PlayerMovement : MonoBehaviour
                     animator.SetFloat("MovementSpeed", animSpeed, 0.1f, Time.deltaTime);
                 }
             }
-            controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
+            controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);            
+ 
+        if (isGrounded)
+            {
+                PlayFootstepSound();
+            }
+            else
+            {
+                StopFootstepSound();
+            }
         }
         else
         {
@@ -219,6 +258,7 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetFloat("AimMoveX", 0f, 0.1f, Time.deltaTime);
                 animator.SetFloat("AimMoveY", 0f, 0.1f, Time.deltaTime);
             }
+            StopFootstepSound();
         }
     }
 
@@ -236,12 +276,14 @@ public class PlayerMovement : MonoBehaviour
                 velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
                 isGrounded = false;
                 if (animator != null) animator.SetTrigger("Jump");
+                StopFootstepSound();
             }
             else if (canDoubleJump && !hasDoubleJumped)
             {
                 velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
                 hasDoubleJumped = true;
                 if (animator != null) animator.SetTrigger("Jump");
+                StopFootstepSound();
             }
         }
     }
@@ -255,6 +297,24 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void PlayFootstepSound()
+    {
+        if (!isPlayingFootsteps && passosSoundInstance.isValid())
+        {
+            passosSoundInstance.start();
+            isPlayingFootsteps = true;
+        }
+    }
+
+    private void StopFootstepSound()
+    {
+        if (isPlayingFootsteps && passosSoundInstance.isValid())
+        {
+            passosSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            isPlayingFootsteps = false;
+        }
     }
 
     public Transform GetModelPivot()

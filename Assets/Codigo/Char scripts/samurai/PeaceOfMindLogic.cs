@@ -1,24 +1,32 @@
-// PeaceOfMindLogic.cs
 using UnityEngine;
 using System.Collections;
+using FMODUnity;
+using FMOD.Studio;
 
-// Este é um componente temporário que existirá no jogador
-// apenas enquanto a cura estiver ativa.
 public class PeaceOfMindLogic : MonoBehaviour
 {
     private PlayerHealthSystem healthSystem;
+    private EventInstance curaSoundInstance;
 
-    // Método de inicialização que a "receita" vai chamar
+    [Header("FMOD")]
+    [EventRef]
+    public string eventoCura = "event:/SFX/Cura";
+
     public void StartEffect(float totalHeal, float duration)
     {
         healthSystem = GetComponent<PlayerHealthSystem>();
         if (healthSystem != null)
         {
+            if (!string.IsNullOrEmpty(eventoCura))
+            {
+                curaSoundInstance = RuntimeManager.CreateInstance(eventoCura);
+                RuntimeManager.AttachInstanceToGameObject(curaSoundInstance, transform);
+                curaSoundInstance.start();
+            }
             StartCoroutine(HealCoroutine(totalHeal, duration));
         }
         else
         {
-            // Se não encontrar o sistema de vida, se destrói para não ficar "solto"
             Destroy(this);
         }
     }
@@ -32,10 +40,18 @@ public class PeaceOfMindLogic : MonoBehaviour
         {
             healthSystem.Heal(healPerSecond * Time.deltaTime);
             timeLeft -= Time.deltaTime;
-            yield return null; // Espera o próximo frame
+            yield return null;
         }
 
-        // A tarefa acabou. Agora o ajudante se autodestrói.
         Destroy(this);
+    }
+
+    private void OnDestroy()
+    {
+        if (curaSoundInstance.isValid())
+        {
+            curaSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            curaSoundInstance.release();
+        }
     }
 }

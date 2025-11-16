@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using FMODUnity;
+using FMOD.Studio;
+using UnityEngine.InputSystem;
 
 public enum AITargetPriority
 {
@@ -27,6 +30,11 @@ public class EnemyController : MonoBehaviour
     public float chaseDistance = 50f;
     public float attackDistance = 2f;
     public float respawnYThreshold = -10f;
+
+    [Header("FMOD")]
+    [EventRef]
+    public string eventoMonstro = "event:/SFX/Monstro";
+    private EventInstance monstroSoundInstance;
 
     private EnemyHealthSystem healthSystem;
     private EnemyCombatSystem combatSystem;
@@ -58,6 +66,36 @@ public class EnemyController : MonoBehaviour
             rb = gameObject.AddComponent<Rigidbody>();
             rb.constraints = RigidbodyConstraints.FreezeRotation;
             rb.useGravity = true;
+        }
+
+        if (!string.IsNullOrEmpty(eventoMonstro))
+        {
+            monstroSoundInstance = RuntimeManager.CreateInstance(eventoMonstro);
+            RuntimeManager.AttachInstanceToGameObject(monstroSoundInstance, transform);
+        }
+    }
+
+    void OnEnable()
+    {
+        if (monstroSoundInstance.isValid())
+        {
+            monstroSoundInstance.start();
+        }
+    }
+
+    void OnDisable()
+    {
+        if (monstroSoundInstance.isValid())
+        {
+            monstroSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (monstroSoundInstance.isValid())
+        {
+            monstroSoundInstance.release();
         }
     }
 

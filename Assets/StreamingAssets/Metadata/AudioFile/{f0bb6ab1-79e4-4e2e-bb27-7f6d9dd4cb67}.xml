@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f0bb6ab1-79e4-4e2e-bb27-7f6d9dd4cb67}">
+		<property name="assetPath">
+			<value>SFX/passos.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>3.2907256235827664</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{6713ec8e-1274-400a-9421-c3359567ac51}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{eb26d504-3037-49da-ab35-5e44e27ffa88}">
+		<property name="assetPath">
+			<value>SFX/vento_2.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>9.9470748299319727</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{6713ec8e-1274-400a-9421-c3359567ac51}</destination>
+		</relationship>
+	</object>
+</objects>

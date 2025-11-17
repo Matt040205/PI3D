@@ -219,6 +219,10 @@ PrefabInstance:
       value: Samurai Variant
       objectReference: {fileID: 0}
     - target: {fileID: 2684468934285267859, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: modelPivot
+      value: 
+      objectReference: {fileID: 5251540604817601221}
+    - target: {fileID: 2684468934285267859, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: characterData
       value: 
       objectReference: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}

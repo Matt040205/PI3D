@@ -14,6 +14,7 @@ public class MeleeCombatSystem : MonoBehaviour
     public float damageCombo1 = 13f;
     public float damageCombo2 = 15f;
     public float damageCombo3 = 22f;
+    public float damageCombo4 = 30f;
 
     [Header("FMOD (Combo da Ultimate)")]
     [EventRef]
@@ -22,81 +23,62 @@ public class MeleeCombatSystem : MonoBehaviour
     public string eventoEspada2 = "event:/SFX/Espada_1";
     [EventRef]
     public string eventoEspada3 = "event:/SFX/Espada_2";
-    public float comboResetTime = 1.5f;
-
-    [Header("Estado")]
-    public bool isAttacking;
-    public float attackCooldown;
+    [EventRef]
+    public string eventoEspada4 = "event:/SFX/Espada_3";
 
     [Header("Overrides da Ultimate (Não mexer)")]
+    // Esta variável agora funciona!
     public float? overrideAttackSpeed = null;
     public float? overrideAttackAngle = null;
 
-    private float nextAttackTime;
-    private int comboCounter = 0;
-    private float lastAttackTimestamp = 0f;
+    private Animator anim;
 
-    void OnEnable()
+    void Start()
     {
-        comboCounter = 0;
+        anim = GetComponentInChildren<Animator>();
     }
 
+    // O Update agora tem DUAS responsabilidades
     void Update()
     {
-        if (isAttacking)
+        // 1. Checar o input de ataque
+        if (Input.GetButtonDown("Fire1"))
         {
-            attackCooldown -= Time.deltaTime;
-            if (attackCooldown <= 0)
-            {
-                isAttacking = false;
-            }
+            anim.SetTrigger("Attack");
         }
 
-        if (Time.time - lastAttackTimestamp > comboResetTime && comboCounter != 0)
+        // 2. Controlar a velocidade da animação com base no override
+        if (overrideAttackSpeed.HasValue)
         {
-            comboCounter = 0;
+            // Se o NineTailsDanceLogic definir a velocidade para 5,
+            // as animações de ataque tocarão 5x mais rápido.
+            anim.speed = overrideAttackSpeed.Value;
         }
-
-        if (Input.GetButtonDown("Fire1") && Time.time >= nextAttackTime)
+        else
         {
-            PerformMeleeAttack();
+            anim.speed = 1.0f; // Velocidade normal
         }
     }
 
-    void PerformMeleeAttack()
+    // Garantir que a velocidade volte ao normal
+    void OnDisable()
     {
-        float currentSpeed = overrideAttackSpeed ?? characterData.attackSpeed;
-        float currentAngle = overrideAttackAngle ?? this.attackAngle;
-
-        isAttacking = true;
-        attackCooldown = 1f / currentSpeed;
-        nextAttackTime = Time.time + attackCooldown;
-        lastAttackTimestamp = Time.time;
-
-        float damageToApply = characterData.damage;
-
-        switch (comboCounter)
+        // Quando este script for desabilitado (pelo NineTailsDanceLogic),
+        // garantimos que a velocidade do animator volte a 1.
+        if (anim != null)
         {
-            case 0:
-                if (!string.IsNullOrEmpty(eventoEspada1))
-                    RuntimeManager.PlayOneShot(eventoEspada1, transform.position);
-                damageToApply = damageCombo1;
-                comboCounter = 1;
-                break;
-            case 1:
-                if (!string.IsNullOrEmpty(eventoEspada2))
-                    RuntimeManager.PlayOneShot(eventoEspada2, transform.position);
-                damageToApply = damageCombo2;
-                comboCounter = 2;
-                break;
-            case 2:
-                if (!string.IsNullOrEmpty(eventoEspada3))
-                    RuntimeManager.PlayOneShot(eventoEspada3, transform.position);
-                damageToApply = damageCombo3;
-                comboCounter = 0;
-                break;
+            anim.speed = 1.0f;
         }
+    }
 
+    private void DetectHits(float damageToApply, string fmodEvent)
+    {
+        // Tocar o som
+        if (!string.IsNullOrEmpty(fmodEvent))
+            RuntimeManager.PlayOneShot(fmodEvent, transform.position);
+
+        // Detectar o Dano
+        float currentAngle = overrideAttackAngle ?? this.attackAngle;
         Collider[] hitTargets = Physics.OverlapSphere(attackPoint.position, attackRange, hitLayers);
 
         foreach (Collider target in hitTargets)
@@ -110,12 +92,35 @@ public class MeleeCombatSystem : MonoBehaviour
                 if (enHealth != null)
                 {
                     enHealth.TakeDamage(damageToApply);
-                    Debug.Log($"<color=cyan>ATAQUE MELEE (Combo {comboCounter}):</color> Causou {damageToApply} de dano em {target.name}");
+                    Debug.Log($"<color=cyan>ATAQUE MELEE:</color> Causou {damageToApply} de dano em {target.name}");
                 }
             }
         }
     }
 
+    // --- Funções PÚBLICAS para os Eventos de Animação ---
+    public void AnimEvent_Hit1()
+    {
+        DetectHits(damageCombo1, eventoEspada1);
+    }
+
+    public void AnimEvent_Hit2()
+    {
+        DetectHits(damageCombo2, eventoEspada2);
+    }
+
+    public void AnimEvent_Hit3()
+    {
+        DetectHits(damageCombo3, eventoEspada3);
+    }
+
+    public void AnimEvent_Hit4()
+    {
+        DetectHits(damageCombo4, eventoEspada4);
+    }
+
+
+    // Gizmos (Sem omissões)
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;

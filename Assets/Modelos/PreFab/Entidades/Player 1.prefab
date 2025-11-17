@@ -531,6 +531,8 @@ MonoBehaviour:
   aimLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  eventoPassos: event:/SFX/Passos
+  isDashing: 0
   isGrounded: 0
   canDoubleJump: 0
   isFloating: 0
@@ -552,6 +554,12 @@ MonoBehaviour:
   firePoint: {fileID: 4757579757688161299}
   projectileVisualPrefab: {fileID: 9104921844974723845, guid: f14f768e29c3c2c4ca827c7d1b39d783, type: 3}
   impactEffectPrefab: {fileID: 0}
+  tipoDeSom: Arma
+  eventoTiroUnicoArma: event:/SFX/Atirar
+  eventoTiroContinuoArma: event:/SFX/Atirar_segurando
+  eventoRecargaArma: event:/SFX/Recarga Arma
+  eventoTiroUnicoArco: event:/SFX/Arco
+  eventoTiroContinuoArco: event:/SFX/Arco
   maxDistance: 100
   hitLayers:
     serializedVersion: 2
@@ -611,8 +619,14 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 128
-  isAttacking: 0
-  attackCooldown: 0.4
+  damageCombo1: 13
+  damageCombo2: 15
+  damageCombo3: 22
+  damageCombo4: 30
+  eventoEspada1: event:/SFX/Espada
+  eventoEspada2: event:/SFX/Espada_1
+  eventoEspada3: event:/SFX/Espada_2
+  eventoEspada4: event:/SFX/Espada_3
 --- !u!114 &4810200277711100742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -693,7 +707,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectParticles: {fileID: 0}
-  areaVisualPrefab: {fileID: 0}
+  beamVisualPrefab: {fileID: 0}
   visualDuration: 0.5
 --- !u!1 &4674399538622136838
 GameObject:

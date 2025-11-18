@@ -18,7 +18,6 @@ public class Teleportador : TrapLogicBase
 
         if (portais.Count >= MAX_PORTAIS)
         {
-            Debug.LogWarning("Não é possível colocar mais de 2 teleportadores. Destruindo este.");
             Destroy(gameObject);
             return;
         }
@@ -59,7 +58,7 @@ public class Teleportador : TrapLogicBase
     {
         if (podeTeleportar && portalLigado != null)
         {
-            if (other.CompareTag("Player") || other.CompareTag("Enemy"))
+            if (other.CompareTag("Player"))
             {
                 Vector3 posicaoDestino = portalLigado.transform.position + (portalLigado.transform.forward * entradaOffset);
 

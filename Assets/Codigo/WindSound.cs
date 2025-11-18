@@ -18,7 +18,7 @@ public class WindSound : MonoBehaviour
     [Tooltip("A chance (em porcentagem) que o som tem de tocar a cada intervalo.")]
     [Range(0, 100)]
     public float chancePercentual = 30f;
-
+    
     void Start()
     {
         if (string.IsNullOrEmpty(eventoVento))

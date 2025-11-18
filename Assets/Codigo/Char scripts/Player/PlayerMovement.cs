@@ -3,6 +3,8 @@ using UnityEngine.Animations.Rigging;
 using System.Collections;
 using FMODUnity;
 using FMOD.Studio;
+using static Unity.VisualScripting.Member;
+using static UnityEngine.Rendering.VolumeComponent;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
@@ -86,9 +88,22 @@ public class PlayerMovement : MonoBehaviour
 
         if (aimRig != null) aimRig.weight = 0f;
 
-        if (TutorialManager.Instance != null)
+        if (TutorialManager.Instance != null && GameDataManager.Instance != null)
         {
-            TutorialManager.Instance.TriggerTutorial("PLAYER_MOVEMENT");
+            if (GameDataManager.Instance.tutoriaisConcluidos.Contains("PLAYER_MOVEMENT"))
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                TutorialManager.Instance.TriggerTutorial("PLAYER_MOVEMENT");
+            }
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 
@@ -158,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
             if (isAiming)
             {
                 targetAngle = cameraController.eulerAngles.y;
-            }
+                    }
 
             float angle = Mathf.SmoothDampAngle(modelPivot.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
             modelPivot.rotation = Quaternion.Euler(0f, angle, 0f);
@@ -182,7 +197,7 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator FadeRigWeight(float targetWeight)
     {
         if (aimRig == null) yield break;
-        float time = 0f;
+           float time = 0f;
         float startWeight = aimRig.weight;
         float duration = 0.2f;
         while (time < duration)
@@ -219,7 +234,7 @@ public class PlayerMovement : MonoBehaviour
             if (isAiming)
             {
                 float lookAngle = cameraController.eulerAngles.y;
-                moveDir = Quaternion.Euler(0f, lookAngle, 0f) * direction;
+                 moveDir = Quaternion.Euler(0f, lookAngle, 0f) * direction;
 
                 if (animator != null)
                 {
@@ -238,16 +253,16 @@ public class PlayerMovement : MonoBehaviour
                     animator.SetFloat("MovementSpeed", animSpeed, 0.1f, Time.deltaTime);
                 }
             }
-            controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);            
- 
-        if (isGrounded)
+            controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
+
+            if (isGrounded)
             {
                 PlayFootstepSound();
             }
             else
             {
                 StopFootstepSound();
-            }
+             }
         }
         else
         {
@@ -272,14 +287,15 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             if (isGrounded)
-            {
+                     {
                 velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
                 isGrounded = false;
                 if (animator != null) animator.SetTrigger("Jump");
                 StopFootstepSound();
             }
-            else if (canDoubleJump && !hasDoubleJumped)
-            {
+
+        else if (canDoubleJump && !hasDoubleJumped)
+                    {
                 velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity) * jumpHeightModifier;
                 hasDoubleJumped = true;
                 if (animator != null) animator.SetTrigger("Jump");
@@ -291,7 +307,7 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyGravity()
     {
         if (isGrounded && velocity.y < 0)
-        {
+                {
             velocity.y = -2f;
         }
 

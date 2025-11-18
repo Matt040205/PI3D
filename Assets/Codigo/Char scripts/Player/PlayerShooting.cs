@@ -72,13 +72,21 @@ public class PlayerShooting : MonoBehaviour
 
         projectilePool = ProjectilePool.Instance;
 
-        if (projectilePool == null && projectileVisualPrefab != null)
+        if (projectilePool != null)
         {
-            GameObject poolObj = new GameObject("ProjectilePool");
-            projectilePool = poolObj.AddComponent<ProjectilePool>();
-            projectilePool.projectilePrefab = projectileVisualPrefab;
-            ProjectilePool.Instance = projectilePool;
-            projectilePool.InitializePool();
+            if (projectileVisualPrefab != null)
+            {
+                projectilePool.projectilePrefab = this.projectileVisualPrefab;
+                projectilePool.InitializePool();
+            }
+            else
+            {
+                Debug.LogError($"PlayerShooting no {gameObject.name} não tem um 'projectileVisualPrefab' definido!");
+            }
+        }
+        else
+        {
+            Debug.LogError("ProjectilePool.Instance não foi encontrado na cena!");
         }
     }
 
@@ -192,22 +200,25 @@ public class PlayerShooting : MonoBehaviour
             nextShotAreaBonus = 1f;
         }
 
-        if (projectilePool != null && projectileVisualPrefab != null)
+        if (projectilePool != null)
         {
             GameObject visualProjectile = projectilePool.GetProjectile(
              firePoint.position,
              Quaternion.LookRotation(shotDirection));
 
-            ProjectileVisual visualScript = visualProjectile.GetComponent<ProjectileVisual>();
-            if (visualScript != null)
+            if (visualProjectile != null)
             {
-                visualScript.Initialize(
-                 finalDamage,
-                 isCritical,
-                 characterData.armorPenetration,
-                 playerHealth,
-                 shotDirection
-                );
+                ProjectileVisual visualScript = visualProjectile.GetComponent<ProjectileVisual>();
+                if (visualScript != null)
+                {
+                    visualScript.Initialize(
+                     finalDamage,
+                     isCritical,
+                     characterData.armorPenetration,
+                     playerHealth,
+                     shotDirection
+                    );
+                }
             }
         }
 
@@ -236,7 +247,8 @@ public class PlayerShooting : MonoBehaviour
                 return ray.direction;
             }
         }
-        else if (modelPivot != null)
+
+       else if (modelPivot != null)
         {
             return modelPivot.forward;
         }
@@ -265,7 +277,7 @@ public class PlayerShooting : MonoBehaviour
         isReloading = true;
         reloadStartTime = Time.time;
         Invoke("FinishReload", characterData.reloadSpeed);
-    }
+          }
 
     void FinishReload()
     {

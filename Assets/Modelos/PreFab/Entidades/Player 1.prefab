@@ -709,6 +709,7 @@ MonoBehaviour:
   effectParticles: {fileID: 0}
   beamVisualPrefab: {fileID: 0}
   visualDuration: 0.5
+  animationDelay: 0.5
 --- !u!1 &4674399538622136838
 GameObject:
   m_ObjectHideFlags: 0

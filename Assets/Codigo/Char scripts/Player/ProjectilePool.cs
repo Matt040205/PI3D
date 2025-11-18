@@ -25,11 +25,17 @@ public class ProjectilePool : MonoBehaviour
             return;
         }
 
-        InitializePool();
+        // A linha "InitializePool();" foi removida daqui.
     }
 
     public void InitializePool()
     {
+        if (projectilePrefab == null)
+        {
+            Debug.LogError("ProjectilePool: Tentativa de inicializar o pool, mas 'projectilePrefab' está nulo. O PlayerShooting esqueceu de defini-lo?", this);
+            return;
+        }
+
         for (int i = 0; i < initialPoolSize; i++)
         {
             CreateNewProjectile();
@@ -38,6 +44,8 @@ public class ProjectilePool : MonoBehaviour
 
     void CreateNewProjectile()
     {
+        if (projectilePrefab == null) return;
+
         if (projectilePool.Count >= maxPoolSize) return;
 
         GameObject proj = Instantiate(projectilePrefab, transform);
@@ -50,7 +58,11 @@ public class ProjectilePool : MonoBehaviour
         if (projectilePool.Count == 0)
         {
             CreateNewProjectile();
-            if (projectilePool.Count == 0) return null;
+            if (projectilePool.Count == 0)
+            {
+                Debug.LogError("ProjectilePool: O pool está vazio e não foi possível criar um novo projétil (prefab nulo ou max pool atingido).", this);
+                return null;
+            }
         }
 
         GameObject projectile = projectilePool.Dequeue();
@@ -58,7 +70,6 @@ public class ProjectilePool : MonoBehaviour
         projectile.transform.rotation = rotation;
         projectile.SetActive(true);
 
-        // Configura a referência do pool no projétil
         ProjectileVisual visual = projectile.GetComponent<ProjectileVisual>();
         if (visual != null)
         {

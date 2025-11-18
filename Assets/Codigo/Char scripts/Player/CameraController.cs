@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using static Unity.VisualScripting.Member;
 
 public class CameraController : MonoBehaviour
 {

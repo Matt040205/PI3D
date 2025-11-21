@@ -10,37 +10,45 @@ public class SelecaoManager : MonoBehaviour
 {
     public List<CharacterBase> todosOsPersonagens;
 
+    [Header("Painéis")]
     public GameObject painelEquipe;
     public GameObject painelEscolhaPersonagem;
     public GameObject painelDetalhes;
 
+    [Header("UI Principal")]
     public GameObject slotEquipePrefab;
     public Transform gridEquipeContainer;
     public Button botaoJogar;
     public string nomeDaCenaDoJogo;
 
+    [Header("Modo Remover")]
+    public Button botaoRemover;
+    public Color corModoRemover = Color.red;
+    private bool isRemoveMode = false;
+    private Color corOriginalBotaoRemover;
+
+    [Header("Seleção de Personagem")]
     public GameObject slotEscolhaPrefab;
     public Transform gridEscolhaContainer;
     public Button botaoVoltarDaEscolha;
 
+    [Header("Detalhes do Personagem")]
     public Image imagemDetalhes;
     public TextMeshProUGUI nomeDetalhes;
     public TextMeshProUGUI textoStatusPadrao;
     public Button botaoConfirmarEscolha;
     public Button botaoVoltarDosDetalhes;
 
+    [Header("Abas de Detalhes")]
     public GameObject painelHabilidades;
     public GameObject painelUpgradesTorre;
     public TextMeshProUGUI textoHabilidadesComandante;
-
     public TextMeshProUGUI textoCaminho1;
     public TextMeshProUGUI textoCaminho2;
     public TextMeshProUGUI textoCaminho3;
-
     public Button botaoAbaHabilidades;
     public Button botaoAbaTorre;
     public List<Button> botoesCaminhoTorre;
-
     public Button botaoRastros;
     public string nomeDaCenaRastros = "Rastros";
 
@@ -49,7 +57,15 @@ public class SelecaoManager : MonoBehaviour
     private int slotSendoEditado = -1;
     private CharacterBase personagemEmVisualizacao;
 
-    void Start() { StartCoroutine(SetupScene()); }
+    void Start()
+    {
+        if (botaoRemover != null)
+        {
+            corOriginalBotaoRemover = botaoRemover.image.color;
+            botaoRemover.onClick.AddListener(ToggleRemoveMode);
+        }
+        StartCoroutine(SetupScene());
+    }
 
     IEnumerator SetupScene()
     {
@@ -93,6 +109,39 @@ public class SelecaoManager : MonoBehaviour
         painelEquipe.SetActive(true);
 
         AtualizarEstadoBotaoJogar();
+    }
+
+    void ToggleRemoveMode()
+    {
+        isRemoveMode = !isRemoveMode;
+        if (botaoRemover != null)
+        {
+            botaoRemover.image.color = isRemoveMode ? corModoRemover : corOriginalBotaoRemover;
+        }
+    }
+
+    void OnSlotClicked(int slotIndex)
+    {
+        if (isRemoveMode)
+        {
+            if (GameDataManager.Instance != null)
+            {
+                if (GameDataManager.Instance.equipeSelecionada[slotIndex] != null)
+                {
+                    Destroy(GameDataManager.Instance.equipeSelecionada[slotIndex]);
+                    GameDataManager.Instance.equipeSelecionada[slotIndex] = null;
+                }
+
+                slotsEquipe[slotIndex].LimparSlot();
+                AtualizarEstadoBotaoJogar();
+
+                ToggleRemoveMode();
+            }
+        }
+        else
+        {
+            AbrirPainelEscolha(slotIndex);
+        }
     }
 
     public void AbrirPainelDetalhes(CharacterBase personagem)
@@ -253,9 +302,9 @@ public class SelecaoManager : MonoBehaviour
             if (botao != null)
             {
                 bool hasPath = personagemEmVisualizacao != null &&
-                    personagemEmVisualizacao.upgradePaths != null &&
-                    i < personagemEmVisualizacao.upgradePaths.Count &&
-                    personagemEmVisualizacao.upgradePaths[i] != null;
+                          personagemEmVisualizacao.upgradePaths != null &&
+                          i < personagemEmVisualizacao.upgradePaths.Count &&
+                          personagemEmVisualizacao.upgradePaths[i] != null;
 
                 botao.gameObject.SetActive(visivel && hasPath);
             }
@@ -322,7 +371,7 @@ public class SelecaoManager : MonoBehaviour
             SlotEquipeUI slotUI = slotObj.GetComponent<SlotEquipeUI>();
 
             int index = i;
-            slotButton.onClick.AddListener(() => AbrirPainelEscolha(index));
+            slotButton.onClick.AddListener(() => OnSlotClicked(index));
 
             if (GameDataManager.Instance != null && GameDataManager.Instance.equipeSelecionada[i] != null)
             {
@@ -361,7 +410,7 @@ public class SelecaoManager : MonoBehaviour
             }
 
             bool noSlotAtual = (slotSendoEditado >= 0 && slotSendoEditado < equipeAtual.Length) &&
-                    (equipeAtual[slotSendoEditado] != null && equipeAtual[slotSendoEditado].name.StartsWith(par.Key.name));
+                              (equipeAtual[slotSendoEditado] != null && equipeAtual[slotSendoEditado].name.StartsWith(par.Key.name));
 
             par.Value.interactable = !jaEscolhido || noSlotAtual;
         }
@@ -380,7 +429,7 @@ public class SelecaoManager : MonoBehaviour
                 else if (slotSendoEditado == 1)
                 {
                     TutorialManager.Instance.TriggerTutorial("EXPLAIN_TRAILS");
-                         }
+                }
             }
 
             if (GameDataManager.Instance.equipeSelecionada[slotSendoEditado] != null)
@@ -400,13 +449,12 @@ public class SelecaoManager : MonoBehaviour
     void AtualizarEstadoBotaoJogar()
     {
         if (GameDataManager.Instance != null && botaoJogar != null)
-                  {
+        {
             bool podeJogar = GameDataManager.Instance.equipeSelecionada[0] != null &&
-                      GameDataManager.Instance.equipeSelecionada[1] != null;
+                                    GameDataManager.Instance.equipeSelecionada[1] != null;
             botaoJogar.interactable = podeJogar;
         }
-
-      else if (botaoJogar != null)
+        else if (botaoJogar != null)
         {
             botaoJogar.interactable = false;
         }

@@ -18310,7 +18310,7 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.96666664
-    functionName: AnimEvent_Hit2()
+    functionName: AnimEvent_Hit2
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -18346,7 +18346,7 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 1
-    functionName: AnimEvent_Hit1()
+    functionName: AnimEvent_Hit1
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

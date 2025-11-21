@@ -938,6 +938,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: -2939083467828303576, guid: cc1c6686e2c95f94e9797240a75a3630, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3deb7e719d3b6ce4ebafe1b46a04b0ba, type: 2}
     - target: {fileID: -2928172300850443649, guid: cc1c6686e2c95f94e9797240a75a3630, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -2028,6 +2032,7 @@ MonoBehaviour:
   chaseDistance: 50
   attackDistance: 2
   respawnYThreshold: -10
+  eventoMonstro: event:/SFX/Monstro
 --- !u!114 &8001866522814007648
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using static Unity.VisualScripting.Member;
@@ -9,9 +9,9 @@ public class CacadoraNoturnaLogic : MonoBehaviour
     public GameObject beamVisualPrefab;
     public float visualDuration = 0.5f;
 
-    // !! MUDANÇA 1 !!
-    // Adicionamos um delay para esperar a animação
-    [Header("Sincronia da Animação")]
+    // !! MUDANÃ‡A 1 !!
+    // Adicionamos um delay para esperar a animaÃ§Ã£o
+    [Header("Sincronia da AnimaÃ§Ã£o")]
     public float animationDelay = 0.5f; // Ajuste este valor no Inspector!
 
     private float damage;
@@ -20,8 +20,8 @@ public class CacadoraNoturnaLogic : MonoBehaviour
     private GameObject caster;
     private LayerMask visualRaycastMask;
 
-    // !! MUDANÇA 2 !!
-    // Referência para o Animator
+    // !! MUDANÃ‡A 2 !!
+    // ReferÃªncia para o Animator
     private Animator anim;
 
     public void StartUltimateEffect(GameObject caster, float damage, float range, float width)
@@ -46,36 +46,36 @@ public class CacadoraNoturnaLogic : MonoBehaviour
             effectParticles.Play();
         }
 
-        // !! MUDANÇA 3 !!
-        // Disparamos o "gatilho" da animação.
+        // !! MUDANÃ‡A 3 !!
+        // Disparamos o "gatilho" da animaÃ§Ã£o.
         if (this.anim != null)
         {
-            // (Você ainda precisa criar este Trigger no seu Animator)
+            // (VocÃª ainda precisa criar este Trigger no seu Animator)
             this.anim.SetTrigger("CacadoraUltimate");
         }
 
         // Em vez de chamar o dano direto, iniciamos a Coroutine com delay
         StartCoroutine(FireBeamAfterDelay());
 
-        // O código original de dano foi removido daqui
+        // O cÃ³digo original de dano foi removido daqui
         // ApplyBeamDamage();  // <-- REMOVIDO
         // if (beamVisualPrefab != null) // <-- REMOVIDO
         // {
         //     StartCoroutine(ShowBeamVisual()); // <-- REMOVIDO
         // }
 
-        // Aumentei o tempo de destruição para dar tempo de tudo acontecer
+        // Aumentei o tempo de destruiÃ§Ã£o para dar tempo de tudo acontecer
         Destroy(gameObject, visualDuration + animationDelay + 1.0f);
     }
 
-    // !! MUDANÇA 4 !!
-    // Esta Coroutine espera o delay da animação e DEPOIS executa seu código
+    // !! MUDANÃ‡A 4 !!
+    // Esta Coroutine espera o delay da animaÃ§Ã£o e DEPOIS executa seu cÃ³digo
     private IEnumerator FireBeamAfterDelay()
     {
         // 1. Espera o tempo do "animationDelay"
         yield return new WaitForSeconds(animationDelay);
 
-        // 2. Agora, executa o SEU código original que funciona
+        // 2. Agora, executa o SEU cÃ³digo original que funciona
         Debug.Log("Delay terminado. Disparando raio!");
         ApplyBeamDamage();
 

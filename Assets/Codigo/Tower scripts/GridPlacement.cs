@@ -5,12 +5,25 @@ public class GridPlacement : MonoBehaviour
     [Header("Configuração de Grade")]
     public float gridSize = 1f;
 
+    [Header("Ajuste de Posicionamento")]
+    [Tooltip("Marque TRUE para personagens (pivô nos pés). Marque FALSE para caixas/muros (pivô no centro).")]
+    public bool pivotIsAtFeet = true; // <--- AQUI ESTÁ A CORREÇÃO PADRÃO
+
     [Header("Custo")]
     public int cost = 100;
 
-    // Obtém a metade da altura do objeto (do Renderer ou Collider)
+    // Obtém a metade da altura do objeto
     public float GetObjectHalfHeight()
     {
+        // --- CORREÇÃO ---
+        // Se o pivô é nos pés, retornamos 0.
+        // Isso diz ao BuildManager: "Não adicione altura extra, coloque o pivô (pés) direto no chão."
+        if (pivotIsAtFeet)
+        {
+            return 0f;
+        }
+        // ----------------
+
         Renderer rend = GetComponent<Renderer>();
         if (rend != null)
         {
@@ -37,6 +50,7 @@ public class GridPlacement : MonoBehaviour
 
         transform.position = new Vector3(alignedX, currentPosition.y, alignedZ);
     }
+
     public float GetObjectHeight()
     {
         Renderer rend = GetComponent<Renderer>();

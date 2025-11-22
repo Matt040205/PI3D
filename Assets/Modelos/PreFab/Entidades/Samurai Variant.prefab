@@ -73,9 +73,19 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5843ccbf567479e4dba9f61c4cc00bad, type: 3}
+--- !u!1 &949290765960431141 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 380566460029221522, guid: 5843ccbf567479e4dba9f61c4cc00bad, type: 3}
+  m_PrefabInstance: {fileID: 604755317621357751}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6906416966143403624 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6321928399093504735, guid: 5843ccbf567479e4dba9f61c4cc00bad, type: 3}
+  m_PrefabInstance: {fileID: 604755317621357751}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7726386343912177503 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7159921521161995240, guid: 5843ccbf567479e4dba9f61c4cc00bad, type: 3}
   m_PrefabInstance: {fileID: 604755317621357751}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8226998508960323186
@@ -386,6 +396,14 @@ PrefabInstance:
       propertyPath: characterData
       value: 
       objectReference: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
+    - target: {fileID: 6472170318049487491, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: meleeWeaponModel
+      value: 
+      objectReference: {fileID: 949290765960431141}
+    - target: {fileID: 6472170318049487491, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: rangedWeaponModel
+      value: 
+      objectReference: {fileID: 7726386343912177503}
     - target: {fileID: 6563975176848334408, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_Weight
       value: 1

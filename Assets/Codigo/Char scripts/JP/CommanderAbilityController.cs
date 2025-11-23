@@ -74,12 +74,16 @@ public class CommanderAbilityController : MonoBehaviour
         }
 
         // --- Contar Cooldowns ---
+        // Criamos uma lista das chaves para evitar erros de modificação durante o loop, 
+        // embora estejamos modificando valores, é uma boa prática.
         List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
         foreach (Ability ability in keys)
         {
             if (abilityCooldowns[ability] > 0)
             {
                 abilityCooldowns[ability] -= Time.deltaTime;
+                // Garante que não fique negativo
+                if (abilityCooldowns[ability] < 0) abilityCooldowns[ability] = 0;
             }
         }
 
@@ -100,7 +104,11 @@ public class CommanderAbilityController : MonoBehaviour
 
     public void ActivateAbility(Ability ability)
     {
-        if (ability == null || !abilityCooldowns.ContainsKey(ability) || abilityCooldowns[ability] > 0)
+        if (ability == null || !abilityCooldowns.ContainsKey(ability))
+            return;
+
+        // Se o cooldown for maior que 0, não pode usar
+        if (abilityCooldowns[ability] > 0)
             return;
 
         bool shouldStartCooldown = ability.Activate(gameObject);
@@ -109,25 +117,26 @@ public class CommanderAbilityController : MonoBehaviour
         {
             abilityCooldowns[ability] = ability.cooldown;
 
-            if (ability == characterData.ability1)
-                anim.SetTrigger("Dash");
-            else if (ability == characterData.ability2)
-                anim.SetTrigger("Meditar");
+            if (anim != null)
+            {
+                if (ability == characterData.ability1)
+                    anim.SetTrigger("Dash");
+                else if (ability == characterData.ability2)
+                    anim.SetTrigger("Meditar");
+            }
         }
         else
         {
+            // Se a habilidade retornou false (ex: dash resetou ao matar), zera o cooldown
             abilityCooldowns[ability] = 0;
         }
     }
 
     public void ActivateUltimate()
     {
-        // A lógica do timer foi removida.
-        // Apenas checamos a carga e ativamos a habilidade (que deve criar o NineTailsDanceLogic).
         if (characterData.ultimate == null || CurrentUltimateCharge < 1f)
             return;
 
-        // Assumindo que "Activate" é o que adiciona o script "NineTailsDanceLogic"
         bool shouldStartCooldown = characterData.ultimate.Activate(gameObject);
 
         if (shouldStartCooldown)
@@ -146,8 +155,37 @@ public class CommanderAbilityController : MonoBehaviour
         }
     }
 
-    // --- Funções Auxiliares (Sem mudanças) ---
-    public void ResetCooldown(Ability ability) { /*...*/ }
-    public float GetRemainingCooldownPercent(Ability ability) { /*...*/ return 0; }
-    public void ReduceAllAbilityCooldowns(float reductionAmount) { /*...*/ }
+    // --- Funções Auxiliares (AGORA IMPLEMENTADAS) ---
+
+    // Chamado pelo Dash quando mata alguém
+    public void ResetCooldown(Ability ability)
+    {
+        if (ability != null && abilityCooldowns.ContainsKey(ability))
+        {
+            abilityCooldowns[ability] = 0f;
+        }
+    }
+
+    // Chamado pela UI para desenhar a bolinha escura
+    public float GetRemainingCooldownPercent(Ability ability)
+    {
+        if (ability == null || !abilityCooldowns.ContainsKey(ability) || ability.cooldown <= 0)
+            return 0f;
+
+        // Retorna um valor entre 0 e 1 (ex: 0.5 = metade do tempo passou)
+        return abilityCooldowns[ability] / ability.cooldown;
+    }
+
+    // Pode ser usado por itens que diminuem cooldown
+    public void ReduceAllAbilityCooldowns(float reductionAmount)
+    {
+        List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
+        foreach (Ability ability in keys)
+        {
+            if (abilityCooldowns[ability] > 0)
+            {
+                abilityCooldowns[ability] = Mathf.Max(0, abilityCooldowns[ability] - reductionAmount);
+            }
+        }
+    }
 }

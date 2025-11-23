@@ -84,6 +84,14 @@ PrefabInstance:
       propertyPath: characterData
       value: 
       objectReference: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
+    - target: {fileID: 6472170318049487491, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: meleeWeaponModel
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6472170318049487491, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: rangedWeaponModel
+      value: 
+      objectReference: {fileID: 6560002892735529728, guid: 45e9459dfd6e72340a5b5ed97048f78f, type: 3}
     - target: {fileID: 7466163444088002683, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.4999998

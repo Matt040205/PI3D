@@ -2439,7 +2439,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   todosOsPersonagens:
   - {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
-  - {fileID: 11400000, guid: 9630a35620054cf4db1008eb33d8d40a, type: 2}
   - {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   painelEquipe: {fileID: 23436998}
   painelEscolhaPersonagem: {fileID: 770851659}
@@ -5470,6 +5469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 619b922a388488b40978bc4987ff1cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bibliotecaOriginalPersonagens:
+  - {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
+  - {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   equipeSelecionada:
   - {fileID: 0}
   - {fileID: 0}

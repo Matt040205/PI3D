@@ -69,7 +69,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/Master.strings.bank
   Name: Banks/Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638993674247533746
+  lastModified: 638995176881120402
   FileSizes:
   - Name: Desktop
     Value: 1544
@@ -534,7 +534,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/MUSIC.bank
   Name: Banks/MUSIC
   StudioPath: bank:/MUSIC
-  lastModified: 638993674270248140
+  lastModified: 638995176881115334
   FileSizes:
   - Name: Desktop
     Value: 1682272
@@ -708,38 +708,42 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -8499254223347665691}
   cacheVersion: 131856
-  cacheTime: 638993674271457006
+  cacheTime: 638995176881145558
   SerializableEventsDict:
-  - key: event:/SFX/Dash
+  - key: event:/MUSIC/Music
     index: 0
-  - key: event:/SFX/Passos
+  - key: event:/SFX/Dash
     index: 1
-  - key: event:/SFX/Atirar
+  - key: event:/SFX/Passos
     index: 2
-  - key: event:/SFX/Arma
+  - key: event:/SFX/Atirar
     index: 3
-  - key: event:/SFX/Espada_2
+  - key: event:/SFX/Arma
     index: 4
-  - key: event:/SFX/Cura
+  - key: event:/SFX/Espada_2
     index: 5
-  - key: event:/SFX/Tec
+  - key: event:/SFX/Arco_1
     index: 6
-  - key: event:/SFX/Vento
+  - key: event:/SFX/Cura
     index: 7
-  - key: event:/SFX/Recarga Arma
+  - key: event:/SFX/Tec
     index: 8
-  - key: event:/SFX/Espada
+  - key: event:/SFX/Vento
     index: 9
-  - key: event:/SFX/Atirar_segurando
+  - key: event:/SFX/Recarga Arma
     index: 10
-  - key: event:/SFX/Espada_1
+  - key: event:/SFX/Espada
     index: 11
-  - key: event:/SFX/Arco
+  - key: event:/SFX/Atirar_segurando
     index: 12
-  - key: event:/SFX/Monstro
+  - key: event:/SFX/Espada_1
     index: 13
-  - key: event:/SFX/Katana Vento
+  - key: event:/SFX/Arco
     index: 14
+  - key: event:/SFX/Monstro
+    index: 15
+  - key: event:/SFX/Katana Vento
+    index: 16
 --- !u!114 &771178171690723875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,7 +786,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/SFX.bank
   Name: Banks/SFX
   StudioPath: bank:/SFX
-  lastModified: 638993674271457006
+  lastModified: 638995176881145558
   FileSizes:
   - Name: Desktop
     Value: 330656
@@ -1112,7 +1116,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/Master.bank
   Name: Banks/Master
   StudioPath: bank:/Master
-  lastModified: 638993674247513712
+  lastModified: 638995176837786588
   FileSizes:
   - Name: Desktop
     Value: 1074

@@ -235,6 +235,12 @@ public class Rastros : MonoBehaviour
             TutorialManager.Instance.TriggerTutorial("RETURN_TO_SELECTION");
         }
 
+        // --- SALVA O JOGO APÓS COMPRAR ---
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.SaveGame();
+        }
+
         AtualizarUI();
         AtualizarEstadoBotoes();
         return true;

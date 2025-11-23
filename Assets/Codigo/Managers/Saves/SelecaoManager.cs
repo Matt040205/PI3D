@@ -439,7 +439,16 @@ public class SelecaoManager : MonoBehaviour
             }
 
             Debug.Log($"SELECAO_MANAGER: Criando nova instância de {personagemEmVisualizacao.name} no slot {slotSendoEditado}");
-            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = Instantiate(personagemEmVisualizacao);
+
+            // 1. Cria o Clone
+            CharacterBase novaInstancia = Instantiate(personagemEmVisualizacao);
+
+            // 2. Aplica o Save (Carrega o que estava no JSON)
+            GameDataManager.Instance.AplicarDadosCarregados(novaInstancia);
+
+            // 3. Salva no Slot
+            GameDataManager.Instance.equipeSelecionada[slotSendoEditado] = novaInstancia;
+
             slotsEquipe[slotSendoEditado].SetPersonagem(GameDataManager.Instance.equipeSelecionada[slotSendoEditado]);
             AtualizarEstadoBotaoJogar();
         }

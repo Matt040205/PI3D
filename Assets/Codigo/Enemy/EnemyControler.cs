@@ -344,7 +344,7 @@ public class EnemyController : MonoBehaviour
     public void HandleDeath()
     {
         if (anim != null) anim.SetBool("isWalking", false);
-        DropRewards();
+        //DropRewards();
         EnemyPoolManager.Instance.ReturnToPool(gameObject);
     }
 

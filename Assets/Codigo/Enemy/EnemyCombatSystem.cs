@@ -172,16 +172,6 @@ public class EnemyCombatSystem : MonoBehaviour
         // 1. Usa OverlapSphere para encontrar todos os objetos na camada "Towers"
         Collider[] hitTowers = Physics.OverlapSphere(transform.position, towerAuraRadius, towerLayer);
 
-        if (hitTowers.Length > 0)
-        {
-            Debug.Log($"<color=magenta>AURA DE DANO:</color> Detectadas {hitTowers.Length} torres no raio de {towerAuraRadius}m. Aplicando {towerAuraDamage} de dano.");
-        }
-        else
-        {
-            Debug.Log($"<color=magenta>AURA DE DANO:</color> Nenhuma torre no raio de {towerAuraRadius}m.");
-            return;
-        }
-
         // 2. Itera sobre todas as torres encontradas
         foreach (Collider towerCollider in hitTowers)
         {

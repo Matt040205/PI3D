@@ -69,11 +69,38 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/Master.strings.bank
   Name: Banks/Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638995958930120883
+  lastModified: 638996101450943560
   FileSizes:
   - Name: Desktop
-    Value: 1544
+    Value: 1836
   Exists: 1
+--- !u!114 &-8322873319302555583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Defeat_3
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Defeat_3
+  Guid:
+    Data1: 2061100300
+    Data2: 1301383416
+    Data3: 919995324
+    Data4: -233328926
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 3639
 --- !u!114 &-7688448029321921683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,10 +561,10 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/MUSIC.bank
   Name: Banks/MUSIC
   StudioPath: bank:/MUSIC
-  lastModified: 638995958930110907
+  lastModified: 638996101453857810
   FileSizes:
   - Name: Desktop
-    Value: 1682272
+    Value: 1959232
   Exists: 1
 --- !u!114 &-1937625743708775523
 MonoBehaviour:
@@ -685,7 +712,6 @@ MonoBehaviour:
   - {fileID: -2656157059662613417}
   - {fileID: 968064600374376875}
   EditorEvents:
-  - {fileID: 1372352366552062436}
   - {fileID: 7848131178107290734}
   - {fileID: 4312839126813873658}
   - {fileID: -3988087656728843351}
@@ -702,48 +728,64 @@ MonoBehaviour:
   - {fileID: 2871395896016189772}
   - {fileID: -3566595501484897556}
   - {fileID: 5799784734499190146}
+  - {fileID: -8322873319302555583}
+  - {fileID: 4221964221618857465}
+  - {fileID: 3099278871683455061}
+  - {fileID: 1897372410119944710}
+  - {fileID: 1751221555115589816}
+  - {fileID: 4579335487426846042}
   EditorParameters: []
   MasterBanks:
   - {fileID: 4370751694037610128}
   StringsBanks:
   - {fileID: -8499254223347665691}
   cacheVersion: 131856
-  cacheTime: 638995958930155992
+  cacheTime: 638996101454617496
   SerializableEventsDict:
-  - key: event:/MUSIC/Music
-    index: 0
   - key: event:/SFX/Dash
-    index: 1
+    index: 0
   - key: event:/SFX/Passos
-    index: 2
+    index: 1
   - key: event:/SFX/Atirar
-    index: 3
+    index: 2
   - key: event:/SFX/Arma
-    index: 4
+    index: 3
   - key: event:/SFX/Espada_2
-    index: 5
+    index: 4
   - key: event:/SFX/Arco_1
-    index: 6
+    index: 5
   - key: event:/SFX/Cura
-    index: 7
+    index: 6
   - key: event:/SFX/Tec
-    index: 8
+    index: 7
   - key: event:/SFX/Vento
-    index: 9
+    index: 8
   - key: event:/SFX/Recarga Arma
-    index: 10
+    index: 9
   - key: event:/SFX/Espada
-    index: 11
+    index: 10
   - key: event:/SFX/Atirar_segurando
-    index: 12
+    index: 11
   - key: event:/SFX/Espada_1
-    index: 13
+    index: 12
   - key: event:/SFX/Arco
-    index: 14
+    index: 13
   - key: event:/SFX/Monstro
-    index: 15
+    index: 14
   - key: event:/SFX/Katana Vento
+    index: 15
+  - key: event:/MUSIC/Defeat_3
     index: 16
+  - key: event:/MUSIC/Musica_principal
+    index: 17
+  - key: event:/MUSIC/Victory_2
+    index: 18
+  - key: event:/MUSIC/Victory_1
+    index: 19
+  - key: event:/MUSIC/Defeat_2
+    index: 20
+  - key: event:/MUSIC/Defeat_1
+    index: 21
 --- !u!114 &771178171690723875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -786,7 +828,7 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/SFX.bank
   Name: Banks/SFX
   StudioPath: bank:/SFX
-  lastModified: 638995958930155992
+  lastModified: 638996101454617496
   FileSizes:
   - Name: Desktop
     Value: 330656
@@ -818,33 +860,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 9947
---- !u!114 &1372352366552062436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/MUSIC/Music
-  m_EditorClassIdentifier: 
-  Path: event:/MUSIC/Music
-  Guid:
-    Data1: -120260305
-    Data2: 1124209259
-    Data3: -918451034
-    Data4: -2104134037
-  Banks:
-  - {fileID: -2656157059662613417}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 129011
 --- !u!114 &1401166386049794579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -872,6 +887,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 2586
+--- !u!114 &1751221555115589816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Defeat_2
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Defeat_2
+  Guid:
+    Data1: 1121425080
+    Data2: 1285034484
+    Data3: -962989944
+    Data4: -13609115
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 3725
 --- !u!114 &1754989244464560173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -892,6 +934,33 @@ MonoBehaviour:
   - Name: Desktop
     Value: 1446
   Exists: 1
+--- !u!114 &1897372410119944710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Victory_1
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Victory_1
+  Guid:
+    Data1: 1347350424
+    Data2: 1132714945
+    Data3: 1451864450
+    Data4: 1282912826
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 4947
 --- !u!114 &2482796299579900456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -993,6 +1062,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1922
+--- !u!114 &3099278871683455061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Victory_2
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Victory_2
+  Guid:
+    Data1: 1993382463
+    Data2: 1152458141
+    Data3: -208805199
+    Data4: 488291523
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 4569
 --- !u!114 &3338651914592518946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1074,6 +1170,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 442
+--- !u!114 &4221964221618857465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Musica_principal
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Musica_principal
+  Guid:
+    Data1: -120260305
+    Data2: 1124209259
+    Data3: -918451034
+    Data4: -2104134037
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 129011
 --- !u!114 &4312839126813873658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,10 +1239,10 @@ MonoBehaviour:
   Path: Assets/StreamingAssets/Build/Desktop/Banks/Master.bank
   Name: Banks/Master
   StudioPath: bank:/Master
-  lastModified: 638995958930120883
+  lastModified: 638996101450923150
   FileSizes:
   - Name: Desktop
-    Value: 1074
+    Value: 1378
   Exists: 1
 --- !u!114 &4468319912957570295
 MonoBehaviour:
@@ -1148,6 +1271,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 1095
+--- !u!114 &4579335487426846042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MUSIC/Defeat_1
+  m_EditorClassIdentifier: 
+  Path: event:/MUSIC/Defeat_1
+  Guid:
+    Data1: 134591673
+    Data2: 1190155385
+    Data3: 252938928
+    Data4: -1892561092
+  Banks:
+  - {fileID: -2656157059662613417}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 4321
 --- !u!114 &5060798178639301228
 MonoBehaviour:
   m_ObjectHideFlags: 0

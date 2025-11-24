@@ -5410,7 +5410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e36064403f698c439ffbdf38fef78f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventoMusica: event:/Music
+  eventoMusica: event:/MUSIC/Musica_principal
 --- !u!4 &157892847
 Transform:
   m_ObjectHideFlags: 0

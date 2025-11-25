@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "Flecha Implac\xE1vel"
   description: "Cr\xEDticos causam sangramento por 3s"
-  geoditeCost: 200
+  geoditeCost: 400
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: -3029129778758404241, guid: c2efcaa432ad894478f92ca78825a97b, type: 3}

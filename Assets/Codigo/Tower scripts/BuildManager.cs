@@ -4,7 +4,8 @@ using Unity.Cinemachine;
 using static TrapDataSO;
 using UnityEngine.EventSystems;
 using static Unity.VisualScripting.Member;
-using UnityEngine.Rendering;
+using UnityEngine.Rendering; // Necessário para o Volume
+using UnityEngine.Rendering.Universal; // Necessário para o DepthOfField (URP)
 
 public class BuildManager : MonoBehaviour
 {
@@ -14,7 +15,11 @@ public class BuildManager : MonoBehaviour
     public CinemachineCamera buildCamera;
     public GameObject upgradePanel;
 
-    [Header("Listas de Construíveis")]
+    [Header("Pós-Processamento")]
+    public Volume globalVolume; // Arraste seu Global Volume aqui
+    private DepthOfField depthOfField; // Variável para controlar o efeito
+
+    [Header("Listas de Construíveis")]
     private List<CharacterBase> availableTowers = new List<CharacterBase>();
     public List<TrapDataSO> availableTraps = new List<TrapDataSO>();
     private Dictionary<TrapDataSO, int> activeTrapCounts = new Dictionary<TrapDataSO, int>();
@@ -37,6 +42,7 @@ public class BuildManager : MonoBehaviour
     private const int PriorityBuild = 20;
     private const int PriorityInactive = 0;
 
+    // Propriedade para verificar se está segurando algo
     public bool IsHoldingBuilding { get { return selectedBuildablePrefab != null; } }
 
     void Awake()
@@ -48,6 +54,20 @@ public class BuildManager : MonoBehaviour
     void Start()
     {
         buildCamera.Priority.Value = PriorityInactive;
+
+        // --- CONFIGURAÇÃO DO DEPTH OF FIELD ---
+        if (globalVolume != null)
+        {
+            // Tenta encontrar o efeito DepthOfField dentro do perfil do volume
+            if (globalVolume.profile.TryGet(out depthOfField))
+            {
+                // Encontrou! Agora podemos controlar.
+            }
+            else
+            {
+                Debug.LogWarning("BuildManager: Depth Of Field não encontrado no Global Volume.");
+            }
+        }
     }
 
     public int GetTrapCount(TrapDataSO trapData)
@@ -99,6 +119,7 @@ public class BuildManager : MonoBehaviour
 
     public void SelectTowerToBuild(CharacterBase towerData)
     {
+        // Se tentar selecionar algo novo, deseleciona qualquer torre/armadilha que esteja selecionada para venda/upgrade
         if (TowerSelectionManager.Instance != null)
         {
             TowerSelectionManager.Instance.DeselectAll();
@@ -159,10 +180,20 @@ public class BuildManager : MonoBehaviour
         UnityEngine.Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
         UnityEngine.Cursor.visible = state;
 
-        if (!state)
+        // --- CONTROLE DO DEPTH OF FIELD ---
+        if (depthOfField != null)
+        {
+            // Se state for TRUE (construção), DoF fica FALSE (desativado)
+            // Se state for FALSE (jogo), DoF fica TRUE (ativado)
+            depthOfField.active = !state;
+        }
+        // ---------------------------------
+
+        if (!state)
         {
             ClearSelection();
 
+            // Garante que painéis de upgrade fechem ao sair do modo construção
             if (TowerSelectionManager.Instance != null)
             {
                 TowerSelectionManager.Instance.DeselectAll();

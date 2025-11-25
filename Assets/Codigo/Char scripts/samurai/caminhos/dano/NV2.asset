@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Ataques reduzem armadura
   description: "Ataques reduzem a armadura em 5% (acumula em at\xE9 3 vezes)"
-  geoditeCost: 0
+  geoditeCost: 80
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 2296978256645576257, guid: b207fbbc2a8796a4191d3be0f8e2f1d0, type: 3}

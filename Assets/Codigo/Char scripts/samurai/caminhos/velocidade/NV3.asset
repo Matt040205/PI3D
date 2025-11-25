@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: Assalto
   description: "Aumenta a velAtq em 10% em at\xE9 5 segundos a cada acerto cr\xEDtico,
     acumulando em at\xE9 3 vezes"
-  geoditeCost: 0
+  geoditeCost: 150
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 7586114013021720999, guid: 71856ccf952096f49b1980890861382f, type: 3}

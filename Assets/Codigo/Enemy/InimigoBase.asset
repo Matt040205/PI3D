@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyType: 0
   baseHP: 100
-  baseATQ: 10
+  baseATQ: 3
   moveSpeed: 5
   attackSpeed: 1
   baseArmor: 0

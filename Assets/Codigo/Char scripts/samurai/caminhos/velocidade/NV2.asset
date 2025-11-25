@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Olhos de Raposa
   description: +15% Alcance
-  geoditeCost: 0
+  geoditeCost: 80
   darkEtherCost: 0
   modifiers:
   - statToModify: 2

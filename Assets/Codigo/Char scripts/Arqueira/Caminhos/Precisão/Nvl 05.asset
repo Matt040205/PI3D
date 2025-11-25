@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Marca da Presa
   description: Inimigos marcados recebem +30% de danos de todas as torres
-  geoditeCost: 200
+  geoditeCost: 400
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 5914133528100460328, guid: 4881bcecd65f7f5488312a08edf6a942, type: 3}

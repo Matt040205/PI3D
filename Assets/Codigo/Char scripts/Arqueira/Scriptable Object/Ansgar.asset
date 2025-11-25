@@ -44,7 +44,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 65288e2aa44cff14988f5eaacde930b2, type: 2}
   - {fileID: 11400000, guid: e3b5fca90f9ede7468360d926aa3e19d, type: 2}
   - {fileID: 11400000, guid: 2fc44f5f36e25f944888dfed422ae759, type: 2}
-  cost: 50
+  cost: 600
   pontosRastrosDisponiveis: 10
   pontosRastrosGastos: 0
   pontosPorCaminho: []

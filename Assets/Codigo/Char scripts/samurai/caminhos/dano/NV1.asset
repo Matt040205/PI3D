@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: +15 de dano
   description: Aumenta o dano base da torre em 15%.
-  icon: {fileID: 0}
-  geoditeCost: 0
+  geoditeCost: 50
   darkEtherCost: 0
   modifiers:
   - statToModify: 0

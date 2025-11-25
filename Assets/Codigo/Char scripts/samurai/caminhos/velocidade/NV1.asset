@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "R\xE1pido no Gatilho"
   description: +20% velAtq
-  geoditeCost: 0
+  geoditeCost: 50
   darkEtherCost: 0
   modifiers:
   - statToModify: 1

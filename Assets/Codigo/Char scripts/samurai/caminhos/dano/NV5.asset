@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "Dan\xE7a das Caudas"
   description: Ataca 3 flechas que tem 50% do dano base
-  geoditeCost: 0
+  geoditeCost: 400
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 2150504506211938309, guid: f7f011e3563ce4d418c16e5734f313c1, type: 3}

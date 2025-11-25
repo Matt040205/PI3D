@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: "Esp\xEDrito do Vento"
   description: "Aumenta a perfura\xE7\xE3o de armadura em 50%"
-  geoditeCost: 0
+  geoditeCost: 400
   darkEtherCost: 0
   modifiers:
   - statToModify: 6

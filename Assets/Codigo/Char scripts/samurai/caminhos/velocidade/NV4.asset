@@ -15,7 +15,7 @@ MonoBehaviour:
   upgradeName: "F\xFAria Acumulada"
   description: "Aumenta o dano em 8% a cada ataque consecutivo no mesmo alvo, acumulando
     em at\xE9 6 vezes"
-  geoditeCost: 0
+  geoditeCost: 240
   darkEtherCost: 0
   modifiers: []
   behaviorToUnlock: {fileID: 2871713650773643745, guid: bda248dbf0565a74c883dba6c3d9ae7e, type: 3}

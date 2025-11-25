@@ -8,17 +8,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 573096255506189436, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: gravity
+      value: -19
+      objectReference: {fileID: 0}
     - target: {fileID: 702061340975147476, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -17.792665
       objectReference: {fileID: 0}
     - target: {fileID: 702061340975147476, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 10.993
       objectReference: {fileID: 0}
     - target: {fileID: 702061340975147476, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -19.399477
       objectReference: {fileID: 0}
     - target: {fileID: 702061340975147476, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -76,6 +80,14 @@ PrefabInstance:
       propertyPath: ultimateChargeThreshold
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 6099578788305256835, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.1599998
+      objectReference: {fileID: 0}
+    - target: {fileID: 6099578788305256835, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.333333
+      objectReference: {fileID: 0}
     - target: {fileID: 6330410534027532317, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: characterData
       value: 
@@ -92,13 +104,17 @@ PrefabInstance:
       propertyPath: rangedWeaponModel
       value: 
       objectReference: {fileID: 6560002892735529728, guid: 45e9459dfd6e72340a5b5ed97048f78f, type: 3}
+    - target: {fileID: 7163796172212629373, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: m_RigLayers.Array.data[0].m_Rig
+      value: 
+      objectReference: {fileID: 1344477207999002983}
     - target: {fileID: 7466163444088002683, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.4999998
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 7466163444088002683, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0028128624
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 7517613348814378390, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: characterData
@@ -125,3 +141,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+--- !u!114 &1344477207999002983 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2734900487233724365, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+  m_PrefabInstance: {fileID: 3989304598710478506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

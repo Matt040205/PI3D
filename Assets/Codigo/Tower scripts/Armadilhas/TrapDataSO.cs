@@ -7,7 +7,7 @@ public enum TrapPlacementType
     QualquerLugar
 }
 
-[CreateAssetMenu(fileName = "Nova Armadilha", menuName = "ExoBeasts/Armadilha")]
+[CreateAssetMenu(fileName = "Nova Armadilha", menuName = "ScriptableObjects/Armadilha")]
 public class TrapDataSO : ScriptableObject
 {
     [Header("Informações da Armadilha")]
@@ -16,11 +16,11 @@ public class TrapDataSO : ScriptableObject
     public string description = "Descrição da armadilha.";
     public Sprite icon;
 
-    [Tooltip("O prefab VISUAL da armadilha (modelo 3D, collider, etc.)")]
+    [Tooltip("O prefab VISUAL da armadilha.")]
     public GameObject prefab;
 
     [Header("Lógica da Armadilha")]
-    [Tooltip("Prefab que contém o SCRIPT (MonoBehaviour) da lógica desta armadilha.")]
+    [Tooltip("Prefab que contém o SCRIPT (MonoBehaviour).")]
     public GameObject logicPrefab;
 
     [Header("Posicionamento")]
@@ -31,6 +31,5 @@ public class TrapDataSO : ScriptableObject
     public int darkEtherCost = 0;
 
     [Header("Limites")]
-    [Tooltip("Limite máximo de armadilhas deste tipo no mapa. 0 = Ilimitado.")]
     public int buildLimit = 0;
 }

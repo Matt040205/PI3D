@@ -2,7 +2,7 @@ using UnityEngine;
 
 public enum EnemyType { Terrestre, Voador }
 
-[CreateAssetMenu(fileName = "New Enemy Data", menuName = "Enemy/Enemy Data")]
+[CreateAssetMenu(fileName = "New Enemy Data", menuName = "ScriptableObjects/Base de Dados/Enemy")]
 public class EnemyDataSO : ScriptableObject
 {
     [Header("Tipo de Inimigo")]

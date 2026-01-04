@@ -1,4 +1,3 @@
-// Upgrade.cs
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -13,7 +12,7 @@ public struct StatModifier
     public float value;
 }
 
-[CreateAssetMenu(fileName = "Novo Upgrade", menuName = "ExoBeasts/Torres/Upgrade")]
+[CreateAssetMenu(fileName = "Novo Upgrade", menuName = "ScriptableObjects/Trilhas/Nivel")]
 public class Upgrade : ScriptableObject
 {
     [Header("Informações do Upgrade")]

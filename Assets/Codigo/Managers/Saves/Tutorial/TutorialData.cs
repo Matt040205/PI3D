@@ -1,9 +1,9 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NovoTutorial", menuName = "ExoBeasts/Tutorial")]
+[CreateAssetMenu(fileName = "NovoTutorial", menuName = "ScriptableObjects/Tutorial")]
 public class TutorialData : ScriptableObject
 {
-    [Tooltip("ID único para este tutorial. Ex: 'BUILD_TOWER' ou 'FIRST_KILL'")]
+    [Tooltip("ID único para este tutorial.")]
     public string tutorialID;
     public string titulo;
     [TextArea(3, 10)]

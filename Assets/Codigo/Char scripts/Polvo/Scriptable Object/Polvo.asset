@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2027bee059fbbd498af999a02b71322, type: 3}
+  m_Name: Polvo
+  m_EditorClassIdentifier: 
+  name: Polvo Grafiteiro
+  description: 'Maior Subway Durfer do mundo
+
+'
+  maxHealth: 100
+  damage: 10
+  moveSpeed: 5
+  reloadSpeed: 2
+  attackSpeed: 1
+  meleeRange: 2
+  armor: 0
+  critChance: 0.05
+  critDamage: 1.5
+  armorPenetration: 0
+  ultimateChargePerSecond: 1
+  ultimateChargePerDamage: 0.1
+  combatType: 0
+  fireMode: 0
+  meleeAngle: 90
+  isCommander: 1
+  characterIcon: {fileID: 0}
+  commanderPrefab: {fileID: 0}
+  towerPrefab: {fileID: 0}
+  magazineSize: 10
+  passive: {fileID: 0}
+  ability1: {fileID: 0}
+  ability2: {fileID: 0}
+  ultimate: {fileID: 0}
+  upgradePaths: []
+  cost: 50
+  pontosRastrosDisponiveis: 10
+  pontosRastrosGastos: 0
+  pontosPorCaminho: []
+  habilidadesDesbloqueadas: []

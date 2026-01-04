@@ -8,7 +8,7 @@ public struct CaminhoRastrosData
     public int pontosGastos;
 }
 
-[CreateAssetMenu(fileName = "CharacterData", menuName = "Tower Defense/Character Base")]
+[CreateAssetMenu(fileName = "CharacterData", menuName = "ScriptableObjects/Base de Dados/Personagem")]
 public class CharacterBase : ScriptableObject
 {
     [Header("Basic Info")]
@@ -32,9 +32,7 @@ public class CharacterBase : ScriptableObject
     public float armorPenetration = 0f;
 
     [Header("Ultimate Settings")]
-    [Tooltip("Pontos de Ultimate ganhos por segundo, passivamente.")]
     public float ultimateChargePerSecond = 1f;
-    [Tooltip("Pontos de Ultimate ganhos por cada 1 ponto de dano causado.")]
     public float ultimateChargePerDamage = 0.1f;
 
     [Header("Combat Settings")]

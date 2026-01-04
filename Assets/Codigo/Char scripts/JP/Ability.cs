@@ -1,4 +1,3 @@
-// Ability.cs
 using UnityEngine;
 
 public abstract class Ability : ScriptableObject
@@ -10,10 +9,7 @@ public abstract class Ability : ScriptableObject
     public Sprite icon;
     public float cooldown = 1f;
 
-    public virtual void Initialize()
-    {
-        // Este método pode ser deixado em branco na classe pai
-    }
+    public virtual void Initialize() { }
 
     public abstract bool Activate(GameObject quemUsou);
 }

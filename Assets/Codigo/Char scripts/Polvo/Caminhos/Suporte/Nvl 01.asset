@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Nvl 01
   m_EditorClassIdentifier: 
   upgradeName: 
-  description: 
+  description: '+15% Alcance. '
   geoditeCost: 0
   darkEtherCost: 0
-  modifiers: []
+  modifiers:
+  - statToModify: 2
+    modType: 1
+    value: 0.15
   behaviorToUnlock: {fileID: 0}

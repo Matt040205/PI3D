@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f4b1740241089f4b84e9f3c805dfbf9, type: 3}
+  m_Name: Obra-Prima do Caos
+  m_EditorClassIdentifier: 
+  abilityName: Obra-Prima do Caos
+  description: " Ela gira disparando tinta para todas as dire\xE7\xF5es, cobrindo
+    uma \xE1rea gigante. Todos os inimigos atingidos ficam \"Pintados\" (Impedidos
+    de usar habilidades especiais) e extremamente lentos por 6s.\r\n"
+  icon: {fileID: 21300000, guid: 1330dfafe9488644ea475eb9a12b4fb4, type: 3}
+  cooldown: 1
+  duration: 6
+  damagePerSecond: 100
+  radius: 10
+  silenceDuration: 6
+  logicPrefab: {fileID: -2663580836634220369, guid: 31ec75dde74dea345b5c075681aca062, type: 3}

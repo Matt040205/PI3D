@@ -554,6 +554,8 @@ MonoBehaviour:
   firePoint: {fileID: 4757579757688161299}
   projectileVisualPrefab: {fileID: 9104921844974723845, guid: f14f768e29c3c2c4ca827c7d1b39d783, type: 3}
   impactEffectPrefab: {fileID: 0}
+  aimTarget: {fileID: 0}
+  aimTargetDistance: 20
   tipoDeSom: Arma
   eventoTiroUnicoArma: event:/SFX/Atirar
   eventoTiroContinuoArma: event:/SFX/Atirar_segurando
@@ -584,6 +586,8 @@ MonoBehaviour:
   shootingSystem: {fileID: 9215532886368702831}
   meleeSystem: {fileID: 6853114845528409664}
   healthSystem: {fileID: 6330410534027532317}
+  meleeWeaponModel: {fileID: 0}
+  rangedWeaponModel: {fileID: 0}
 --- !u!114 &6330410534027532317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -634,7 +638,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2682399473942067493}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b63f782755f5b64e8a431d3a6e557bf, type: 3}
   m_Name: 

@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: Suporte
   m_EditorClassIdentifier: 
   pathName: Suporte
-  upgradesInPath: []
+  upgradesInPath:
+  - {fileID: 11400000, guid: e31c3ee107d4d274dbf7b643cc0c752f, type: 2}
+  - {fileID: 11400000, guid: c31b1e01deb50304db44758a1254afdd, type: 2}
+  - {fileID: 11400000, guid: 236b34f917cdf3f4381af18d22d97103, type: 2}
+  - {fileID: 11400000, guid: 30a8230c9b7f86148a2f51be7185e30d, type: 2}
+  - {fileID: 11400000, guid: 2a3e0bbd2ba162f4fade73ee1b68272b, type: 2}

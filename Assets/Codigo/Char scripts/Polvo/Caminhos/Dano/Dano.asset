@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: Dano
   m_EditorClassIdentifier: 
   pathName: Dano
-  upgradesInPath: []
+  upgradesInPath:
+  - {fileID: 11400000, guid: 1ce12cbbd81da004d8859800c964575b, type: 2}
+  - {fileID: 11400000, guid: bbad352ce9bcbb14589d0ad932eb7f63, type: 2}
+  - {fileID: 11400000, guid: 08e68ec893f33ae4da24a04bca7ae68c, type: 2}
+  - {fileID: 11400000, guid: bb9e0a6df52b88346867dda7df81b436, type: 2}
+  - {fileID: 11400000, guid: 3fcc7c88f394edf4fbeeb6e544c74e41, type: 2}

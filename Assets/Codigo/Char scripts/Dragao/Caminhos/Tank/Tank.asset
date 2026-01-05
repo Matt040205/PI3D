@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: Tank
   m_EditorClassIdentifier: 
   pathName: Tank
-  upgradesInPath: []
+  upgradesInPath:
+  - {fileID: 11400000, guid: 6eea699485539974da5e2714bf048cac, type: 2}
+  - {fileID: 11400000, guid: 98e1c379d7230c14b8cb570b7e4b10da, type: 2}
+  - {fileID: 11400000, guid: 464e03ea2657e734eb774056e8904496, type: 2}
+  - {fileID: 11400000, guid: 5bd98a53639883e45ae34e8d9cda30d5, type: 2}
+  - {fileID: 11400000, guid: e2ddaac0671e9724d9a13e7befa5ca62, type: 2}

@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: CC
   m_EditorClassIdentifier: 
   pathName: CC
-  upgradesInPath: []
+  upgradesInPath:
+  - {fileID: 11400000, guid: caf2a5b5bbd6bce47aadc41f98216cb4, type: 2}
+  - {fileID: 11400000, guid: b84e1b85a8072d84ca9a70f520106752, type: 2}
+  - {fileID: 11400000, guid: 73e4cec2c9297494a933399b99a9f394, type: 2}
+  - {fileID: 11400000, guid: 540768f1d932bd740bc7588fc4ac248b, type: 2}
+  - {fileID: 11400000, guid: d9e79c8e8491b1e45bbd04f9dba45866, type: 2}

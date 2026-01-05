@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: Nvl 01
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: "Longa vis\xE3o"
+  description: +15% de Alcanse
   geoditeCost: 0
   darkEtherCost: 0
-  modifiers: []
+  modifiers:
+  - statToModify: 2
+    modType: 1
+    value: 0.15
   behaviorToUnlock: {fileID: 0}

@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: Controle
   m_EditorClassIdentifier: 
   pathName: Controle
-  upgradesInPath: []
+  upgradesInPath:
+  - {fileID: 11400000, guid: 37ad5907e950ecd468a128ed94d26e1c, type: 2}
+  - {fileID: 11400000, guid: 00f990500ba389449804e1743b9437b0, type: 2}
+  - {fileID: 11400000, guid: ad4dadf349973ce4a9459943a6e98633, type: 2}
+  - {fileID: 11400000, guid: 31ce585ea90263c4eb577258face4fff, type: 2}
+  - {fileID: 11400000, guid: 09915fcf6308ffa4e851fc9f99d8190f, type: 2}

@@ -19,8 +19,8 @@ MonoBehaviour:
   maxHealth: 100
   damage: 10
   moveSpeed: 5
-  reloadSpeed: 2
-  attackSpeed: 1
+  reloadSpeed: 1.5
+  attackSpeed: 3
   meleeRange: 2
   armor: 0
   critChance: 0.05
@@ -29,18 +29,21 @@ MonoBehaviour:
   ultimateChargePerSecond: 1
   ultimateChargePerDamage: 0.1
   combatType: 0
-  fireMode: 0
+  fireMode: 1
   meleeAngle: 90
   isCommander: 1
-  characterIcon: {fileID: 0}
-  commanderPrefab: {fileID: 0}
-  towerPrefab: {fileID: 0}
-  magazineSize: 10
-  passive: {fileID: 0}
-  ability1: {fileID: 0}
-  ability2: {fileID: 0}
-  ultimate: {fileID: 0}
-  upgradePaths: []
+  characterIcon: {fileID: 21300000, guid: 2b5af128d8e18a646bdf3b216844fccb, type: 3}
+  commanderPrefab: {fileID: 7665187458952505880, guid: c03ecd1f5e3031447b0babfdc63e5ce9, type: 3}
+  towerPrefab: {fileID: 3448483011433730354, guid: 392607c5ebba75f4d8bfe9625e3664d4, type: 3}
+  magazineSize: 45
+  passive: {fileID: 11400000, guid: 853a061d7586adb4c88289e50b776881, type: 2}
+  ability1: {fileID: 11400000, guid: 3ed107d10afc9f14c9d67e0597f18af1, type: 2}
+  ability2: {fileID: 11400000, guid: 3720f3e3a57f78d4bac53603f01b3478, type: 2}
+  ultimate: {fileID: 11400000, guid: 12bc9d65536355241b5f358f8aa828a4, type: 2}
+  upgradePaths:
+  - {fileID: 11400000, guid: c2ca502676fc5234a92b8b039521a6bf, type: 2}
+  - {fileID: 11400000, guid: a1348c5809676ea4f9a200917518f2f2, type: 2}
+  - {fileID: 11400000, guid: af945a11643d4134580ab4eff2982378, type: 2}
   cost: 50
   pontosRastrosDisponiveis: 10
   pontosRastrosGastos: 0

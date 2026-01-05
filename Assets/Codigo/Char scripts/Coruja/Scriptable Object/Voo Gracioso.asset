@@ -19,5 +19,5 @@ MonoBehaviour:
   jumpHeightModifier: 1.5
   staticAimDuration: 3
   bonusDamageMultiplier: 1.5
-  bonusAreaMultiplier: 1.2
+  bonusExplosionRadius: 5
   logicPrefab: {fileID: 146054580399374588, guid: 8e13976ca4bcbcc4b9bda1c50b13a9a7, type: 3}

@@ -249,6 +249,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -410,6 +414,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -616,7 +624,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -1753,6 +1761,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -2337,6 +2349,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3021,7 +3037,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -3877,6 +3893,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4142,6 +4162,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5959,6 +5983,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8655,6 +8683,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -9745,6 +9777,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10955,6 +10991,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11277,6 +11317,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14233,6 +14277,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -14957,6 +15005,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16570,6 +16622,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16969,6 +17025,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17781,6 +17841,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -18200,6 +18264,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18681,6 +18749,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -21833,7 +21905,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -24487,6 +24559,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -25587,6 +25663,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -26995,6 +27075,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -27435,6 +27519,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -29575,6 +29663,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -29916,6 +30008,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -30446,6 +30542,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30625,6 +30725,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -31732,6 +31836,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31915,6 +32023,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -34449,6 +34561,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -36071,6 +36187,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -5.4554
       objectReference: {fileID: 0}
+    - target: {fileID: -8914787347556935825, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -8725842177302422425, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
@@ -36124,6 +36244,10 @@ PrefabInstance:
       value: Path
       objectReference: {fileID: 0}
     - target: {fileID: -8245642967172155381, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8245642967172155381, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 17edd6e27f55a2246b806958eae98b75, type: 2}
@@ -36131,9 +36255,17 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8159613835584668779, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -7997655739965291332, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: -7840425847745668455, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -7840425847745668455, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36146,6 +36278,10 @@ PrefabInstance:
     - target: {fileID: -7029948723529949830, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: -6913103530233144862, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -6913103530233144862, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36164,6 +36300,10 @@ PrefabInstance:
       value: 1.6
       objectReference: {fileID: 0}
     - target: {fileID: -6066285037503160373, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -6066285037503160373, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 825ab2b9d196c4245b6b30f8762e2b6a, type: 2}
@@ -36174,6 +36314,10 @@ PrefabInstance:
     - target: {fileID: -4695578568670638314, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: -4426152000335833783, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -4426152000335833783, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36235,6 +36379,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CasaFloresta
       objectReference: {fileID: 0}
+    - target: {fileID: -2759465704279445302, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -2700345025948253231, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_Name
       value: ParedeFloresta
@@ -36255,6 +36403,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -1774803580488129147, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -1377427398895687859, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
@@ -36274,6 +36426,10 @@ PrefabInstance:
     - target: {fileID: 439476953077941382, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 774976091749323787, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 774976091749323787, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36311,6 +36467,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 882129737928793925, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_Name
       value: ChaoEalgumasParedes
@@ -36338,6 +36498,10 @@ PrefabInstance:
     - target: {fileID: 1454340481524549346, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_LocalPosition.z
       value: 25.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 1810220800049429595, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1810220800049429595, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36374,6 +36538,10 @@ PrefabInstance:
     - target: {fileID: 3690087250876341727, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980220512627358859, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4054965753670909474, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
@@ -36415,6 +36583,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -1.05
       objectReference: {fileID: 0}
+    - target: {fileID: 5319816071728057351, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5691612977741688317, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_LocalScale.z
       value: 15.032332
@@ -36431,6 +36603,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ponte
       objectReference: {fileID: 0}
+    - target: {fileID: 6159412426007862219, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6373701918493845201, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
@@ -36442,6 +36618,10 @@ PrefabInstance:
     - target: {fileID: 6925266337899003559, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_LocalPosition.x
       value: 27.1367
+      objectReference: {fileID: 0}
+    - target: {fileID: 7173775677986767218, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7173775677986767218, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -36460,12 +36640,20 @@ PrefabInstance:
       value: 1.7763405
       objectReference: {fileID: 0}
     - target: {fileID: 8035645980454615339, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035645980454615339, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 825ab2b9d196c4245b6b30f8762e2b6a, type: 2}
     - target: {fileID: 8633743841707909276, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 8948455634443705503, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8948455634443705503, guid: 325e2b36b9643f24ea717bc005b05c39, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -38905,6 +39093,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -39248,6 +39440,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -39703,6 +39899,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -41379,6 +41579,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -41902,6 +42106,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -42001,6 +42209,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -42522,6 +42734,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -43578,6 +43794,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44373,6 +44593,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44746,6 +44970,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -45252,6 +45480,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -48188,6 +48420,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -49489,7 +49725,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -50683,7 +50919,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -51919,6 +52155,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52494,6 +52734,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52945,6 +53189,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -54219,6 +54467,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -57026,6 +57278,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59571,6 +59827,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -59722,6 +59982,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -61168,7 +61432,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a9f11edaee2614e49a3dcfc0240606be, type: 2}
@@ -61327,6 +61591,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -61422,6 +61690,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -61668,6 +61940,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -66111,6 +66387,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -66338,6 +66618,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -68263,6 +68547,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -69501,6 +69789,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -71058,6 +71350,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -72458,6 +72754,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -73252,6 +73552,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072
@@ -75017,6 +75321,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 0b038c81726317f4c9c30664911d382b, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 0b038c81726317f4c9c30664911d382b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d91f8c86df099a74faeaac16b2359171, type: 2}
@@ -76282,6 +76590,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -76928,6 +77240,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -77678,6 +77994,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -77843,6 +78163,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -80237,6 +80561,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -80487,6 +80815,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -81628,7 +81960,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -82343,7 +82675,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a9f11edaee2614e49a3dcfc0240606be, type: 2}
@@ -82924,7 +83256,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -84640,7 +84972,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 975d817f6eb2f584d9b0dd5425f51f85, type: 2}
@@ -86758,6 +87090,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -87204,6 +87540,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -87299,6 +87639,10 @@ PrefabInstance:
     - target: {fileID: 3031824580051537356, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
       propertyPath: m_TagString
       value: Path
+      objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -89672,6 +90016,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2480218824009226937, guid: 79e4dba69a5922343b4173f603a1c42a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3612077381311881686, guid: 79e4dba69a5922343b4173f603a1c42a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 111.976
@@ -90342,6 +90690,10 @@ PrefabInstance:
     - target: {fileID: 5736759752411457874, guid: 538c850213a3fcf499af9bf0cd5819c7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6905773345806078525, guid: 538c850213a3fcf499af9bf0cd5819c7, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -91102,6 +91454,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Path
       objectReference: {fileID: 0}
+    - target: {fileID: 3536390122216533017, guid: aa401d4c84ad86248813b46c19bc8c6a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -91596,6 +91952,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 403243729}
     m_Modifications:
+    - target: {fileID: 2684273851538245008, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3822245483843256063, guid: b0e85dfd896b9dc40aa1c21d35c88ba9, type: 3}
       propertyPath: m_LocalScale.y
       value: 333.14072

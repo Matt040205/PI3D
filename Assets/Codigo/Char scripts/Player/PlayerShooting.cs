@@ -1,7 +1,6 @@
 using UnityEngine;
 using FMODUnity;
 using System.Collections.Generic;
-// using static Unity.VisualScripting.Member; // Removido pois geralmente causa conflito se não usado
 
 [RequireComponent(typeof(PlayerHealthSystem))]
 public class PlayerShooting : MonoBehaviour
@@ -12,22 +11,18 @@ public class PlayerShooting : MonoBehaviour
     public GameObject projectileVisualPrefab;
     public GameObject impactEffectPrefab;
 
-    [Header("Configurações de IK (Rigging)")] // NOVO
-    [Tooltip("Arraste aqui o objeto vazio 'AimTarget' que o Multi-Aim Constraint está seguindo")]
+    [Header("Configurações de IK (Rigging)")]
     public Transform aimTarget;
-    [Tooltip("Distância que o alvo de mira ficará do player")]
     public float aimTargetDistance = 20f;
 
     [Header("Configurações FMOD")]
-    [Tooltip("Escreva 'Arma' ou 'Arco' para definir o som. (Deve corresponder exatamente)")]
+    [Tooltip("Escreva 'Arma' ou 'Arco'")]
     public string tipoDeSom = "Arma";
 
-    [Header("FMOD - Sons da Arma")]
+    [Header("FMOD - Sons")]
     [EventRef] public string eventoTiroUnicoArma = "event:/SFX/Atirar";
     [EventRef] public string eventoTiroContinuoArma = "event:/SFX/Atirar_segurando";
     [EventRef] public string eventoRecargaArma = "event:/SFX/Recarga Arma";
-
-    [Header("FMOD - Sons do Arco")]
     [EventRef] public string eventoTiroUnicoArco = "event:/SFX/Arco";
     [EventRef] public string eventoTiroContinuoArco = "event:/SFX/Arco";
 
@@ -47,6 +42,8 @@ public class PlayerShooting : MonoBehaviour
     private ProjectilePool projectilePool;
     private Camera mainCamera;
     private Animator animator;
+
+    // Referência ao Health System para pegar o Buff de Dano
     private PlayerHealthSystem playerHealth;
 
     private bool hasNextShotBonus = false;
@@ -58,47 +55,31 @@ public class PlayerShooting : MonoBehaviour
         currentAmmo = characterData.magazineSize;
         cameraController = FindObjectOfType<CameraController>();
         mainCamera = Camera.main;
+
+        // Pega a referência do sistema de vida/buffs
         playerHealth = GetComponent<PlayerHealthSystem>();
 
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
         if (playerMovement != null)
         {
             modelPivot = playerMovement.GetModelPivot();
-
             if (modelPivot != null)
-            {
                 animator = modelPivot.GetComponentInChildren<Animator>();
-            }
         }
 
         projectilePool = ProjectilePool.Instance;
 
-        if (projectilePool != null)
+        if (projectilePool != null && projectileVisualPrefab != null)
         {
-            if (projectileVisualPrefab != null)
-            {
-                projectilePool.projectilePrefab = this.projectileVisualPrefab;
-                projectilePool.InitializePool();
-            }
-            else
-            {
-                Debug.LogError($"PlayerShooting no {gameObject.name} não tem um 'projectileVisualPrefab' definido!");
-            }
-        }
-        else
-        {
-            Debug.LogError("ProjectilePool.Instance não foi encontrado na cena!");
+            projectilePool.projectilePrefab = this.projectileVisualPrefab;
+            projectilePool.InitializePool();
         }
     }
 
     void Update()
     {
-        if (PauseControl.isPaused || BuildManager.isBuildingMode)
-        {
-            return;
-        }
+        if (PauseControl.isPaused || BuildManager.isBuildingMode) return;
 
-        // NOVO: Atualiza a posição do alvo de mira a cada frame
         UpdateAimTargetPosition();
 
         if (isReloading) return;
@@ -106,30 +87,20 @@ public class PlayerShooting : MonoBehaviour
         HandleInput();
     }
 
-    // NOVO: Lógica separada de Input para organização
     void HandleInput()
     {
         bool fireInput = characterData.fireMode == FireMode.FullAuto ? Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
 
         if (fireInput && Time.time >= nextShotTime)
         {
-            if (currentAmmo > 0)
-            {
-                Shoot();
-            }
-            else
-            {
-                StartReload();
-            }
+            if (currentAmmo > 0) Shoot();
+            else StartReload();
         }
 
         if (Input.GetKeyDown(KeyCode.R) && currentAmmo < characterData.magazineSize)
-        {
             StartReload();
-        }
     }
 
-    // NOVO: Essa função move o objeto invisível para onde a câmera está olhando
     void UpdateAimTargetPosition()
     {
         if (aimTarget == null || mainCamera == null) return;
@@ -138,18 +109,11 @@ public class PlayerShooting : MonoBehaviour
         RaycastHit hit;
         Vector3 targetPosition;
 
-        // Se o raio da câmera bater em algo, mira nesse ponto
         if (Physics.Raycast(ray, out hit, maxDistance, hitLayers))
-        {
             targetPosition = hit.point;
-        }
         else
-        {
-            // Se não bater em nada (olhando pro céu), mira num ponto distante na frente da câmera
             targetPosition = ray.origin + ray.direction * maxDistance;
-        }
 
-        // Suavização opcional (Lerp) para o movimento não ficar "duro" demais
         aimTarget.position = Vector3.Lerp(aimTarget.position, targetPosition, Time.deltaTime * 20f);
     }
 
@@ -162,23 +126,16 @@ public class PlayerShooting : MonoBehaviour
 
     void Shoot()
     {
-        if (animator != null)
-        {
-            animator.SetTrigger("Shoot");
-        }
+        if (animator != null) animator.SetTrigger("Shoot");
 
         PlayShootSound();
 
-        // Ajuste visual simples do ponto de tiro (opcional se o Rigging estiver perfeito)
         if (modelPivot != null)
-        {
-            // Se o Rigging estiver funcionando, o modelPivot já deve estar rotacionando o corpo,
-            // mas às vezes forçar a rotação do firePoint ajuda na precisão visual.
             firePoint.rotation = Quaternion.LookRotation(GetShotDirection());
-        }
 
         Vector3 shotDirection = GetShotDirection();
 
+        // Calcula o dano (agora inclui o buff da torre)
         float finalDamage = CalculateDamage(out bool isCritical);
 
         SpawnProjectile(finalDamage, isCritical, shotDirection);
@@ -186,26 +143,18 @@ public class PlayerShooting : MonoBehaviour
         nextShotTime = Time.time + (1f / characterData.attackSpeed);
         currentAmmo--;
 
-        if (currentAmmo <= 0)
-        {
-            StartReload();
-        }
+        if (currentAmmo <= 0) StartReload();
     }
 
-    // Extrai a lógica de som para ficar mais limpo
     void PlayShootSound()
     {
         string eventToPlay = "";
         bool isFullAuto = characterData.fireMode == FireMode.FullAuto;
 
         if (tipoDeSom == "Arco")
-        {
             eventToPlay = isFullAuto ? eventoTiroContinuoArco : eventoTiroUnicoArco;
-        }
         else
-        {
             eventToPlay = isFullAuto ? eventoTiroContinuoArma : eventoTiroUnicoArma;
-        }
 
         if (!string.IsNullOrEmpty(eventToPlay))
             RuntimeManager.PlayOneShot(eventToPlay, transform.position);
@@ -222,6 +171,13 @@ public class PlayerShooting : MonoBehaviour
             isCritical = true;
         }
 
+        // --- APLICA O BUFF DA TORRE ---
+        if (playerHealth != null)
+        {
+            finalDamage *= playerHealth.damageMultiplier;
+        }
+        // ------------------------------
+
         if (hasNextShotBonus)
         {
             finalDamage *= nextShotDamageBonus;
@@ -236,9 +192,7 @@ public class PlayerShooting : MonoBehaviour
     {
         if (projectilePool != null)
         {
-            GameObject visualProjectile = projectilePool.GetProjectile(
-             firePoint.position,
-             Quaternion.LookRotation(direction));
+            GameObject visualProjectile = projectilePool.GetProjectile(firePoint.position, Quaternion.LookRotation(direction));
 
             if (visualProjectile != null)
             {
@@ -259,27 +213,20 @@ public class PlayerShooting : MonoBehaviour
 
     Vector3 GetShotDirection()
     {
-        // Reutilizamos a lógica do UpdateAimTargetPosition indiretamente
-        // Mas mantemos o cálculo exato do raio para precisão do projétil
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, maxDistance, hitLayers))
-        {
             return (hit.point - firePoint.position).normalized;
-        }
         else
-        {
             return ray.direction;
-        }
     }
 
     void StartReload()
     {
         if (isReloading) return;
 
-        float originalAnimationLength = 3.0f;
-        float multiplier = originalAnimationLength / characterData.reloadSpeed;
+        float multiplier = 3.0f / characterData.reloadSpeed;
 
         if (animator != null)
         {
@@ -288,9 +235,7 @@ public class PlayerShooting : MonoBehaviour
         }
 
         if (tipoDeSom == "Arma" && !string.IsNullOrEmpty(eventoRecargaArma))
-        {
             RuntimeManager.PlayOneShot(eventoRecargaArma, transform.position);
-        }
 
         isReloading = true;
         reloadStartTime = Time.time;

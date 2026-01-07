@@ -10,6 +10,7 @@ TagManager:
   - Patrol
   - RespawnPoint
   - Path
+  - Poca
   layers:
   - Default
   - TransparentFX

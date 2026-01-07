@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public struct CaminhoRastrosData
@@ -22,7 +23,10 @@ public class CharacterBase : ScriptableObject
     public float moveSpeed = 5f;
     public float reloadSpeed = 2f;
     public float attackSpeed = 1f;
-    public float meleeRange = 2f;
+
+    [FormerlySerializedAs("meleeRange")]
+    public float attackRange = 2f;
+
     public float armor = 0f;
 
     [Range(0f, 1f)]

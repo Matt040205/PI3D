@@ -8,13 +8,20 @@ public class PlayerHealthSystem : MonoBehaviour
     public float currentHealth;
     public bool isRegenerating;
 
+    [Header("Status de Buffs (Visualização)")]
+    public float damageMultiplier = 1f; // Use isso no script de ataque
+    public float speedMultiplier = 1f;  // Use isso no script de movimento
+    public bool isBuffed = false;
+
     private float timeSinceLastDamage;
     private Transform respawnPoint;
+    private Coroutine buffCoroutine;
 
     [Header("Configuração de Respawn")]
-    [Tooltip("Nome/Tag do Transform do Respawn Point na cena atual. Ex: 'RespawnPoint'")]
+    [Tooltip("Nome/Tag do Transform do Respawn Point na cena atual.")]
     public string respawnPointNameOrTag = "RespawnPoint";
 
+    // --- EVENTOS (Restaurados) ---
     public event Action OnHealthChanged;
     public event Action<float> OnDamageDealt;
 
@@ -25,29 +32,53 @@ public class PlayerHealthSystem : MonoBehaviour
         FindRespawnPoint();
     }
 
+    void Update()
+    {
+        HandleRegeneration();
+    }
+
+    // --- SISTEMA DE BUFFS (Torre Nível 5) ---
+    public void ApplyBuffs(float newDamageMult, float newSpeedMult, float duration)
+    {
+        if (buffCoroutine != null) StopCoroutine(buffCoroutine);
+
+        damageMultiplier = newDamageMult;
+        speedMultiplier = newSpeedMult;
+        isBuffed = true;
+
+        buffCoroutine = StartCoroutine(RemoveBuffsAfterTime(duration));
+    }
+
+    private IEnumerator RemoveBuffsAfterTime(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        damageMultiplier = 1f;
+        speedMultiplier = 1f;
+        isBuffed = false;
+        buffCoroutine = null;
+    }
+
+    // --- FUNÇÃO QUE ESTAVA FALTANDO (CORREÇÃO DO ERRO) ---
+    public void TriggerDamageDealt(float damageAmount)
+    {
+        OnDamageDealt?.Invoke(damageAmount);
+    }
+    // -----------------------------------------------------
+
     void FindRespawnPoint()
     {
         GameObject respawnObject = GameObject.FindWithTag(respawnPointNameOrTag);
-
-        if (respawnObject == null)
-        {
-            respawnObject = GameObject.Find(respawnPointNameOrTag);
-        }
+        if (respawnObject == null) respawnObject = GameObject.Find(respawnPointNameOrTag);
 
         if (respawnObject != null)
         {
             respawnPoint = respawnObject.transform;
-            Debug.Log($"Respawn Point '{respawnPointNameOrTag}' encontrado com sucesso!", respawnObject);
         }
         else
         {
             Debug.LogWarning($"Respawn Point '{respawnPointNameOrTag}' NÃO foi encontrado na cena!");
         }
-    }
-
-    void Update()
-    {
-        HandleRegeneration();
     }
 
     void HandleRegeneration()
@@ -86,22 +117,15 @@ public class PlayerHealthSystem : MonoBehaviour
         NotifyHealthChanged();
     }
 
-    public void TriggerDamageDealt(float damageAmount)
-    {
-        OnDamageDealt?.Invoke(damageAmount);
-    }
-
     void Die()
     {
-        if (respawnPoint == null)
-        {
-            FindRespawnPoint();
-        }
+        if (respawnPoint == null) FindRespawnPoint();
 
         if (respawnPoint != null)
         {
             CharacterController controller = GetComponent<CharacterController>();
-            PlayerMovement movementScript = GetComponent<PlayerMovement>();
+            // Tenta pegar o PlayerMovement (se existir com esse nome)
+            MonoBehaviour movementScript = GetComponent("PlayerMovement") as MonoBehaviour;
 
             if (controller != null) controller.enabled = false;
             if (movementScript != null) movementScript.enabled = false;
@@ -116,10 +140,15 @@ public class PlayerHealthSystem : MonoBehaviour
         }
 
         currentHealth = characterData.maxHealth;
+
+        // Reseta buffs ao morrer
+        damageMultiplier = 1f;
+        speedMultiplier = 1f;
+
         NotifyHealthChanged();
     }
 
-    private IEnumerator ReactivatePlayer(CharacterController controller, PlayerMovement movementScript)
+    private IEnumerator ReactivatePlayer(CharacterController controller, MonoBehaviour movementScript)
     {
         yield return null;
 

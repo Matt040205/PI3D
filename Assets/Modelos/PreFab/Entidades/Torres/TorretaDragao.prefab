@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4991672053577661071}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -55.38848, y: -30.43069, z: -7.931818}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 4.6239, y: 0.02794, z: 4.6239}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -111,7 +111,7 @@ Transform:
   m_GameObject: {fileID: 8155183357007245358}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -55.38848, y: -29.83069, z: -7.931818}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: -7805911734455766873}
   - component: {fileID: 2308866288876760805}
   - component: {fileID: -7455273069582053334}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TorretaDragao
   m_TagString: Untagged
   m_Icon: {fileID: 0}

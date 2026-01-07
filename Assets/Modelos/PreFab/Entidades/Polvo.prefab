@@ -294,7 +294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7918053145919156436}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -335,6 +335,7 @@ GameObject:
   - component: {fileID: -3719171815492859723}
   - component: {fileID: -2180344061450423232}
   - component: {fileID: 7491079546822067776}
+  - component: {fileID: -3916657951837491482}
   m_Layer: 6
   m_Name: Polvo
   m_TagString: Player
@@ -585,3 +586,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   limiteY: -30
+--- !u!114 &-3916657951837491482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7665187458952505880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b63f782755f5b64e8a431d3a6e557bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

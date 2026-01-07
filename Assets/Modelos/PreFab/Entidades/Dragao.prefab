@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 9068512059833646597}
   - component: {fileID: 5339123124668043555}
   - component: {fileID: -1552781774586141199}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dragao
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -456,7 +456,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 159352645051806334}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}

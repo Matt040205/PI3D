@@ -7,36 +7,25 @@ public class TowerController : MonoBehaviour
 {
     [Header("Referências Principais")]
     public CharacterBase towerData;
-    [Tooltip("Arraste o modelo visual (Filho) aqui. NÃO arraste a base.")]
     public Transform partToRotate;
-    [Tooltip("Objeto vazio na ponta da arma.")]
     public Transform firePoint;
 
     [Header("Visual e Animação")]
-    [Tooltip("Arraste o Animator do modelo aqui.")]
     public Animator animator;
-
-    [Tooltip("Nome do Trigger de ataque no Animator.")]
     public string shootTrigger = "Attack";
-
-    [Tooltip("Nome do Bool que impede a personagem de cair/pular.")]
     public string towerModeBool = "IsTower";
-
-    [Tooltip("Ajuste se a personagem estiver mirando torto (Ex: 0, 90, 0).")]
     public Vector3 rotationOffset;
 
     [Header("Configurações de IA")]
     [SerializeField] private string enemyTag = "Enemy";
-    [Tooltip("Define se a torre pode mirar em inimigos do tipo Voador.")]
     public bool TargetsFlyingEnemies { get; set; } = false;
 
-    // Eventos do Sistema de Combate
+    // Eventos
     public event Action<EnemyHealthSystem> OnTargetDamaged;
     public event Func<EnemyHealthSystem, float, float> OnCalculateDamage;
     public event Action<EnemyHealthSystem> OnCriticalHit;
     public event Action<EnemyHealthSystem> OnEnemyKilled;
 
-    // Estado da Torre
     public bool IsDestroyed { get; private set; }
     public float MaxHealth { get; private set; }
     public float CurrentRange { get; private set; }
@@ -44,7 +33,6 @@ public class TowerController : MonoBehaviour
     [HideInInspector]
     public int totalCostSpent { get; private set; }
 
-    // Atributos de RPG (Stats)
     private float currentHealth;
     private float currentArmor;
     private float currentDamage;
@@ -53,50 +41,44 @@ public class TowerController : MonoBehaviour
     private float currentCritDamage;
     private float currentArmorPenetration;
 
-    // Variáveis Internas
     private List<TowerBehavior> activeBehaviors = new List<TowerBehavior>();
-    public int[] currentPathLevels;
+
+    // REMOVIDO: currentPathLevels (Quem cuida disso agora é o AbilitySystem)
+
     private Transform targetEnemy;
     private float fireCountdown = 0f;
 
+    private TowerAbilitySystem abilitySystem;
+
     void Start()
     {
-        // 1. Verificação de Segurança
         if (towerData == null)
         {
-            Debug.LogError("FALHA: TowerData está NULO na torre '" + gameObject.name + "'!", this.gameObject);
             this.enabled = false;
             return;
         }
 
-        // 2. Inicializar Stats
-        currentPathLevels = new int[towerData.upgradePaths.Count];
-        CloneBaseStats();
+        abilitySystem = GetComponent<TowerAbilitySystem>();
 
-        // 3. Configuração Automática do Animator e Física
+        CloneBaseStats();
         SetupTowerMode();
 
-        // 4. Iniciar Radar
+        // Removemos UpdateAbilities do Start pois os níveis começam zerados ou definidos pelo AbilitySystem
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
     }
 
-    // Configura a personagem para se comportar como Torre (sem cair/pular)
     void SetupTowerMode()
     {
-        // Tenta achar o Animator se não foi arrastado
         if (animator == null) animator = GetComponentInChildren<Animator>();
 
         if (animator != null)
         {
-            // Ativa o modo torre para impedir transições de Jump/Fall
             animator.SetBool(towerModeBool, true);
         }
 
-        // Desativa CharacterController para não colidir ou tentar mover
         CharacterController cc = GetComponentInChildren<CharacterController>();
         if (cc != null) cc.enabled = false;
 
-        // Desativa a gravidade do Rigidbody para não cair
         Rigidbody rb = GetComponentInChildren<Rigidbody>();
         if (rb != null)
         {
@@ -109,7 +91,6 @@ public class TowerController : MonoBehaviour
     {
         MaxHealth = towerData.maxHealth;
         currentHealth = MaxHealth;
-
         totalCostSpent = towerData.cost;
 
         currentArmor = towerData.armor;
@@ -119,27 +100,26 @@ public class TowerController : MonoBehaviour
         currentCritDamage = towerData.critDamage;
         currentArmorPenetration = towerData.armorPenetration;
 
-        CurrentRange = towerData.meleeRange;
-
+        CurrentRange = towerData.attackRange;
         IsDestroyed = false;
-
-        Debug.Log($"<color=green>TORRE INICIALIZADA:</color> {gameObject.name} (Dano: {currentDamage})");
     }
 
-    public void ApplyUpgrade(Upgrade upgradeToApply, int geoditeCost, int darkEtherCost)
+    // --- MUDANÇA IMPORTANTE AQUI ---
+    // Adicionei o parametro 'TowerPath path' para sabermos qual caminho está sendo upado
+    public void ApplyUpgrade(Upgrade upgradeToApply, int geoditeCost, int darkEtherCost, TowerPath path)
     {
         if (upgradeToApply == null) return;
 
         totalCostSpent += geoditeCost;
         totalCostSpent += darkEtherCost;
 
-        Debug.Log($"<color=cyan>Aplicando upgrade '{upgradeToApply.upgradeName}'</color>");
-
+        // 1. Aplica Modificadores de Stats (Dano, Range, etc)
         foreach (var modifier in upgradeToApply.modifiers)
         {
             ApplyModifier(modifier);
         }
 
+        // 2. Desbloqueia Comportamentos Extras (Se houver)
         if (upgradeToApply.behaviorToUnlock != null)
         {
             GameObject behaviorObject = Instantiate(upgradeToApply.behaviorToUnlock.gameObject, transform);
@@ -148,6 +128,23 @@ public class TowerController : MonoBehaviour
             {
                 newBehavior.Initialize(this);
                 activeBehaviors.Add(newBehavior);
+            }
+        }
+
+        // 3. Atualiza o Sistema de Habilidades Mistas
+        if (abilitySystem != null)
+        {
+            // Tenta converter para PaintAbilitySystem para usar a função nova UpgradePath
+            PaintAbilitySystem paintSystem = abilitySystem as PaintAbilitySystem;
+            if (paintSystem != null)
+            {
+                paintSystem.UpgradePath(path);
+            }
+            else
+            {
+                // Fallback para outras torres que ainda usem o sistema antigo
+                // Se você tiver outras torres, precisará adicionar UpgradePath na base TowerAbilitySystem depois
+                Debug.LogWarning("AbilitySystem não é PaintAbilitySystem. O nível misto pode não funcionar.");
             }
         }
     }
@@ -184,14 +181,10 @@ public class TowerController : MonoBehaviour
     void Update()
     {
         if (IsDestroyed) return;
-
-        // Se não tiver inimigo, não faz nada (mantém animação Idle)
         if (targetEnemy == null) return;
 
-        // Gira o modelo visual em direção ao inimigo
         if (partToRotate != null) RotateTowardsTarget();
 
-        // Controle de tiro
         fireCountdown -= Time.deltaTime;
         if (fireCountdown <= 0f)
         {
@@ -200,17 +193,15 @@ public class TowerController : MonoBehaviour
         }
     }
 
-    void Shoot()
+    public void Shoot()
     {
         if (targetEnemy == null) return;
 
-        // Dispara animação
         if (animator != null)
         {
             animator.SetTrigger(shootTrigger);
         }
 
-        // Lógica de Dano
         EnemyHealthSystem healthSystem = targetEnemy.GetComponent<EnemyHealthSystem>();
 
         if (healthSystem != null)
@@ -238,6 +229,7 @@ public class TowerController : MonoBehaviour
                 OnEnemyKilled?.Invoke(healthSystem);
             }
 
+            // Isso aciona o PaintAbilitySystem.OnHit()
             OnTargetDamaged?.Invoke(healthSystem);
 
             if (isCritical)
@@ -247,39 +239,36 @@ public class TowerController : MonoBehaviour
         }
     }
 
-    // Lógica de Rotação (com correção de Offset)
     void RotateTowardsTarget()
     {
         Vector3 direction = targetEnemy.position - transform.position;
-        direction.y = 0; // Mantém a rotação apenas no eixo horizontal
+        direction.y = 0;
 
         if (direction == Vector3.zero) return;
 
-        // Rotação para o inimigo
         Quaternion lookRotation = Quaternion.LookRotation(direction);
-
-        // Aplica o Offset (correção para modelos tortos)
         Quaternion offsetRotation = Quaternion.Euler(rotationOffset);
         Quaternion finalTargetRotation = lookRotation * offsetRotation;
 
-        // Suaviza o movimento (Lerp)
         Vector3 smoothedRotation = Quaternion.Lerp(partToRotate.rotation, finalTargetRotation, Time.deltaTime * 10f).eulerAngles;
-
-        // Aplica a rotação apenas no eixo Y
         partToRotate.rotation = Quaternion.Euler(0f, smoothedRotation.y, 0f);
     }
 
     void UpdateTarget()
     {
-        Collider[] collidersInRadius = Physics.OverlapSphere(transform.position, CurrentRange);
+        Vector3 originPoint = partToRotate != null ? partToRotate.position : transform.position;
+
+        Collider[] collidersInRadius = Physics.OverlapSphere(originPoint, CurrentRange);
+
         Transform nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
 
-        foreach (Collider collider in collidersInRadius)
+        foreach (Collider col in collidersInRadius)
         {
-            if (collider.CompareTag(enemyTag))
+            if (col.CompareTag(enemyTag) || (col.transform.parent != null && col.transform.parent.CompareTag(enemyTag)))
             {
-                EnemyController enemyController = collider.GetComponent<EnemyController>();
+                EnemyController enemyController = col.GetComponent<EnemyController>();
+                if (enemyController == null) enemyController = col.GetComponentInParent<EnemyController>();
 
                 if (enemyController == null || enemyController.enemyData == null) continue;
 
@@ -290,12 +279,13 @@ public class TowerController : MonoBehaviour
 
                 if (isTargetable)
                 {
-                    float distanceToEnemy = Vector3.Distance(transform.position, collider.transform.position);
+                    Vector3 closestPointOnEnemy = col.ClosestPoint(originPoint);
+                    float distanceToSkin = Vector3.Distance(originPoint, closestPointOnEnemy);
 
-                    if (distanceToEnemy < shortestDistance)
+                    if (distanceToSkin < shortestDistance)
                     {
-                        shortestDistance = distanceToEnemy;
-                        nearestEnemy = collider.transform;
+                        shortestDistance = distanceToSkin;
+                        nearestEnemy = col.transform;
                     }
                 }
             }
@@ -331,8 +321,6 @@ public class TowerController : MonoBehaviour
 
         float finalDamage = remainingDamage * (1 - currentArmor);
         currentHealth -= finalDamage;
-
-        Debug.Log($"<color=red>DANO RECEBIDO:</color> {gameObject.name} sofreu {finalDamage:F1} de dano.");
 
         if (currentHealth <= 0)
         {

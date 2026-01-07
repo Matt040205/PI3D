@@ -21,4 +21,4 @@ MonoBehaviour:
   duration: 3
   exitDamage: 40
   damageRadius: 4
-  visualPuddlePrefab: {fileID: 0}
+  visualPuddlePrefab: {fileID: 2788596489867798966, guid: ab945303daceebf439bf60472c1999cc, type: 3}

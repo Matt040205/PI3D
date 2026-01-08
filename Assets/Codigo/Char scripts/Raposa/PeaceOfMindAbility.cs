@@ -10,7 +10,8 @@ public class PeaceOfMindAbility : Ability
     public override bool Activate(GameObject quemUsou)
     {
         PeaceOfMindLogic ajudante = quemUsou.AddComponent<PeaceOfMindLogic>();
-        ajudante.StartEffect(totalHeal, duration);
+        // Passando 'this' para que o Logic possa avisar quando contar o cooldown
+        ajudante.StartEffect(totalHeal, duration, this);
         return true;
     }
 }

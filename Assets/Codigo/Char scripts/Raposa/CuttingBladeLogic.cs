@@ -27,6 +27,11 @@ public class CuttingBladeLogic : MonoBehaviour
         resetCooldownOnKill = resetOnKill;
         playerMovement = quemUsou.GetComponent<PlayerMovement>();
 
+        if (abilityController != null)
+        {
+            abilityController.SetAbilityUsage(sourceAbility, true);
+        }
+
         StartCoroutine(DashCoroutine(quemUsou));
     }
 
@@ -45,35 +50,24 @@ public class CuttingBladeLogic : MonoBehaviour
         Vector3 startPosition = transform.position;
         Vector3 dashDirection = modelPivot.forward;
 
-        // --- CORREÇÃO AQUI: DETECÇÃO DE PAREDES ---
-
-        // Definimos o alvo inicial como a distância máxima
         Vector3 targetPosition = startPosition + (dashDirection * dashDistance);
-
-        // Criamos uma máscara para detectar apenas o cenário (Default, Ground, Walls, etc)
-        // e IGNORAR inimigos e o próprio player.
         int obstacleMask = LayerMask.GetMask("Default", "Ground", "Terrain");
-        // Se você tiver uma layer "Wall", adicione ali também.
 
         RaycastHit wallHit;
-        // Lançamos um raio da cintura do personagem (para não pegar o chão) para frente
         if (Physics.Raycast(startPosition + Vector3.up, dashDirection, out wallHit, dashDistance, obstacleMask))
         {
-            // Se bater em uma parede, o alvo vira o ponto de impacto menos um pouquinho (para não entrar na parede)
             targetPosition = wallHit.point - (dashDirection * 0.5f);
         }
 
-        // --- FIM DA CORREÇÃO ---
-
         controller.enabled = false;
 
-        // Ajuste de altura (Ground Snap) para não voar se o chão descer/subir
         Vector3 finalPosition = targetPosition;
         RaycastHit groundHit;
         int groundMask = LayerMask.GetMask("Default", "Ground");
+
         if (Physics.Raycast(targetPosition + Vector3.up * 0.5f, Vector3.down, out groundHit, 5f, groundMask))
         {
-            finalPosition = groundHit.point + (Vector3.up * (controller.height / 2f)); // Removido o * 0.9f para evitar afundar
+            finalPosition = groundHit.point + (Vector3.up * (controller.height / 2f));
         }
 
         transform.position = finalPosition;
@@ -81,9 +75,7 @@ public class CuttingBladeLogic : MonoBehaviour
         yield return null;
         controller.enabled = true;
 
-        // Dano em área no trajeto (Cilindro)
         float dashRadius = 2f;
-        // Calculamos a distância real percorrida caso tenha batido na parede
         float actualDistance = Vector3.Distance(startPosition, finalPosition);
 
         RaycastHit[] hits = Physics.SphereCastAll(startPosition, dashRadius, dashDirection, actualDistance);
@@ -94,14 +86,15 @@ public class CuttingBladeLogic : MonoBehaviour
         foreach (var hit in hits)
         {
             EnemyHealthSystem vidaInimigo = hit.collider.GetComponent<EnemyHealthSystem>();
+
             if (vidaInimigo != null && !enemiesHit.Contains(vidaInimigo))
             {
                 enemiesHit.Add(vidaInimigo);
                 bool inimigoMorreu = vidaInimigo.TakeDamage(damage);
+
                 if (inimigoMorreu)
                 {
                     matouAlguem = true;
-                    Debug.Log("Inimigo abatido! Habilidade resetada.");
                 }
             }
         }

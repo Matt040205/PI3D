@@ -1,7 +1,6 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-using System.Collections.Generic;
 
 public class MergulhoTintaLogic : MonoBehaviour
 {
@@ -17,50 +16,61 @@ public class MergulhoTintaLogic : MonoBehaviour
     private PlayerShooting _shootingScript;
     private CommanderAbilityController _abilityScript;
     private PlayerHealthSystem _playerHealth;
+    private Ability _sourceAbility;
 
-    // Layer 2 é "Ignore Raycast". Geralmente colide com chão, mas vamos configurar para ignorar inimigos.
     private const int GHOST_LAYER = 2;
     private const string POCA_TAG = "Poca";
 
-    public void StartDive(float duration, float damage, float radius, GameObject puddlePrefab)
+    public LayerMask groundLayerMask = 1;
+
+    public void StartDive(float duration, float damage, float radius, GameObject puddlePrefab, Ability abilitySource)
     {
+        _abilityScript = GetComponent<CommanderAbilityController>();
+        _sourceAbility = abilitySource;
+
+        if (!CheckIfGrounded())
+        {
+            if (_abilityScript != null)
+            {
+                _abilityScript.SetAbilityUsage(_sourceAbility, false);
+            }
+            Destroy(this);
+            return;
+        }
+
+        if (_abilityScript != null)
+        {
+            _abilityScript.SetAbilityUsage(_sourceAbility, true);
+        }
+
         _damage = damage;
         _radius = radius;
         _renderers = GetComponentsInChildren<Renderer>();
         _shootingScript = GetComponent<PlayerShooting>();
-        _abilityScript = GetComponent<CommanderAbilityController>();
         _playerHealth = GetComponent<PlayerHealthSystem>();
 
         _myCollider = GetComponent<Collider>();
         if (_myCollider == null) _myCollider = GetComponent<CharacterController>();
 
-        // 1. Salvar estado original
         _originalLayer = gameObject.layer;
         _originalTag = gameObject.tag;
 
-        // 2. Mudar Layer e Tag
         SetLayerRecursively(gameObject, GHOST_LAYER);
         gameObject.tag = POCA_TAG;
 
-        // 3. Ignorar colisão física entre a Layer Fantasma e Inimigos
-        // Isso garante que você não empurre eles enquanto é poça
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         if (enemyLayer != -1) Physics.IgnoreLayerCollision(GHOST_LAYER, enemyLayer, true);
 
-        // 4. Desativar Controles
         if (_shootingScript) _shootingScript.enabled = false;
         if (_abilityScript) _abilityScript.enabled = false;
         foreach (var r in _renderers) r.enabled = false;
 
-        // 5. Visual da Poça
         if (puddlePrefab != null)
         {
-            Vector3 spawnPos = transform.position;
-            spawnPos.y += 0.05f;
+            Vector3 spawnPos = GetGroundPosition();
             _puddleInstance = Instantiate(puddlePrefab, spawnPos, Quaternion.Euler(90f, 0f, 0f));
         }
 
-        // 6. Stealth
         ConfundirInimigos(radius * 3f);
 
         Invoke(nameof(EndDive), duration);
@@ -84,74 +94,98 @@ public class MergulhoTintaLogic : MonoBehaviour
         }
     }
 
+    Vector3 GetGroundPosition()
+    {
+        Vector3 origin = transform.position + Vector3.up * 1.0f;
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 5f, groundLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            return hit.point + Vector3.up * 0.02f;
+        }
+        return transform.position + Vector3.up * 0.02f;
+    }
+
+    bool CheckIfGrounded()
+    {
+        CharacterController cc = GetComponent<CharacterController>();
+        if (cc != null && cc.isGrounded) return true;
+
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 0.6f, groundLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.collider.gameObject != gameObject) return true;
+        }
+        return false;
+    }
+
     void Update()
     {
         if (_puddleInstance != null)
         {
-            Vector3 targetPos = transform.position;
-            targetPos.y += 0.05f;
-            _puddleInstance.transform.position = targetPos;
+            Vector3 groundPos = GetGroundPosition();
+            _puddleInstance.transform.position = new Vector3(transform.position.x, groundPos.y, transform.position.z);
         }
     }
 
     void EndDive()
     {
-        // 1. Restaurar Identidade (TAG) - Inimigos voltam a te ver/atacar
         gameObject.tag = _originalTag;
-
-        // 2. Restaurar Visuais e Scripts - Você volta a aparecer e atirar
         if (_shootingScript) _shootingScript.enabled = true;
         if (_abilityScript) _abilityScript.enabled = true;
         foreach (var r in _renderers) r.enabled = true;
         if (_puddleInstance != null) Destroy(_puddleInstance);
 
-        // 3. Dano na saída
         CausarDanoEmArea();
-
-        // 4. O TRUQUE DO INTANGÍVEL:
-        // NÃO restauramos a Layer ainda. Você continua na Layer 2 (Ghost).
-        // Como definimos que Ghost ignora Enemy, você pode andar "dentro" deles sem voar.
-        StartCoroutine(SairDoModoIntangivel());
+        StartCoroutine(WaitUntilClearToSurface());
     }
 
-    IEnumerator SairDoModoIntangivel()
+    IEnumerator WaitUntilClearToSurface()
     {
-        // Opcional: Ainda damos um empurrãozinho leve só pra não ficarem colados visualmente
-        EmpurrarInimigosProximos();
+        bool isClear = false;
+        float maxSafetyWait = 5.0f;
+        float timer = 0f;
+        LayerMask enemyMask = 1 << LayerMask.NameToLayer("Enemy");
 
-        // Fica intangível por 1.5 segundos (pode ajustar esse tempo)
-        // Durante esse tempo, a física ignora colisão Player vs Enemy
-        yield return new WaitForSeconds(1.5f);
+        while (!isClear && timer < maxSafetyWait)
+        {
+            Collider[] hits = Physics.OverlapSphere(transform.position, 0.8f, enemyMask);
 
-        // 5. AGORA SIM, restaura a Layer física
+            if (hits.Length == 0)
+            {
+                isClear = true;
+            }
+            else
+            {
+                foreach (var hit in hits)
+                {
+                    Vector3 pushDir = (hit.transform.position - transform.position).normalized;
+                    pushDir.y = 0;
+
+                    NavMeshAgent agent = hit.GetComponent<NavMeshAgent>();
+                    if (agent != null)
+                    {
+                        agent.Move(pushDir * 3f * Time.deltaTime);
+                    }
+                    else
+                    {
+                        Rigidbody rb = hit.GetComponent<Rigidbody>();
+                        if (rb != null)
+                        {
+                            rb.linearVelocity = pushDir * 2f;
+                        }
+                    }
+                }
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
         SetLayerRecursively(gameObject, _originalLayer);
 
-        // Para de ignorar a colisão global entre as layers (limpeza)
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         if (enemyLayer != -1) Physics.IgnoreLayerCollision(GHOST_LAYER, enemyLayer, false);
 
-        // Fim da habilidade
         Destroy(this);
-    }
-
-    void EmpurrarInimigosProximos()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, 1.5f);
-        foreach (var hit in hits)
-        {
-            if (hit.CompareTag("Enemy"))
-            {
-                Rigidbody rb = hit.GetComponent<Rigidbody>();
-                if (rb)
-                {
-                    Vector3 dir = (hit.transform.position - transform.position).normalized;
-                    dir.y = 0;
-                    if (dir == Vector3.zero) dir = transform.forward;
-                    // Empurrão mais fraco, só para sugerir afastamento
-                    rb.AddForce(dir * 3f, ForceMode.VelocityChange);
-                }
-            }
-        }
     }
 
     void CausarDanoEmArea()
@@ -173,5 +207,11 @@ public class MergulhoTintaLogic : MonoBehaviour
     {
         obj.layer = newLayer;
         foreach (Transform child in obj.transform) SetLayerRecursively(child.gameObject, newLayer);
+    }
+
+    void OnDestroy()
+    {
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        if (enemyLayer != -1) Physics.IgnoreLayerCollision(GHOST_LAYER, enemyLayer, false);
     }
 }

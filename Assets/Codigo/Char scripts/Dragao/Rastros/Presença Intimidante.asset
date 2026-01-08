@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dcf9dfdabbe1bd479911da059025c38, type: 3}
   m_Name: "Presen\xE7a Intimidante"
   m_EditorClassIdentifier: 
-  upgradeName: 
+  upgradeName: "Presen\xE7a Intimidante"
   description: ' Inimigos num raio de 5m ao redor dela causam 10% '
   modifiers: []
   specialEffectName: "Presen\xE7a Intimidante"

@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: Nvl 05
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: "Basti\xE3o da Esperan\xE7a"
+  description: " Quando o escudo de um aliado quebra, ele libera uma explos\xE3o
+    que empurra os inimigos para tr\xE1s.\r"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

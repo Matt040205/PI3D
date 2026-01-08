@@ -7,10 +7,16 @@ public class PreyMarkLogic : MonoBehaviour
     private float markDuration;
     private float bonusDamageMultiplier;
 
-    public void StartEffect(float duration, float damageBonus)
+    public void StartEffect(float duration, float damageBonus, CommanderAbilityController abilityController, Ability sourceAbility)
     {
         this.markDuration = duration;
         this.bonusDamageMultiplier = damageBonus;
+
+        if (abilityController != null)
+        {
+            abilityController.SetAbilityUsage(sourceAbility, true);
+        }
+
         StartCoroutine(ApplyMarkedStatus());
     }
 
@@ -39,14 +45,11 @@ public class PreyMarkLogic : MonoBehaviour
             }
         }
 
-        // --- MUDANÇA PARA POOLING ---
         ReturnToPool();
     }
 
-    // --- NOVO MÉTODO PARA RETORNO AO POOL (DESATIVAÇÃO) ---
     private void ReturnToPool()
     {
-        // Você pode substituir a linha abaixo pelo seu AbilityLogicPoolManager.Instance.ReturnLogic(gameObject);
         gameObject.SetActive(false);
     }
 }

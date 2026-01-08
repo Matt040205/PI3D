@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: Nvl 01
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: Armadura Aliada
+  description: Concede +10% de Armadura para torres adjacentes.
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

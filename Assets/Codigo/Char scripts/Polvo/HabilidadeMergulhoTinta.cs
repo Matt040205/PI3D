@@ -16,7 +16,7 @@ public class HabilidadeMergulhoTinta : Ability
         if (quemUsou.GetComponent<MergulhoTintaLogic>() != null) return false;
 
         MergulhoTintaLogic logic = quemUsou.AddComponent<MergulhoTintaLogic>();
-        logic.StartDive(duration, exitDamage, damageRadius, visualPuddlePrefab);
+        logic.StartDive(duration, exitDamage, damageRadius, visualPuddlePrefab, this);
 
         return true;
     }

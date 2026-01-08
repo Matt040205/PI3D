@@ -21,14 +21,17 @@ public class CuttingBladeAbility : Ability
     public override bool Activate(GameObject quemUsou)
     {
         CharacterController controller = quemUsou.GetComponent<CharacterController>();
-        Transform modelPivot = quemUsou.GetComponent<PlayerMovement>().GetModelPivot();
+        PlayerMovement movementScript = quemUsou.GetComponent<PlayerMovement>();
         CommanderAbilityController abilityController = quemUsou.GetComponent<CommanderAbilityController>();
 
-        if (controller == null || modelPivot == null || abilityController == null)
+        if (controller == null || movementScript == null || abilityController == null)
         {
-            Debug.LogError("CuttingBladeAbility: Faltam componentes (Controller, Pivot ou AbilityController).");
-            return true;
+            Debug.LogError("CuttingBladeAbility: Faltam componentes (Controller, PlayerMovement ou AbilityController).");
+            return false;
         }
+
+        Transform modelPivot = movementScript.GetModelPivot();
+        if (modelPivot == null) return false;
 
         CuttingBladeLogic logic = quemUsou.AddComponent<CuttingBladeLogic>();
         logic.StartDash(

@@ -1,19 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using FMODUnity;
 
 public class CommanderAbilityController : MonoBehaviour
 {
-    // --- Configuração ---
     public CharacterBase characterData;
     private Animator anim;
     private PlayerHealthSystem playerHealth;
 
-    // --- Habilidades ---
     public Dictionary<Ability, float> abilityCooldowns = new Dictionary<Ability, float>();
 
-    // --- Ultimate ---
     public float ultimateChargeThreshold = 100f;
     public float currentUltimateCharge = 0f;
 
@@ -28,17 +24,14 @@ public class CommanderAbilityController : MonoBehaviour
 
     void Start()
     {
-        // --- Pegar Componentes ---
         playerHealth = GetComponent<PlayerHealthSystem>();
         anim = GetComponentInChildren<Animator>();
 
-        // --- Eventos ---
         if (playerHealth != null)
         {
             playerHealth.OnDamageDealt += HandleDamageDealt;
         }
 
-        // --- Inicializar Habilidades ---
         if (characterData.ability1 != null)
         {
             abilityCooldowns[characterData.ability1] = 0;
@@ -66,39 +59,33 @@ public class CommanderAbilityController : MonoBehaviour
 
     void Update()
     {
-        // --- Carregar Ultimate Passivamente ---
         if (currentUltimateCharge < ultimateChargeThreshold && characterData != null && characterData.ultimateChargePerSecond > 0)
         {
             currentUltimateCharge += characterData.ultimateChargePerSecond * Time.deltaTime;
             currentUltimateCharge = Mathf.Min(currentUltimateCharge, ultimateChargeThreshold);
         }
 
-        // --- Contar Cooldowns ---
-        // Criamos uma lista das chaves para evitar erros de modificação durante o loop, 
-        // embora estejamos modificando valores, é uma boa prática.
         List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
         foreach (Ability ability in keys)
         {
             if (abilityCooldowns[ability] > 0)
             {
                 abilityCooldowns[ability] -= Time.deltaTime;
-                // Garante que não fique negativo
                 if (abilityCooldowns[ability] < 0) abilityCooldowns[ability] = 0;
             }
         }
 
-        // --- Inputs de Habilidade ---
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            ActivateAbility(characterData.ability1); // Dash
+            ActivateAbility(characterData.ability1);
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
-            ActivateAbility(characterData.ability2); // Meditar
+            ActivateAbility(characterData.ability2);
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            ActivateUltimate(); // Modo Katana
+            ActivateUltimate();
         }
     }
 
@@ -107,16 +94,13 @@ public class CommanderAbilityController : MonoBehaviour
         if (ability == null || !abilityCooldowns.ContainsKey(ability))
             return;
 
-        // Se o cooldown for maior que 0, não pode usar
         if (abilityCooldowns[ability] > 0)
             return;
 
-        bool shouldStartCooldown = ability.Activate(gameObject);
+        bool started = ability.Activate(gameObject);
 
-        if (shouldStartCooldown)
+        if (started)
         {
-            abilityCooldowns[ability] = ability.cooldown;
-
             if (anim != null)
             {
                 if (ability == characterData.ability1)
@@ -125,10 +109,19 @@ public class CommanderAbilityController : MonoBehaviour
                     anim.SetTrigger("Meditar");
             }
         }
+    }
+
+    public void SetAbilityUsage(Ability ability, bool wasUsed)
+    {
+        if (ability == null || !abilityCooldowns.ContainsKey(ability)) return;
+
+        if (wasUsed)
+        {
+            abilityCooldowns[ability] = ability.cooldown;
+        }
         else
         {
-            // Se a habilidade retornou false (ex: dash resetou ao matar), zera o cooldown
-            abilityCooldowns[ability] = 0;
+            abilityCooldowns[ability] = 0f;
         }
     }
 
@@ -155,28 +148,26 @@ public class CommanderAbilityController : MonoBehaviour
         }
     }
 
-    // --- Funções Auxiliares (AGORA IMPLEMENTADAS) ---
-
-    // Chamado pelo Dash quando mata alguém
-    public void ResetCooldown(Ability ability)
+    public void RefundCooldown(string keyword)
     {
-        if (ability != null && abilityCooldowns.ContainsKey(ability))
+        if (characterData.ability1 != null && characterData.ability1.name.Contains(keyword))
         {
-            abilityCooldowns[ability] = 0f;
+            abilityCooldowns[characterData.ability1] = 0f;
+        }
+        else if (characterData.ability2 != null && characterData.ability2.name.Contains(keyword))
+        {
+            abilityCooldowns[characterData.ability2] = 0f;
         }
     }
 
-    // Chamado pela UI para desenhar a bolinha escura
     public float GetRemainingCooldownPercent(Ability ability)
     {
         if (ability == null || !abilityCooldowns.ContainsKey(ability) || ability.cooldown <= 0)
             return 0f;
 
-        // Retorna um valor entre 0 e 1 (ex: 0.5 = metade do tempo passou)
         return abilityCooldowns[ability] / ability.cooldown;
     }
 
-    // Pode ser usado por itens que diminuem cooldown
     public void ReduceAllAbilityCooldowns(float reductionAmount)
     {
         List<Ability> keys = new List<Ability>(abilityCooldowns.Keys);
@@ -187,5 +178,30 @@ public class CommanderAbilityController : MonoBehaviour
                 abilityCooldowns[ability] = Mathf.Max(0, abilityCooldowns[ability] - reductionAmount);
             }
         }
+    }
+
+    public void ResetCooldown()
+    {
+        if (characterData.ability1 != null && abilityCooldowns.ContainsKey(characterData.ability1))
+        {
+            abilityCooldowns[characterData.ability1] = 0f;
+        }
+        if (characterData.ability2 != null && abilityCooldowns.ContainsKey(characterData.ability2))
+        {
+            abilityCooldowns[characterData.ability2] = 0f;
+        }
+    }
+
+    public void ResetCooldown(Ability ability)
+    {
+        if (ability != null && abilityCooldowns.ContainsKey(ability))
+        {
+            abilityCooldowns[ability] = 0f;
+        }
+    }
+
+    public void ResetCooldown(string keyword)
+    {
+        RefundCooldown(keyword);
     }
 }

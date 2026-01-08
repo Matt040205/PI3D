@@ -12,11 +12,18 @@ public class PeaceOfMindLogic : MonoBehaviour
     [EventRef]
     public string eventoCura = "event:/SFX/Cura";
 
-    public void StartEffect(float totalHeal, float duration)
+    public void StartEffect(float totalHeal, float duration, Ability sourceAbility)
     {
         healthSystem = GetComponent<PlayerHealthSystem>();
+        CommanderAbilityController abilityController = GetComponent<CommanderAbilityController>();
+
         if (healthSystem != null)
         {
+            if (abilityController != null && sourceAbility != null)
+            {
+                abilityController.SetAbilityUsage(sourceAbility, true);
+            }
+
             if (!string.IsNullOrEmpty(eventoCura))
             {
                 curaSoundInstance = RuntimeManager.CreateInstance(eventoCura);
@@ -27,6 +34,10 @@ public class PeaceOfMindLogic : MonoBehaviour
         }
         else
         {
+            if (abilityController != null && sourceAbility != null)
+            {
+                abilityController.SetAbilityUsage(sourceAbility, false);
+            }
             Destroy(this);
         }
     }

@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: Nvl 02
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: "Provoca\xE7\xE3o"
+  description: "A cada 5s, a torre provoca (Taunt) inimigos pr\xF3ximos, for\xE7ando-os
+    a parar de andar e atacar a torre.\r\n"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

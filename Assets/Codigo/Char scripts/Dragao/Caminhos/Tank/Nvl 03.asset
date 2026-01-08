@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
   m_Name: Nvl 03
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: "Espinhos de Drag\xE3o"
+  description: Retorna 20% do dano recebido de volta ao atacante.
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

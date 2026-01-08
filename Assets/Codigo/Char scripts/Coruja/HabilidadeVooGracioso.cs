@@ -16,14 +16,29 @@ public class HabilidadeVooGracioso : Ability
     {
         if (logicPrefab == null)
         {
-            Debug.LogError("O prefab da lógica da habilidade está NULO no ScriptableObject 'Voo Gracioso'!");
             return true;
         }
 
-        VooGraciosoLogic logic = Instantiate(logicPrefab, quemUsou.transform);
-        logic.StartEffect(quemUsou, jumpHeightModifier, staticAimDuration, bonusDamageMultiplier, bonusExplosionRadius);
+        PlayerMovement movement = quemUsou.GetComponent<PlayerMovement>();
 
-        Debug.Log("Voo Gracioso ativado. Próxima flecha causa mais dano e explode.");
+        if (movement != null && movement.isGrounded)
+        {
+            return false;
+        }
+
+        CommanderAbilityController abilityController = quemUsou.GetComponent<CommanderAbilityController>();
+        VooGraciosoLogic logic = Instantiate(logicPrefab, quemUsou.transform);
+
+        logic.StartEffect(
+            quemUsou,
+            jumpHeightModifier,
+            staticAimDuration,
+            bonusDamageMultiplier,
+            bonusExplosionRadius,
+            abilityController,
+            this
+        );
+
         return true;
     }
 }

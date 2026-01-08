@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections; // Necessário para Corrotinas
+using System.Collections;
 using FMODUnity;
 using FMOD.Studio;
 
@@ -34,8 +34,12 @@ public class EnemyController : MonoBehaviour
     private float speedModifier = 1f;
     private bool isRooted = false;
     private bool isSlipping = false;
-    private int paintStacks = 0; // Para o Nível 5 de Controle (Root)
+    private int paintStacks = 0;
     private float paintStackResetTime;
+
+    // Variável para controle da cegueira
+    private bool isBlinded = false;
+    public bool IsBlinded => isBlinded;
 
     [Header("FMOD")]
     [EventRef]
@@ -56,7 +60,6 @@ public class EnemyController : MonoBehaviour
     private Transform playerTransform;
     private Transform lastWaypointReached;
 
-    // Constante para garantir que não erramos a letra
     private const string TAG_POCA = "Poca";
 
     public bool IsDead { get { return healthSystem.isDead; } }
@@ -115,10 +118,10 @@ public class EnemyController : MonoBehaviour
         currentMoveSpeed = originalMoveSpeed;
         isSlowed = false;
 
-        // Reseta status de CC
         speedModifier = 1f;
         isRooted = false;
         isSlipping = false;
+        isBlinded = false; // Reset cegueira
         paintStacks = 0;
 
         healthSystem.enemyData = this.enemyData;
@@ -155,7 +158,6 @@ public class EnemyController : MonoBehaviour
             RespawnAtLastWaypoint();
         }
 
-        // Resetar stacks de tinta se passar 5 segundos sem tomar tiro da torre de controle
         if (paintStacks > 0 && Time.time > paintStackResetTime)
         {
             paintStacks = 0;
@@ -170,16 +172,12 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // Se estiver escorregando ou preso, não processa IA de movimento normal
         if (isSlipping || isRooted)
         {
-            // Opcional: Manter rotação ou parar animação de andar
             if (anim != null) anim.SetBool("isWalking", false);
             return;
         }
 
-        // --- DEBUG DE SEGURANÇA ---
-        // Verifica se o alvo virou poça no meio da perseguição
         if (target != null && target.CompareTag(TAG_POCA))
         {
             Debug.Log($"[IA] {gameObject.name}: Player virou Poca. Perdi o alvo!");
@@ -198,47 +196,41 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- MÉTODOS DE CONTROLE DE GRUPO (CHAMADOS PELA TORRE) ---
+    // --- RECEBE A MENSAGEM DA FUMAÇA ---
+    public void SetBlinded(bool state)
+    {
+        isBlinded = state;
+    }
 
-    // Torre DPS Nv 3
+    // --- MÉTODOS DE CONTROLE DE GRUPO ---
+
     public void ApplyKnockback(Vector3 direction, float force)
     {
         if (rb != null && !isRooted)
         {
-            // Adiciona um impulso físico instantâneo
             rb.AddForce(direction.normalized * force, ForceMode.Impulse);
         }
     }
 
-    // Torre Controle Nv 2 e 3
     public void ApplySlow(float percentage, float duration)
     {
-        StopCoroutine("SlowRoutine"); // Reinicia se já estiver lento
+        StopCoroutine("SlowRoutine");
         StartCoroutine(SlowRoutine(percentage, duration));
     }
 
     private IEnumerator SlowRoutine(float percentage, float duration)
     {
-        // Aplica na Física
         speedModifier = Mathf.Clamp01(1f - percentage);
 
-        // Aplica na Animação (Matrix Effect)
         if (anim != null) anim.speed = speedModifier;
-
-        Debug.Log($"<color=cyan>SLOW APLICADO:</color> Velocidade reduzida para {speedModifier * 100}%");
 
         yield return new WaitForSeconds(duration);
 
-        // Restaura Física
         speedModifier = 1f;
 
-        // Restaura Animação
         if (anim != null) anim.speed = 1f;
-
-        Debug.Log($"<color=cyan>SLOW ACABOU:</color> Velocidade normal.");
     }
 
-    // Torre Controle Nv 4
     public void ApplySlip()
     {
         if (!isSlipping && !isRooted)
@@ -250,16 +242,14 @@ public class EnemyController : MonoBehaviour
     private IEnumerator SlipRoutine()
     {
         isSlipping = true;
-        if (anim != null) anim.SetTrigger("Slip"); // Certifique-se de ter esse Trigger no Animator!
+        if (anim != null) anim.SetTrigger("Slip");
 
-        // Zera a velocidade para simular a queda
         if (rb != null) rb.linearVelocity = Vector3.zero;
 
-        yield return new WaitForSeconds(1.5f); // Tempo caído
+        yield return new WaitForSeconds(1.5f);
         isSlipping = false;
     }
 
-    // Torre Controle Nv 5
     public void AddPaintStack()
     {
         paintStacks++;
@@ -276,7 +266,6 @@ public class EnemyController : MonoBehaviour
     {
         isRooted = true;
         if (rb != null) rb.linearVelocity = Vector3.zero;
-        // Aqui você pode instanciar um VFX de "Raízes de Tinta" se quiser
 
         yield return new WaitForSeconds(duration);
         isRooted = false;
@@ -310,7 +299,6 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // Se for poça, não calcula nada e sai
         if (playerTransform.CompareTag(TAG_POCA))
         {
             target = null;
@@ -323,13 +311,11 @@ public class EnemyController : MonoBehaviour
 
         if (mainPriority == AITargetPriority.Player && distanceToPlayer <= chaseDistance)
         {
-            if (target != playerTransform) Debug.Log($"[IA] {gameObject.name}: Viu o Player. Perseguindo!");
             target = playerTransform;
             foundTarget = true;
         }
         else if (mainPriority == AITargetPriority.Objective && distanceToPlayer <= selfDefenseRadius)
         {
-            if (target != playerTransform) Debug.Log($"[IA] {gameObject.name}: Defendendo objetivo. Player perto!");
             target = playerTransform;
             foundTarget = true;
         }
@@ -342,7 +328,6 @@ public class EnemyController : MonoBehaviour
 
     public void LoseTarget()
     {
-        Debug.Log($"[IA] {gameObject.name}: Recebeu comando LoseTarget.");
         target = null;
     }
 
@@ -417,7 +402,6 @@ public class EnemyController : MonoBehaviour
     {
         if (target == null) return;
 
-        // Segurança extra
         if (target.CompareTag(TAG_POCA))
         {
             target = null;
@@ -460,15 +444,7 @@ public class EnemyController : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
 
-        // CÁLCULO
         float finalSpeed = currentMoveSpeed * speedModifier;
-
-        // --- DEBUG X9 ---
-        // Abra o console (Ctrl+Shift+C) e veja se esse número muda quando toma tiro
-        // Se aparecer "Mod: 1", o slow não está sendo aplicado.
-        // Se aparecer "Mod: 0.1" e ele correr, é o Animator (Root Motion).
-        // Debug.Log($"[Mover] Speed Base: {currentMoveSpeed} | Mod: {speedModifier} | Final: {finalSpeed}"); 
-        // ----------------
 
         Vector3 horizontalVelocity = direction * finalSpeed;
         float verticalVelocity = rb.linearVelocity.y;
@@ -492,17 +468,14 @@ public class EnemyController : MonoBehaviour
     {
         healthSystem.TakeDamage(damageAmount);
 
-        // --- LÓGICA DE REVIDE (IGNORA SE FOR POCA) ---
         if (attacker != null && target == null)
         {
-            // Se o atacante for uma Poça, NÃO devemos revidar
             if (attacker.CompareTag(TAG_POCA))
             {
                 Debug.Log($"[IA] {gameObject.name}: Tomei dano da Poca, mas IGNOREI o revide.");
             }
             else
             {
-                Debug.Log($"[IA] {gameObject.name}: Atacado por {attacker.name}. Revidando!");
                 target = attacker;
             }
         }

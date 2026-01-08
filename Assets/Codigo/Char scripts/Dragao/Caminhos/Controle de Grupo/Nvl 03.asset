@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
-  m_Name: Nvl 02
+  m_Name: Nvl 03
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: Quebra-Armadura
+  description: "Ataques reduzem a armadura do inimigo em 30% por 3s.\t\r\n"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

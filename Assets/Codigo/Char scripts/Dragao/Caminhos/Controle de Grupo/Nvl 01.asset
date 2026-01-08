@@ -10,11 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
-  m_Name: Nvl 03
+  m_Name: Nvl 01
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: Mais dano
+  description: +15% de Dano de Ataque.
   geoditeCost: 0
   darkEtherCost: 0
-  modifiers: []
+  modifiers:
+  - statToModify: 0
+    modType: 1
+    value: 0.15
   behaviorToUnlock: {fileID: 0}

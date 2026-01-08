@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
-  m_Name: Nvl 05
+  m_Name: Nvl 02
   m_EditorClassIdentifier: 
-  upgradeName: 
-  description: 
+  upgradeName: Peso Pesado
+  description: "Ataques t\xEAm 20% de chance de atordoar (stun) o inimigo por 0.5s.\r\n"
   geoditeCost: 0
   darkEtherCost: 0
   modifiers: []

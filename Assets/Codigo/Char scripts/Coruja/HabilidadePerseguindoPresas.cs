@@ -19,7 +19,6 @@ public class HabilidadePerseguindoPresas : Ability
     {
         if (logicPrefab == null)
         {
-            Debug.LogError("O prefab da lógica da habilidade está NULO no ScriptableObject 'Perseguindo as Presas'!");
             return true;
         }
 
@@ -28,10 +27,11 @@ public class HabilidadePerseguindoPresas : Ability
             RuntimeManager.PlayOneShot(eventoTEC, quemUsou.transform.position);
         }
 
+        CommanderAbilityController abilityController = quemUsou.GetComponent<CommanderAbilityController>();
         PreyMarkLogic logic = Instantiate(logicPrefab, quemUsou.transform);
-        logic.StartEffect(markDuration, bonusDamageMultiplier);
 
-        Debug.Log("Perseguindo as Presas ativado. Inimigos marcados e recebem mais dano.");
+        logic.StartEffect(markDuration, bonusDamageMultiplier, abilityController, this);
+
         return true;
     }
 }

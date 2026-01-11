@@ -18,10 +18,12 @@ MonoBehaviour:
     para cima, deixando-os suspensos e vulner\xE1veis por 2s."
   icon: {fileID: 21300000, guid: a448ecba7eb23394296fb8f399df5050, type: 3}
   cooldown: 1
-  range: 15
-  angle: 45
-  damage: 100
+  range: 10
+  angle: 360
+  damage: 30
   knockUpDuration: 2
-  knockUpForce: 12
+  knockUpForce: 8
+  vulnerabilityMultiplier: 1.8
+  vulnerabilityDuration: 5
   logicPrefab: {fileID: 2493877144496194484, guid: 2337272e085aa194dbd364da9f6d245a, type: 3}
   sfxSlam: event:/SFX/SeismicSlam

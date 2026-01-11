@@ -25,6 +25,7 @@ public class EnemyHealthSystem : MonoBehaviour
 
     private EnemyController enemyController;
     private bool isMarked = false;
+    private Coroutine vulnerabilityCoroutine; // Referência para controlar o timer
 
     public bool IsArmorShredded => armorShredStacks > 0;
 
@@ -70,9 +71,7 @@ public class EnemyHealthSystem : MonoBehaviour
         isMarked = false;
     }
 
-    // --- FUNÇÃO CORRIGIDA ---
-    // Agora aceita o parâmetro "isCritical"
-    public bool TakeDamage(float damage, float armorPenetration = 0f, bool isCritical = false)
+    public bool TakeDamage(float damage, float armorPenetration = 0f, bool isCritical = false)
     {
         if (isDead) return false;
 
@@ -90,15 +89,12 @@ public class EnemyHealthSystem : MonoBehaviour
             Debug.Log($"<color=orange>Dano Modificado:</color> Dano Base {damage.ToString("F1")}, Multiplicador (Mark*Vuln) {(markedDamageMultiplier * vulnerabilityMultiplier).ToString("F2")}, Armadura Efetiva {effectiveArmor.ToString("F1")}. Dano Final: {finalDamage.ToString("F1")}");
         }
 
-        // --- CHAMADA CORRIGIDA ---
-        // Agora passa o "isCritical" para a UI
-        if (worldSpaceUI != null && finalDamage > 0)
+        if (worldSpaceUI != null && finalDamage > 0)
         {
             worldSpaceUI.ShowDamageNumber(finalDamage, isCritical);
         }
-        // -------------------------
 
-        currentHealth -= finalDamage;
+        currentHealth -= finalDamage;
 
         if (currentHealth <= 0)
         {
@@ -118,6 +114,7 @@ public class EnemyHealthSystem : MonoBehaviour
         }
     }
 
+    // Função Base (Mantida)
     public void AplicarVulnerabilidade(float multiplicador)
     {
         vulnerabilityMultiplier = multiplicador;
@@ -127,6 +124,27 @@ public class EnemyHealthSystem : MonoBehaviour
     {
         vulnerabilityMultiplier = 1f;
     }
+
+    // --- NOVA FUNÇÃO PARA A ULT (Com Timer) ---
+    public void AplicarVulnerabilidadeTemporaria(float multiplicador, float duracao)
+    {
+        // Se já existe um timer rodando, para ele para reiniciar a contagem
+        if (vulnerabilityCoroutine != null) StopCoroutine(vulnerabilityCoroutine);
+
+        vulnerabilityMultiplier = multiplicador;
+        vulnerabilityCoroutine = StartCoroutine(ResetVulnerabilidadeRoutine(duracao));
+
+        Debug.Log($"<color=red>VULNERABILIDADE APLICADA:</color> Inimigo toma x{multiplicador} de dano por {duracao}s.");
+    }
+
+    private IEnumerator ResetVulnerabilidadeRoutine(float tempo)
+    {
+        yield return new WaitForSeconds(tempo);
+        vulnerabilityMultiplier = 1f;
+        vulnerabilityCoroutine = null;
+        // Debug.Log("<color=green>VULNERABILIDADE ACABOU.</color>");
+    }
+    // ------------------------------------------
 
     public void ApplyMarkedStatus(float multiplier)
     {

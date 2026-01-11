@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8212b0618902f304fbc9ed9190602170, type: 3}
+  m_Name: Temor Sismico
+  m_EditorClassIdentifier: 
+  abilityName: Temor Sismico
+  description: "Ela golpeia o ch\xE3o com for\xE7a total, criando uma onda de choque
+    em uma \xE1rea triangular \xE0 sua frente. Causa dano e levanta todos os inimigos
+    para cima, deixando-os suspensos e vulner\xE1veis por 2s."
+  icon: {fileID: 21300000, guid: a448ecba7eb23394296fb8f399df5050, type: 3}
+  cooldown: 1
+  range: 15
+  angle: 45
+  damage: 100
+  knockUpDuration: 2
+  knockUpForce: 12
+  logicPrefab: {fileID: 2493877144496194484, guid: 2337272e085aa194dbd364da9f6d245a, type: 3}
+  sfxSlam: event:/SFX/SeismicSlam

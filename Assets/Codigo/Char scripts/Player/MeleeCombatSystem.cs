@@ -1,85 +1,106 @@
 using UnityEngine;
 using FMODUnity;
 
-public class MeleeCombatSystem : MonoBehaviour
+public enum WeaponType
 {
-    [Header("Configurações")]
-    public CharacterBase characterData;
-    public Transform attackPoint;
+    Sword,
+    Hammer
+}
+
+[System.Serializable]
+public class WeaponConfig
+{
+    [Header("Atributos Físicos")]
     public float attackRange = 2f;
     public float attackAngle = 90f;
+    public float animationSpeed = 1f;
+
+    [Header("Danos do Combo")]
+    public float damageHit1 = 15f;
+    public float damageHit2 = 15f;
+    public float damageHit3 = 20f;
+    public float damageHit4 = 30f;
+
+    [Header("Sons FMOD")]
+    [EventRef] public string sfxHit1;
+    [EventRef] public string sfxHit2;
+    [EventRef] public string sfxHit3;
+    [EventRef] public string sfxHit4;
+}
+
+public class MeleeCombatSystem : MonoBehaviour
+{
+    [Header("Configuração Geral")]
+    public CharacterBase characterData;
+    public Transform attackPoint;
     public LayerMask hitLayers;
+    public WeaponType currentWeaponType = WeaponType.Sword;
 
-    [Header("Dano (Overrides da Ultimate)")]
-    public float damageCombo1 = 13f;
-    public float damageCombo2 = 15f;
-    public float damageCombo3 = 22f;
-    public float damageCombo4 = 30f;
+    [Header("Status das Armas")]
+    public WeaponConfig swordStats;
+    public WeaponConfig hammerStats;
 
-    [Header("FMOD (Combo da Ultimate)")]
-    [EventRef]
-    public string eventoEspada1 = "event:/SFX/Espada";
-    [EventRef]
-    public string eventoEspada2 = "event:/SFX/Espada_1";
-    [EventRef]
-    public string eventoEspada3 = "event:/SFX/Espada_2";
-    [EventRef]
-    public string eventoEspada4 = "event:/SFX/Espada_3";
-
-    [Header("Overrides da Ultimate (Não mexer)")]
-    // Esta variável agora funciona!
+    [Header("Overrides de Sistema (Ultimate)")]
     public float? overrideAttackSpeed = null;
     public float? overrideAttackAngle = null;
 
     private Animator anim;
+    private WeaponConfig currentStats;
 
     void Start()
     {
         anim = GetComponentInChildren<Animator>();
+        UpdateCurrentStats();
     }
 
-    // O Update agora tem DUAS responsabilidades
     void Update()
     {
-        // 1. Checar o input de ataque
+        UpdateCurrentStats();
+
         if (Input.GetButtonDown("Fire1"))
         {
             anim.SetTrigger("Attack");
         }
 
-        // 2. Controlar a velocidade da animação com base no override
         if (overrideAttackSpeed.HasValue)
         {
-            // Se o NineTailsDanceLogic definir a velocidade para 5,
-            // as animações de ataque tocarão 5x mais rápido.
             anim.speed = overrideAttackSpeed.Value;
         }
         else
         {
-            anim.speed = 1.0f; // Velocidade normal
+            anim.speed = currentStats.animationSpeed;
         }
     }
 
-    // Garantir que a velocidade volte ao normal
     void OnDisable()
     {
-        // Quando este script for desabilitado (pelo NineTailsDanceLogic),
-        // garantimos que a velocidade do animator volte a 1.
         if (anim != null)
         {
             anim.speed = 1.0f;
         }
     }
 
+    private void UpdateCurrentStats()
+    {
+        if (currentWeaponType == WeaponType.Sword)
+        {
+            currentStats = swordStats;
+        }
+        else
+        {
+            currentStats = hammerStats;
+        }
+    }
+
     private void DetectHits(float damageToApply, string fmodEvent)
     {
-        // Tocar o som
         if (!string.IsNullOrEmpty(fmodEvent))
             RuntimeManager.PlayOneShot(fmodEvent, transform.position);
 
-        // Detectar o Dano
-        float currentAngle = overrideAttackAngle ?? this.attackAngle;
-        Collider[] hitTargets = Physics.OverlapSphere(attackPoint.position, attackRange, hitLayers);
+        float currentAngle = overrideAttackAngle ?? currentStats.attackAngle;
+        float currentRange = currentStats.attackRange;
+
+        Collider[] hitTargets = Physics.OverlapSphere(attackPoint.position, currentRange, hitLayers);
 
         foreach (Collider target in hitTargets)
         {
@@ -92,46 +113,46 @@ public class MeleeCombatSystem : MonoBehaviour
                 if (enHealth != null)
                 {
                     enHealth.TakeDamage(damageToApply);
-                    Debug.Log($"<color=cyan>ATAQUE MELEE:</color> Causou {damageToApply} de dano em {target.name}");
                 }
             }
         }
     }
 
-    // --- Funções PÚBLICAS para os Eventos de Animação ---
     public void AnimEvent_Hit1()
     {
-        DetectHits(damageCombo1, eventoEspada1);
+        DetectHits(currentStats.damageHit1, currentStats.sfxHit1);
     }
 
     public void AnimEvent_Hit2()
     {
-        DetectHits(damageCombo2, eventoEspada2);
+        DetectHits(currentStats.damageHit2, currentStats.sfxHit2);
     }
 
     public void AnimEvent_Hit3()
     {
-        DetectHits(damageCombo3, eventoEspada3);
+        DetectHits(currentStats.damageHit3, currentStats.sfxHit3);
     }
 
     public void AnimEvent_Hit4()
     {
-        DetectHits(damageCombo4, eventoEspada4);
+        DetectHits(currentStats.damageHit4, currentStats.sfxHit4);
     }
 
-
-    // Gizmos (Sem omissões)
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
 
-        float currentAngle = overrideAttackAngle ?? this.attackAngle;
+        WeaponConfig statsToDraw = (currentWeaponType == WeaponType.Sword) ? swordStats : hammerStats;
+        if (statsToDraw == null) return;
+
+        float currentAngle = overrideAttackAngle ?? statsToDraw.attackAngle;
+        float currentRange = statsToDraw.attackRange;
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        Gizmos.DrawWireSphere(attackPoint.position, currentRange);
 
-        Vector3 leftBound = Quaternion.Euler(0, -currentAngle / 2, 0) * attackPoint.forward * attackRange;
-        Vector3 rightBound = Quaternion.Euler(0, currentAngle / 2, 0) * attackPoint.forward * attackRange;
+        Vector3 leftBound = Quaternion.Euler(0, -currentAngle / 2, 0) * attackPoint.forward * currentRange;
+        Vector3 rightBound = Quaternion.Euler(0, currentAngle / 2, 0) * attackPoint.forward * currentRange;
 
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + leftBound);
         Gizmos.DrawLine(attackPoint.position, attackPoint.position + rightBound);

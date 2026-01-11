@@ -5,17 +5,12 @@ using System.Collections.Generic;
 public class EnemyCombatSystem : MonoBehaviour
 {
     [Header("Configurações de Combate (Player)")]
-    [Tooltip("Raio para detecção do jogador e aplicação de dano.")]
     public float attackRange = 2f;
-    [Tooltip("Tempo (em segundos) que o jogador precisa ficar na área para receber dano (Dano Inicial).")]
     public float timeToDamage = 2f;
 
     [Header("Aura de Dano em Torres")]
-    [Tooltip("Raio da aura que causa dano em torres.")]
     public float towerAuraRadius = 10f;
-    [Tooltip("Dano base que a aura causa em cada ciclo.")]
     public float towerAuraDamage = 14f;
-    [Tooltip("Intervalo (em segundos) entre cada aplicação de dano da aura.")]
     public float towerAuraInterval = 3f;
 
     [Header("Referências")]
@@ -116,14 +111,11 @@ public class EnemyCombatSystem : MonoBehaviour
     {
         if (enemyData == null) return;
 
-        // --- VERIFICAÇÃO DE CEGUEIRA ---
         if (enemyController != null && enemyController.IsBlinded)
         {
-            // 80% de chance de errar o ataque
             if (Random.value < 0.8f)
             {
-                Debug.Log($"{gameObject.name} ERROU o ataque no player devido à CEGUEIRA!");
-                return; // Sai da função sem dar dano
+                return;
             }
         }
 
@@ -134,7 +126,8 @@ public class EnemyCombatSystem : MonoBehaviour
             PlayerHealthSystem playerHealth = hitPlayers[0].GetComponent<PlayerHealthSystem>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(currentDamage);
+
+                playerHealth.TakeDamage(currentDamage, transform);
             }
         }
         else

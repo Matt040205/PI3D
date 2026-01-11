@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fb1044a2d0f52142a7ef27ef4b2d12c, type: 3}
+  m_Name: Escamas de Adamantium
+  m_EditorClassIdentifier: 
+  abilityName: Escamas de Adamantium
+  description: "Todas as torres aliadas possuem +20% de Vida M\xE1xima. A comandante
+    recebe passivamente 20% menos dano de todas as fontes."
+  icon: {fileID: 0}
+  towerHealthBonusPercent: 0.2
+  playerDamageReduction: 0.2

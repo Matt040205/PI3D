@@ -19,7 +19,7 @@ MonoBehaviour:
   moveSpeed: 5
   reloadSpeed: 2
   attackSpeed: 1
-  meleeRange: 2
+  attackRange: 2
   armor: 0
   critChance: 0.05
   critDamage: 1.5
@@ -34,11 +34,14 @@ MonoBehaviour:
   commanderPrefab: {fileID: 15912487291283997, guid: 6908eb6a70a6c3443ba1b63e2448a890, type: 3}
   towerPrefab: {fileID: 8490162969109981554, guid: 8c0d09cdae8d72a4db008b713bd0d77b, type: 3}
   magazineSize: 0
-  passive: {fileID: 0}
-  ability1: {fileID: 0}
-  ability2: {fileID: 0}
-  ultimate: {fileID: 0}
-  upgradePaths: []
+  passive: {fileID: 11400000, guid: c717c0173a576dd4c98865bfd81dda80, type: 2}
+  ability1: {fileID: 11400000, guid: 85e10f27df835cc479897d98c943b10d, type: 2}
+  ability2: {fileID: 11400000, guid: dbe4e92b3394d184cb7cc08447eb0af0, type: 2}
+  ultimate: {fileID: 11400000, guid: 8848dc6c405821c458be2ee823adcbdc, type: 2}
+  upgradePaths:
+  - {fileID: 11400000, guid: 68bbe01a394a6e14580fdbe2401f4bcb, type: 2}
+  - {fileID: 11400000, guid: 2e3379077edcdb440b6e2b8acb6ed84d, type: 2}
+  - {fileID: 11400000, guid: d98dc259d714ded46b82ecc5e4684085, type: 2}
   cost: 50
   pontosRastrosDisponiveis: 10
   pontosRastrosGastos: 0

@@ -1197,6 +1197,42 @@ PrefabInstance:
       propertyPath: m_Data.m_DampRotation
       value: 0.001
       objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.sfxHit1
+      value: event:/SFX/Espada
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.sfxHit2
+      value: event:/SFX/Espada_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.sfxHit3
+      value: event:/SFX/Espada_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.sfxHit4
+      value: event:/SFX/Espada_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.damageHit1
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.damageHit2
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.damageHit3
+      value: 29
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853114845528409664, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: swordStats.damageHit4
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 7004629435758487704, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_Weight
       value: 1
@@ -1225,6 +1261,10 @@ PrefabInstance:
       propertyPath: characterData
       value: 
       objectReference: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
+    - target: {fileID: 7905258126496636682, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8436099783770465690, guid: a0dbf9148972383479f04912c1ec19f8, type: 3}
       propertyPath: m_Enabled
       value: 0

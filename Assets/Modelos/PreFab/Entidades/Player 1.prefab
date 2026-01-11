@@ -603,6 +603,10 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: 8eb457e248c385043bf118efaf313b53, type: 2}
   currentHealth: 0
   isRegenerating: 0
+  damageMultiplier: 1
+  speedMultiplier: 1
+  damageResistance: 0
+  isBuffed: 0
   respawnPointNameOrTag: RespawnPoint
 --- !u!114 &6853114845528409664
 MonoBehaviour:
@@ -611,26 +615,41 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2682399473942067493}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 346bceffbab365e48a8a61873f9f9e09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   characterData: {fileID: 11400000, guid: 7dc5598ea1fd57444b7f91fc784d054b, type: 2}
   attackPoint: {fileID: 5456940512777862082}
-  attackRange: 2
-  attackAngle: 90
   hitLayers:
     serializedVersion: 2
     m_Bits: 128
-  damageCombo1: 13
-  damageCombo2: 15
-  damageCombo3: 22
-  damageCombo4: 30
-  eventoEspada1: event:/SFX/Espada
-  eventoEspada2: event:/SFX/Espada_1
-  eventoEspada3: event:/SFX/Espada_2
-  eventoEspada4: event:/SFX/Espada_3
+  currentWeaponType: 0
+  swordStats:
+    attackRange: 2
+    attackAngle: 90
+    animationSpeed: 1
+    damageHit1: 15
+    damageHit2: 15
+    damageHit3: 20
+    damageHit4: 30
+    sfxHit1: 
+    sfxHit2: 
+    sfxHit3: 
+    sfxHit4: 
+  hammerStats:
+    attackRange: 2
+    attackAngle: 90
+    animationSpeed: 1
+    damageHit1: 15
+    damageHit2: 15
+    damageHit3: 20
+    damageHit4: 30
+    sfxHit1: 
+    sfxHit2: 
+    sfxHit3: 
+    sfxHit4: 
 --- !u!114 &4810200277711100742
 MonoBehaviour:
   m_ObjectHideFlags: 0

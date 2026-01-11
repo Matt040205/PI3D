@@ -42,6 +42,7 @@ Transform:
   - {fileID: 3871825968470858372}
   - {fileID: 1457468772260387071}
   - {fileID: 1625018545090786163}
+  - {fileID: 4836209527446542794}
   - {fileID: 159352645051806334}
   - {fileID: 2251585195557124693}
   m_Father: {fileID: 0}
@@ -165,7 +166,7 @@ MonoBehaviour:
   gravity: -9.81
   rotationSpeed: 15
   cameraController: {fileID: 0}
-  modelPivot: {fileID: 0}
+  modelPivot: {fileID: 4836209527446542794}
   aimRig: {fileID: 0}
   aimConstraint: {fileID: 0}
   aimLayerMask:
@@ -190,9 +191,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 400ca40dab2b75e438b75aa20d656754, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 0}
+  characterData: {fileID: 11400000, guid: 78cb2df0fda232c4792b569b2d154ee6, type: 2}
   currentHealth: 0
   isRegenerating: 0
+  damageMultiplier: 1
+  speedMultiplier: 1
+  damageResistance: 0
+  isBuffed: 0
   respawnPointNameOrTag: RespawnPoint
 --- !u!114 &3604938808364530052
 MonoBehaviour:
@@ -207,20 +212,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterData: {fileID: 11400000, guid: 78cb2df0fda232c4792b569b2d154ee6, type: 2}
-  attackPoint: {fileID: 0}
-  attackRange: 2
-  attackAngle: 90
+  attackPoint: {fileID: 2251585195557124693}
   hitLayers:
     serializedVersion: 2
     m_Bits: 128
-  damageCombo1: 13
-  damageCombo2: 15
-  damageCombo3: 22
-  damageCombo4: 30
-  eventoEspada1: event:/SFX/Espada
-  eventoEspada2: event:/SFX/Espada_1
-  eventoEspada3: event:/SFX/Espada_2
-  eventoEspada4: event:/SFX/Espada_3
+  currentWeaponType: 1
+  swordStats:
+    attackRange: 2
+    attackAngle: 90
+    animationSpeed: 1
+    damageHit1: 15
+    damageHit2: 15
+    damageHit3: 20
+    damageHit4: 30
+    sfxHit1: 
+    sfxHit2: 
+    sfxHit3: 
+    sfxHit4: 
+  hammerStats:
+    attackRange: 2
+    attackAngle: 90
+    animationSpeed: 1
+    damageHit1: 15
+    damageHit2: 15
+    damageHit3: 20
+    damageHit4: 30
+    sfxHit1: event:/SFX/
+    sfxHit2: event:/SFX/
+    sfxHit3: event:/SFX/
+    sfxHit4: event:/SFX/
 --- !u!114 &9068512059833646597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314,6 +334,37 @@ MonoBehaviour:
   aimTransitionSpeed: 10
   mouseSensitivity: 2
   verticalAngleLimit: 80
+--- !u!1 &2629332666018495205
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4836209527446542794}
+  m_Layer: 6
+  m_Name: Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4836209527446542794
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2629332666018495205}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1.1999999, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8789566688495237186}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4770240936693808651
 GameObject:
   m_ObjectHideFlags: 0

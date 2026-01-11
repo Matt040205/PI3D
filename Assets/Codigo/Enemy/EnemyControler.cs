@@ -34,10 +34,10 @@ public class EnemyController : MonoBehaviour
     private float speedModifier = 1f;
     private bool isRooted = false;
     private bool isSlipping = false;
+    private bool isKnockedBack = false; // NOVA VARIÁVEL
     private int paintStacks = 0;
     private float paintStackResetTime;
 
-    // Variável para controle da cegueira
     private bool isBlinded = false;
     public bool IsBlinded => isBlinded;
 
@@ -121,7 +121,8 @@ public class EnemyController : MonoBehaviour
         speedModifier = 1f;
         isRooted = false;
         isSlipping = false;
-        isBlinded = false; // Reset cegueira
+        isBlinded = false;
+        isKnockedBack = false;
         paintStacks = 0;
 
         healthSystem.enemyData = this.enemyData;
@@ -172,7 +173,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        if (isSlipping || isRooted)
+        if (isSlipping || isRooted || isKnockedBack) // SE ESTIVER SENDO EMPURRADO, NÃO MOVE
         {
             if (anim != null) anim.SetBool("isWalking", false);
             return;
@@ -180,7 +181,6 @@ public class EnemyController : MonoBehaviour
 
         if (target != null && target.CompareTag(TAG_POCA))
         {
-            Debug.Log($"[IA] {gameObject.name}: Player virou Poca. Perdi o alvo!");
             target = null;
         }
 
@@ -196,20 +196,30 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- RECEBE A MENSAGEM DA FUMAÇA ---
     public void SetBlinded(bool state)
     {
         isBlinded = state;
     }
 
-    // --- MÉTODOS DE CONTROLE DE GRUPO ---
-
+    // --- CORREÇÃO DO KNOCKBACK ---
     public void ApplyKnockback(Vector3 direction, float force)
     {
         if (rb != null && !isRooted)
         {
-            rb.AddForce(direction.normalized * force, ForceMode.Impulse);
+            StartCoroutine(KnockbackRoutine(direction, force));
         }
+    }
+
+    private IEnumerator KnockbackRoutine(Vector3 direction, float force)
+    {
+        isKnockedBack = true; // Trava a movimentação normal
+
+        rb.linearVelocity = Vector3.zero; // Zera velocidade atual
+        rb.AddForce(direction.normalized * force, ForceMode.Impulse); // Aplica o tiro
+
+        yield return new WaitForSeconds(0.4f); // Tempo para voar livremente sem a IA interferir
+
+        isKnockedBack = false; // Devolve o controle para a IA
     }
 
     public void ApplySlow(float percentage, float duration)
@@ -221,13 +231,11 @@ public class EnemyController : MonoBehaviour
     private IEnumerator SlowRoutine(float percentage, float duration)
     {
         speedModifier = Mathf.Clamp01(1f - percentage);
-
         if (anim != null) anim.speed = speedModifier;
 
         yield return new WaitForSeconds(duration);
 
         speedModifier = 1f;
-
         if (anim != null) anim.speed = 1f;
     }
 
@@ -270,8 +278,6 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(duration);
         isRooted = false;
     }
-
-    // -----------------------------------------------------------
 
     public void AplicarDesaceleracao(float percentual)
     {
@@ -438,8 +444,7 @@ public class EnemyController : MonoBehaviour
     private void MoveTowardsPosition(Vector3 targetPosition)
     {
         if (rb == null) return;
-
-        if (isRooted || isSlipping) return;
+        if (isRooted || isSlipping || isKnockedBack) return; // Checagem extra
 
         Vector3 direction = (targetPosition - transform.position).normalized;
         direction.y = 0;
@@ -472,7 +477,7 @@ public class EnemyController : MonoBehaviour
         {
             if (attacker.CompareTag(TAG_POCA))
             {
-                Debug.Log($"[IA] {gameObject.name}: Tomei dano da Poca, mas IGNOREI o revide.");
+                // Ignora
             }
             else
             {

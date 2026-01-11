@@ -8,20 +8,22 @@ public class PlayerHealthSystem : MonoBehaviour
     public float currentHealth;
     public bool isRegenerating;
 
-    [Header("Status de Buffs (Visualização)")]
-    public float damageMultiplier = 1f; // Use isso no script de ataque
-    public float speedMultiplier = 1f;  // Use isso no script de movimento
+    [Header("Status de Buffs")]
+    public float damageMultiplier = 1f;
+    public float speedMultiplier = 1f;
+    public float damageResistance = 0f;
     public bool isBuffed = false;
+
+    [Header("Status de Defesa")]
+    public bool isCountering = false;
 
     private float timeSinceLastDamage;
     private Transform respawnPoint;
     private Coroutine buffCoroutine;
 
     [Header("Configuração de Respawn")]
-    [Tooltip("Nome/Tag do Transform do Respawn Point na cena atual.")]
     public string respawnPointNameOrTag = "RespawnPoint";
 
-    // --- EVENTOS (Restaurados) ---
     public event Action OnHealthChanged;
     public event Action<float> OnDamageDealt;
 
@@ -37,7 +39,6 @@ public class PlayerHealthSystem : MonoBehaviour
         HandleRegeneration();
     }
 
-    // --- SISTEMA DE BUFFS (Torre Nível 5) ---
     public void ApplyBuffs(float newDamageMult, float newSpeedMult, float duration)
     {
         if (buffCoroutine != null) StopCoroutine(buffCoroutine);
@@ -59,12 +60,10 @@ public class PlayerHealthSystem : MonoBehaviour
         buffCoroutine = null;
     }
 
-    // --- FUNÇÃO QUE ESTAVA FALTANDO (CORREÇÃO DO ERRO) ---
     public void TriggerDamageDealt(float damageAmount)
     {
         OnDamageDealt?.Invoke(damageAmount);
     }
-    // -----------------------------------------------------
 
     void FindRespawnPoint()
     {
@@ -100,9 +99,32 @@ public class PlayerHealthSystem : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Transform attacker = null)
     {
-        currentHealth -= damage;
+        if (isCountering)
+        {
+            if (attacker != null)
+            {
+                EnemyHealthSystem enemyHealth = attacker.GetComponent<EnemyHealthSystem>();
+                if (enemyHealth != null)
+                {
+                    enemyHealth.TakeDamage(damage);
+                    Debug.Log($"CONTRA-ATAQUE: Devolveu {damage} de dano para {attacker.name}");
+                }
+
+                EnemyController enemyController = attacker.GetComponent<EnemyController>();
+                if (enemyController != null)
+                {
+                    enemyController.ApplySlip();
+                }
+            }
+            return;
+        }
+
+        float finalDamage = damage * (1f - damageResistance);
+        if (finalDamage < 0) finalDamage = 0;
+
+        currentHealth -= finalDamage;
         timeSinceLastDamage = 0f;
         isRegenerating = false;
 
@@ -124,7 +146,6 @@ public class PlayerHealthSystem : MonoBehaviour
         if (respawnPoint != null)
         {
             CharacterController controller = GetComponent<CharacterController>();
-            // Tenta pegar o PlayerMovement (se existir com esse nome)
             MonoBehaviour movementScript = GetComponent("PlayerMovement") as MonoBehaviour;
 
             if (controller != null) controller.enabled = false;
@@ -141,9 +162,9 @@ public class PlayerHealthSystem : MonoBehaviour
 
         currentHealth = characterData.maxHealth;
 
-        // Reseta buffs ao morrer
         damageMultiplier = 1f;
         speedMultiplier = 1f;
+        isCountering = false;
 
         NotifyHealthChanged();
     }

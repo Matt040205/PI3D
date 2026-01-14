@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 691f535880d49194eb92d2bdd093e5cc, type: 3}
+  m_Name: Nvl 05
+  m_EditorClassIdentifier: 
+  upgradeName: Muralha Imortal
+  description: "Ao receber dano fatal, a torre n\xE3o morre; ela fica invulner\xE1vel
+    por 5s (1 vez por rodada) e segura a aten\xE7\xE3o de todos os inimigos pr\xF3ximos.\r\n"
+  geoditeCost: 0
+  darkEtherCost: 0
+  modifiers: []
+  behaviorToUnlock: {fileID: 0}

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0099fe616de56d49a72d8c6850cc5c3, type: 3}
+  m_Name: Teleportador
+  m_EditorClassIdentifier: 
+  trapName: Teleportador
+  description: "Uma inven\xE7\xE3o do pr\xF3ximo s\xE9culo, ningu\xE9m sabe de onde
+    veio, mas j\xE1 que est\xE1 ai, por que n\xE3o usar?"
+  icon: {fileID: 21300000, guid: 8f5e8f564ca356b49b59ada99a206089, type: 3}
+  prefab: {fileID: 7280722184090106505, guid: 62ae9d48993b95047bfe0cd3e3a61854, type: 3}
+  logicPrefab: {fileID: 4405688275864240812, guid: c92b7e56f20848643a2834c247257b4b, type: 3}
+  placementType: 2
+  geoditeCost: 450
+  darkEtherCost: 0
+  buildLimit: 2

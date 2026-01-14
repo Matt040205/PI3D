@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36021cb4f5de86d41a9f9881389bfa81, type: 3}
+  m_Name: Suporte
+  m_EditorClassIdentifier: 
+  pathName: Suporte
+  upgradesInPath:
+  - {fileID: 11400000, guid: 4deeb78655c8fa1449723af664904cfd, type: 2}
+  - {fileID: 11400000, guid: 5e983e7be5a7af24e8febabdf681a206, type: 2}
+  - {fileID: 11400000, guid: 01ee423132db5524fa04be5d618be6e3, type: 2}
+  - {fileID: 11400000, guid: e7cd717641d859a4eaf2a740cb4eda70, type: 2}
+  - {fileID: 11400000, guid: 7ccfc457ba0360041b71b2fa59bda4ec, type: 2}

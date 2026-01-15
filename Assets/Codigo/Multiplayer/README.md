@@ -16,12 +16,15 @@ Sistema multiplayer completo usando **Unity Netcode for GameObjects** + **Epic O
 Multiplayer/
 ├── Core/                      # Núcleo do sistema
 │   ├── NetworkBootstrap.cs    # Inicialização de rede
-│   ├── EOSManager.cs           # Gerenciador Epic SDK
+│   ├── EOSManager.cs           # Gerenciador Epic SDK (Wrapper)
 │   ├── EOSConfig.cs            # Configurações (carrega credenciais)
+│   ├── WindowsPlatformSpecifics.cs  # Workaround Windows
+│   ├── EOSConfig_Main.asset   # ScriptableObject de config
+│   ├── EOSManager.prefab      # Prefab do manager
 │   └── HostManager.cs          # Gerenciador de Host P2P
 │
 ├── Auth/                      # Autenticação
-│   ├── EOSAuthenticator.cs     # Login Epic
+│   ├── EOSAuthenticator.cs     # Login via Device ID
 │   └── SessionManager.cs       # Sessão do usuário
 │
 ├── Lobby/                     # Sistema de Lobbies
@@ -41,7 +44,13 @@ Multiplayer/
 │   ├── NetworkedBuilding.cs         # Torres/Traps
 │   └── NetworkedHorde.cs            # Waves
 │
+├── Testing/                   # Testes
+│   └── EOSAuthTest.cs          # Script de teste de autenticação
+│
+├── EOSAuthTest.unity          # Cena de teste
+│
 └── Docs/                      # Documentação
+    ├── AUTHENTICATION_GUIDE.md # Guia de autenticação (Passo 2.1)
     ├── SETUP_INSTRUCTIONS.md   # Guia de configuração
     ├── CREDENTIALS_SETUP.md    # Segurança de credenciais
     └── EOSCredentials.json.example  # Template
@@ -86,6 +95,7 @@ Leia: [`SETUP_INSTRUCTIONS.md`](SETUP_INSTRUCTIONS.md)
 ## 📚 Documentação Completa
 
 - **Plano Detalhado:** `parallel-enchanting-harp.md` (na raiz desta pasta)
+- **Autenticação:** [`Docs/AUTHENTICATION_GUIDE.md`](Docs/AUTHENTICATION_GUIDE.md) - Guia completo do Passo 2.1
 - **Setup:** `SETUP_INSTRUCTIONS.md`
 - **Segurança:** `CREDENTIALS_SETUP.md`
 
@@ -103,19 +113,29 @@ Leia: [`SETUP_INSTRUCTIONS.md`](SETUP_INSTRUCTIONS.md)
 
 ## 🛠️ Status de Desenvolvimento
 
-### ✅ Implementado (Esqueletos)
+### ✅ Fase 1: Fundação (Concluído)
 - [x] Estrutura de pastas completa
 - [x] 17 scripts base com TODOs
 - [x] Sistema de credenciais seguro
 - [x] Documentação completa
 - [x] Cenas básicas criadas
 
+### ✅ Fase 2.1: Autenticação Device ID (Concluído)
+- [x] Instalar EOS Plugin (PlayEveryWare)
+- [x] Implementar EOSManagerWrapper (integração com SDK)
+- [x] Implementar WindowsPlatformSpecifics (workaround Windows)
+- [x] Implementar EOSAuthenticator (login via Device ID)
+- [x] Implementar SessionManager (gerenciamento de sessão)
+- [x] Criar cena de teste EOSAuthTest
+- [x] Documentação AUTHENTICATION_GUIDE.md
+
+**Status:** Funcional - Login via Device ID operacional
+
 ### 🚧 Próximos Passos
-- [ ] Instalar EOS Plugin
-- [ ] Implementar EOSManager (SDK)
-- [ ] Implementar autenticação
-- [ ] Implementar lobby system
-- [ ] Integrar com gameplay existente
+- [ ] Polir sistema de autenticação (retry, tratamento de erros)
+- [ ] Implementar UI de login para usuário final
+- [ ] Implementar lobby system (Fase 3)
+- [ ] Integrar com gameplay existente (Fase 5)
 
 ---
 
@@ -127,5 +147,6 @@ Leia: [`SETUP_INSTRUCTIONS.md`](SETUP_INSTRUCTIONS.md)
 
 ---
 
-**Versão:** 1.0
+**Versão:** 1.1
 **Última atualização:** Janeiro 2025
+**Fase atual:** 2.1 - Autenticação Device ID (Concluído)

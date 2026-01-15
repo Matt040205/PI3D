@@ -1,115 +1,299 @@
 using UnityEngine;
 using System;
+using ExoBeasts.Multiplayer.Core;
+
+#if !EOS_DISABLE
+using Epic.OnlineServices;
+using Epic.OnlineServices.Connect;
+using Epic.OnlineServices.Auth;
+#endif
 
 namespace ExoBeasts.Multiplayer.Auth
 {
     /// <summary>
-    /// Responsavel pela autenticacao de jogadores via Epic Online Services
-    /// Suporta DevAuthTool, Device ID e Epic Account
+    /// Gerencia autenticacao no EOS via Device ID
+    /// Device ID permite login anonimo sem necessidade de conta Epic
+    /// Ideal para desenvolvimento e testes
     /// </summary>
     public class EOSAuthenticator : MonoBehaviour
     {
-        // Eventos
-        public event Action OnLoginSuccess;
-        public event Action<string> OnLoginFailed;
-        public event Action OnLogoutSuccess;
-
-        [Header("Dev Settings")]
-        [SerializeField] private string devCredentialName = "TestUser";
-        [SerializeField] private bool useDevAuthTool = true;
-
-        // TODO: Adicionar ProductUserId do jogador logado
-        // private Epic.OnlineServices.ProductUserId localUserId;
-
-        private bool isLoggedIn = false;
-
-        /// <summary>
-        /// Login usando DevAuthTool (apenas para desenvolvimento)
-        /// </summary>
-        public void LoginWithDevAuthTool(string credentialName = null)
+        private static EOSAuthenticator _instance;
+        public static EOSAuthenticator Instance
         {
-            string credential = credentialName ?? devCredentialName;
-            Debug.Log($"[EOSAuthenticator] Tentando login com DevAuthTool: {credential}");
+            get
+            {
+                if (_instance == null)
+                {
+                    GameObject go = new GameObject("EOSAuthenticator");
+                    _instance = go.AddComponent<EOSAuthenticator>();
+                }
+                return _instance;
+            }
+        }
 
-            // TODO: Implementar login via DevAuthTool
-            // 1. Obter Connect Interface do EOSManager
-            // 2. Criar LoginOptions com credenciais dev
-            // 3. Chamar ConnectInterface.Login()
-            // 4. No callback, armazenar ProductUserId e disparar OnLoginSuccess
+        [Header("Estado")]
+        [SerializeField] private bool isLoggedIn = false;
+        [SerializeField] private string currentProductUserId = "";
+        [SerializeField] private string deviceIdName = "ExoBeastsPlayer";
 
-            // Simulacao por enquanto
-            isLoggedIn = true;
-            OnLoginSuccess?.Invoke();
-            Debug.Log("[EOSAuthenticator] Login com DevAuthTool bem-sucedido (simulado)");
+        public bool IsLoggedIn => isLoggedIn;
+        public string CurrentProductUserId => currentProductUserId;
+
+        // Eventos
+        public event Action<string> OnLoginSuccess;
+        public event Action<string> OnLoginFailed;
+        public event Action OnLogout;
+
+#if !EOS_DISABLE
+        private ProductUserId localProductUserId;
+#endif
+
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
         }
 
         /// <summary>
-        /// Login anonimo usando Device ID
+        /// Login via Device ID (anonimo)
+        /// Cria um Device ID unico se nao existir, depois faz login
         /// </summary>
         public void LoginWithDeviceId()
         {
-            Debug.Log("[EOSAuthenticator] Tentando login com Device ID...");
+#if !EOS_DISABLE
+            if (isLoggedIn)
+            {
+                Debug.LogWarning("[EOSAuthenticator] Ja esta logado");
+                return;
+            }
 
-            // TODO: Implementar login via Device ID
-            // 1. Obter Connect Interface
-            // 2. Criar LoginOptions com tipo DeviceId
-            // 3. Chamar ConnectInterface.Login()
+            var eosManager = EOSManagerWrapper.Instance;
+            if (!eosManager.IsInitialized)
+            {
+                Debug.LogError("[EOSAuthenticator] EOS nao inicializado. Chame EOSManagerWrapper.Initialize() primeiro");
+                OnLoginFailed?.Invoke("EOS nao inicializado");
+                return;
+            }
 
-            // Simulacao por enquanto
-            isLoggedIn = true;
-            OnLoginSuccess?.Invoke();
-            Debug.Log("[EOSAuthenticator] Login com Device ID bem-sucedido (simulado)");
+            var connectInterface = eosManager.GetConnectInterface();
+            if (connectInterface == null)
+            {
+                Debug.LogError("[EOSAuthenticator] ConnectInterface nao disponivel");
+                OnLoginFailed?.Invoke("ConnectInterface nao disponivel");
+                return;
+            }
+
+            Debug.Log("[EOSAuthenticator] Iniciando login via Device ID...");
+
+            // Primeiro, criar Device ID se necessario
+            CreateDeviceIdAndLogin(connectInterface);
+#else
+            Debug.LogWarning("[EOSAuthenticator] EOS desabilitado");
+            OnLoginFailed?.Invoke("EOS desabilitado");
+#endif
         }
 
-        /// <summary>
-        /// Login usando Epic Account (para producao)
-        /// </summary>
-        public void LoginWithEpicAccount()
+#if !EOS_DISABLE
+        private void CreateDeviceIdAndLogin(ConnectInterface connectInterface)
         {
-            Debug.Log("[EOSAuthenticator] Tentando login com Epic Account...");
+            var createDeviceIdOptions = new CreateDeviceIdOptions
+            {
+                DeviceModel = $"{SystemInfo.deviceModel}_{SystemInfo.deviceName}"
+            };
 
-            // TODO: Implementar login via Epic Account
-            // 1. Obter Auth Interface
-            // 2. Abrir browser para autenticacao
-            // 3. Obter EpicAccountId
-            // 4. Converter para ProductUserId via Connect Interface
+            Debug.Log($"[EOSAuthenticator] Criando/recuperando Device ID: {createDeviceIdOptions.DeviceModel}");
 
-            Debug.LogWarning("[EOSAuthenticator] Login com Epic Account ainda nao implementado");
+            connectInterface.CreateDeviceId(ref createDeviceIdOptions, null, OnCreateDeviceIdComplete);
         }
 
+        private void OnCreateDeviceIdComplete(ref CreateDeviceIdCallbackInfo data)
+        {
+            // DuplicateNotAllowed significa que o Device ID ja existe - isso e OK
+            if (data.ResultCode == Result.Success || data.ResultCode == Result.DuplicateNotAllowed)
+            {
+                if (data.ResultCode == Result.DuplicateNotAllowed)
+                {
+                    Debug.Log("[EOSAuthenticator] Device ID ja existe, usando existente");
+                }
+                else
+                {
+                    Debug.Log("[EOSAuthenticator] Device ID criado com sucesso");
+                }
+
+                // Agora fazer login com o Device ID
+                PerformDeviceIdLogin();
+            }
+            else
+            {
+                Debug.LogError($"[EOSAuthenticator] Falha ao criar Device ID: {data.ResultCode}");
+                OnLoginFailed?.Invoke($"Falha ao criar Device ID: {data.ResultCode}");
+            }
+        }
+
+        private void PerformDeviceIdLogin()
+        {
+            var eosManager = EOSManagerWrapper.Instance;
+            var connectInterface = eosManager.GetConnectInterface();
+
+            if (connectInterface == null)
+            {
+                OnLoginFailed?.Invoke("ConnectInterface nao disponivel");
+                return;
+            }
+
+            var credentials = new Epic.OnlineServices.Connect.Credentials
+            {
+                Type = ExternalCredentialType.DeviceidAccessToken,
+                Token = null // Device ID nao precisa de token
+            };
+
+            var userLoginInfo = new UserLoginInfo
+            {
+                DisplayName = deviceIdName
+            };
+
+            var loginOptions = new Epic.OnlineServices.Connect.LoginOptions
+            {
+                Credentials = credentials,
+                UserLoginInfo = userLoginInfo
+            };
+
+            Debug.Log("[EOSAuthenticator] Realizando login via Device ID...");
+            connectInterface.Login(ref loginOptions, null, OnConnectLoginComplete);
+        }
+
+        private void OnConnectLoginComplete(ref Epic.OnlineServices.Connect.LoginCallbackInfo data)
+        {
+            if (data.ResultCode == Result.Success)
+            {
+                localProductUserId = data.LocalUserId;
+                currentProductUserId = localProductUserId.ToString();
+                isLoggedIn = true;
+
+                Debug.Log($"[EOSAuthenticator] Login bem-sucedido! ProductUserId: {currentProductUserId}");
+
+                // Atualizar EOSManagerWrapper
+                EOSManagerWrapper.Instance.SetConnected(true);
+
+                // Atualizar SessionManager
+                SessionManager.Instance.StartSession(currentProductUserId, deviceIdName);
+
+                OnLoginSuccess?.Invoke(currentProductUserId);
+            }
+            else if (data.ResultCode == Result.InvalidUser)
+            {
+                // Usuario nao existe, precisamos criar
+                Debug.Log("[EOSAuthenticator] Usuario nao existe, criando novo usuario...");
+                CreateUser(data.ContinuanceToken);
+            }
+            else
+            {
+                Debug.LogError($"[EOSAuthenticator] Falha no login: {data.ResultCode}");
+                OnLoginFailed?.Invoke($"Falha no login: {data.ResultCode}");
+            }
+        }
+
+        private void CreateUser(ContinuanceToken continuanceToken)
+        {
+            var eosManager = EOSManagerWrapper.Instance;
+            var connectInterface = eosManager.GetConnectInterface();
+
+            if (connectInterface == null)
+            {
+                OnLoginFailed?.Invoke("ConnectInterface nao disponivel para criar usuario");
+                return;
+            }
+
+            var createUserOptions = new CreateUserOptions
+            {
+                ContinuanceToken = continuanceToken
+            };
+
+            Debug.Log("[EOSAuthenticator] Criando novo usuario EOS...");
+            connectInterface.CreateUser(ref createUserOptions, null, OnCreateUserComplete);
+        }
+
+        private void OnCreateUserComplete(ref CreateUserCallbackInfo data)
+        {
+            if (data.ResultCode == Result.Success)
+            {
+                localProductUserId = data.LocalUserId;
+                currentProductUserId = localProductUserId.ToString();
+                isLoggedIn = true;
+
+                Debug.Log($"[EOSAuthenticator] Usuario criado e logado! ProductUserId: {currentProductUserId}");
+
+                // Atualizar EOSManagerWrapper
+                EOSManagerWrapper.Instance.SetConnected(true);
+
+                // Atualizar SessionManager
+                SessionManager.Instance.StartSession(currentProductUserId, deviceIdName);
+
+                OnLoginSuccess?.Invoke(currentProductUserId);
+            }
+            else
+            {
+                Debug.LogError($"[EOSAuthenticator] Falha ao criar usuario: {data.ResultCode}");
+                OnLoginFailed?.Invoke($"Falha ao criar usuario: {data.ResultCode}");
+            }
+        }
+#endif
+
         /// <summary>
-        /// Deslogar o usuario atual
+        /// Logout do EOS
         /// </summary>
         public void Logout()
         {
-            Debug.Log("[EOSAuthenticator] Fazendo logout...");
+#if !EOS_DISABLE
+            if (!isLoggedIn)
+            {
+                Debug.LogWarning("[EOSAuthenticator] Nao esta logado");
+                return;
+            }
 
-            // TODO: Chamar ConnectInterface.Logout()
+            Debug.Log("[EOSAuthenticator] Realizando logout...");
 
+            // Limpar estado local
             isLoggedIn = false;
-            // localUserId = null;
-            OnLogoutSuccess?.Invoke();
-            Debug.Log("[EOSAuthenticator] Logout bem-sucedido");
-        }
+            currentProductUserId = "";
+            localProductUserId = null;
 
-        public bool IsLoggedIn()
-        {
-            return isLoggedIn;
-        }
+            // Atualizar EOSManagerWrapper
+            EOSManagerWrapper.Instance.SetConnected(false);
 
-        // TODO: Metodo para obter o ProductUserId do usuario logado
-        // public Epic.OnlineServices.ProductUserId GetLocalUserId()
-        // {
-        //     return localUserId;
-        // }
+            // Encerrar sessao
+            SessionManager.Instance.EndSession();
+
+            Debug.Log("[EOSAuthenticator] Logout realizado");
+            OnLogout?.Invoke();
+#endif
+        }
 
         /// <summary>
-        /// Obter nome de exibicao do jogador
+        /// Definir nome de exibicao para Device ID
+        /// Deve ser chamado antes do login
         /// </summary>
-        public string GetDisplayName()
+        public void SetDeviceIdName(string name)
         {
-            // TODO: Obter nome real do EOS
-            return isLoggedIn ? "Player" : "Guest";
+            if (!string.IsNullOrEmpty(name))
+            {
+                deviceIdName = name;
+            }
         }
+
+#if !EOS_DISABLE
+        /// <summary>
+        /// Obter o ProductUserId atual
+        /// </summary>
+        public ProductUserId GetProductUserId()
+        {
+            return localProductUserId;
+        }
+#endif
     }
 }

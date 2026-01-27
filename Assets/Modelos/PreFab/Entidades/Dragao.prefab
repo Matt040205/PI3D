@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 9068512059833646597}
   - component: {fileID: 5339123124668043555}
   - component: {fileID: -1552781774586141199}
+  - component: {fileID: 4911595844394222668}
   m_Layer: 6
   m_Name: Dragao
   m_TagString: Player
@@ -198,6 +199,7 @@ MonoBehaviour:
   speedMultiplier: 1
   damageResistance: 0
   isBuffed: 0
+  isCountering: 0
   respawnPointNameOrTag: RespawnPoint
 --- !u!114 &3604938808364530052
 MonoBehaviour:
@@ -284,6 +286,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   limiteY: -30
+--- !u!114 &4911595844394222668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15912487291283997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9f7e73f7bbfa8f47a573d33089c9c05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusBase: {fileID: 11400000, guid: 78cb2df0fda232c4792b569b2d154ee6, type: 2}
+  frascosAtivos: []
 --- !u!1 &2229213434603997921
 GameObject:
   m_ObjectHideFlags: 0

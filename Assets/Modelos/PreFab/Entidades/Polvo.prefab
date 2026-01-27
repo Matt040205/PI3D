@@ -336,6 +336,7 @@ GameObject:
   - component: {fileID: -2180344061450423232}
   - component: {fileID: 7491079546822067776}
   - component: {fileID: -3916657951837491482}
+  - component: {fileID: 808424768392245374}
   m_Layer: 6
   m_Name: Polvo
   m_TagString: Player
@@ -510,6 +511,11 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: 6be7037535adf3347bc4a1b2a3d84af7, type: 2}
   currentHealth: 0
   isRegenerating: 0
+  damageMultiplier: 1
+  speedMultiplier: 1
+  damageResistance: 0
+  isBuffed: 0
+  isCountering: 0
   respawnPointNameOrTag: RespawnPoint
 --- !u!114 &2838156437463877109
 MonoBehaviour:
@@ -598,3 +604,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b63f782755f5b64e8a431d3a6e557bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &808424768392245374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7665187458952505880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9f7e73f7bbfa8f47a573d33089c9c05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusBase: {fileID: 11400000, guid: 6be7037535adf3347bc4a1b2a3d84af7, type: 2}
+  frascosAtivos: []

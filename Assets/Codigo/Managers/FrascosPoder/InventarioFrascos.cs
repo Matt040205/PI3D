@@ -4,7 +4,7 @@ using UnityEngine;
 public class InventarioFrascos : MonoBehaviour
 {
     [Header("Configuração")]
-    public CharacterBase statusBase; // Arraste aqui o seu ScriptableObject de personagem
+    public CharacterBase statusBase;
 
     [Header("Frascos Equipados")]
     public List<FrascoDePoderSO> frascosAtivos = new List<FrascoDePoderSO>();
@@ -23,7 +23,6 @@ public class InventarioFrascos : MonoBehaviour
         float valorBase = GetValorBase(tipo);
         float bonusTotal = 0;
 
-        // Soma todos os frascos que afetam o mesmo atributo
         foreach (var frasco in frascosAtivos)
         {
             if (frasco != null && frasco.atributoAlvo == tipo)
@@ -46,7 +45,6 @@ public class InventarioFrascos : MonoBehaviour
             AtributoFrasco.MaisVelocidade => statusBase.moveSpeed,
             AtributoFrasco.MaisVelocidadeAtaque => statusBase.attackSpeed,
             AtributoFrasco.MaisArmadura => statusBase.armor,
-            // Novos campos baseados no seu CharacterBase
             AtributoFrasco.MaisPenetracaoArmadura => statusBase.armorPenetration,
             AtributoFrasco.MaisAlcanceAtaque => statusBase.attackRange,
             AtributoFrasco.MaisVelocidadeRecarga => statusBase.reloadSpeed,
@@ -54,6 +52,4 @@ public class InventarioFrascos : MonoBehaviour
             _ => 0
         };
     }
-
-    // Exemplo de como usar: float vidaFinal = inventario.GetStatusTotal(AtributoFrasco.MaisVida);
 }

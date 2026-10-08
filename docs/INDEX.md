@@ -21,7 +21,7 @@ Este e o mapa de documentacao ativa do projeto. Se um documento contradiz este i
 
 - Nota inicial auditada: 5,6/10.
 - Meta: 9+ com docs vivas, audio centralizado, cenas corretas, pastas previsiveis e validacao repetivel.
-- Pasta de gameplay ativa: `Assets/aaPasta`.
+- Pastas de gameplay ativas: `Assets/CoreScripts`, `Assets/Personagens` e `Assets/Multiplayer`.
 - Docs historicas: `docs/archive`.
 
 ## Regras De Manutencao

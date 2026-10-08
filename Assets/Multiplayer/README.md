@@ -2,12 +2,12 @@
 
 Status: ativo.
 
-Esta pasta contem o codigo multiplayer atual. A documentacao operacional fica fora de `Assets`, em:
+Esta pasta contem o codigo multiplayer atual. A documentacao operacional fica em:
 
 - `docs/multiplayer.md`
 - `docs/INDEX.md`
-- `Assets/aaPasta/Multiplayer/CREDENTIALS_SETUP.md`
-- `Assets/aaPasta/Multiplayer/Docs/AUTHENTICATION_GUIDE.md`
+- `Assets/Multiplayer/CREDENTIALS_SETUP.md`
+- `Assets/Multiplayer/Docs/AUTHENTICATION_GUIDE.md`
 
 ## Regras
 

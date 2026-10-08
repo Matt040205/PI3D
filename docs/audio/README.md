@@ -7,8 +7,8 @@ Status: ativo.
 - FMOD canonico: `Assets/Plugins/FMOD`.
 - Configuracao FMOD: `Assets/Plugins/FMOD/Resources/FMODStudioSettings.asset`.
 - BetterFMOD: pacote embutido em `Packages/com.bisc8.betterfmod`, originado do commit `967e1f77055f3de83643fa06d32d857b26e33cce`.
-- Camada obrigatoria do projeto: `Assets/aaPasta/CoreScripts/Audio/ExoAudioService.cs`.
-- Catalogo BetterFMOD: `Assets/aaPasta/CoreScripts/Audio/Resources/ExoFmodEvents.asset`.
+- Camada obrigatoria do projeto: `Assets/CoreScripts/Audio/ExoAudioService.cs`.
+- Catalogo BetterFMOD: `Assets/CoreScripts/Audio/Resources/ExoFmodEvents.asset`.
 
 ## Regra Principal
 

@@ -4,14 +4,15 @@ This document is the public overview of ExoBeast's multiplayer layer. For day-to
 
 ## Purpose
 
-The multiplayer system handles online authentication, lobby creation and discovery, join/leave lifecycle, scene transitions, and networked state sync for players, enemies, traps, and built objects. It is built on Netcode for GameObjects with a peer-to-peer host model and uses Epic Online Services for matchmaking and identity.
+The multiplayer system handles online authentication, lobby creation and discovery, join/leave lifecycle, scene transitions, and networked state sync for players, enemies, traps, and built objects. It is built on Netcode for GameObjects with a host-client (listen server) model. It uses Epic Online Services for matchmaking and identity, and Unity Relay to carry game traffic in builds.
 
 ## Implemented
 
 - EOS Device ID authentication
 - Online lobby create/search/join/leave through EOS
+- Unity Relay connection in builds (UGS anonymous sign-in), with a direct-IP fallback; MPPM sessions connect over `127.0.0.1`
 - Player identity bridge linking NGO `ClientId` and EOS `ProductUserId`
-- Scene flow: `MenuScene` -> `LobbyScene` -> `EscolherPersonagem` -> `CenaMapaNOVO`
+- Scene flow: `MenuScene` -> `LobbyScene` -> `CenaSeleçao` -> `CenaMapaNOVO`
 - Technical opener: `Assets/Cenas/NetworkBootstrap.unity` loads `MenuScene`
 - Owner-authoritative player movement and server-authoritative gameplay state
 - Networked tower and trap placement
@@ -38,7 +39,7 @@ The canonical operational document is [Assets/CoreScripts/Docs/Estado_Atual_Mult
 1. `NetworkBootstrap` - technical first scene for builds and Play Mode startup.
 2. `MenuScene` - singleplayer or multiplayer choice.
 3. `LobbyScene` - EOS auth and lobby create/search/join.
-4. `EscolherPersonagem` - networked character selection.
+4. `CenaSeleçao` - networked commander and tower selection; the host starts the map once every member is ready.
 5. `CenaMapaNOVO` - gameplay map.
 
 The gameplay transition is server-driven through `NetworkManager.SceneManager.LoadScene`, guarded by `IsServer`.
